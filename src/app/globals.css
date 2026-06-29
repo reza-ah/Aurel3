@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+/* ==================== Base ==================== */
+@layer base {
+  :root {
+    --color-bg-studio: #070707;
+    --color-gold-studio: #d4af37;
+    --color-gold-muted: #c6a86a;
+    --color-text-primary: #f5f1e8;
+    --color-text-muted: #ffffff;
+    --color-link: #e2b932;
+    --color-link-hover: #ffd700;
+    --radius-card: 28px;
+    --radius-input: 14px;
+    --container-max: 1400px;
+  }
+
+  body {
+    background-color: var(--color-bg-studio);
+    color: var(--color-text-muted);
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "liga" 1, "calt" 1;
+    font-variant-ligatures: common-ligatures;
+    font-kerning: normal;
+  }
+
+  body[dir="rtl"] {
+    font-family: var(--font-vazir), sans-serif;
+  }
+
+  body[dir="ltr"] {
+    font-family: var(--font-cormorant), serif;
+  }
+
+  /* Link styles (standardized) */
+  a {
+    color: inherit;
+  }
+
+  .rich-text a,
+  .prose a,
+  .lux-content a {
+    color: var(--color-link);
+    text-decoration: none;
+  }
+
+  .rich-text a:hover,
+  .prose a:hover,
+  .lux-content a:hover {
+    color: var(--color-link-hover);
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+  }
+
+  .faq-content a {
+    color: #d4af37;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .faq-content a:hover {
+    color: #ffd700;
+    text-shadow: 0 0 8px rgba(212, 175, 55, 0.25);
+  }
+}
+
+/* ==================== Components ==================== */
+@layer components {
+
+  /* Card */
+  .lux-card {
+    border: 1px solid rgb(255 255 255 / 0.1);
+    backdrop-filter: blur(12px);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    contain: paint;
+    will-change: transform;
+  }
+
+  .lenis-scrolling .lux-card {
+    backdrop-filter: none !important;
+    background-color: rgba(255 255 255 / 0.05);
+    pointer-events: none;
+  }
+
+  /* Input */
+  .lux-input {
+    @apply w-full border border-white/10 bg-white/3 px-4 py-3.5 text-[var(--color-text-primary)] rounded-[var(--radius-input)] transition-all;
+  }
+
+  .lux-input:focus {
+    @apply outline-none ring-1;
+    border-color: var(--color-gold-studio);
+    --tw-ring-color: rgba(212, 175, 55, 0.35);
+  }
+
+  /* Button */
+  .lux-button {
+    @apply rounded-full bg-[var(--color-gold-studio)] px-7 py-3.5 font-medium text-black transition-all duration-200 hover:-translate-y-0.5;
+  }
+
+  /* استفاده از CSS مستقیم برای shadow */
+  .lux-button:hover {
+    box-shadow: 0 10px 30px rgba(212, 175, 55, 0.35);
+  }
+
+  /* Container */
+  .container-lux {
+    @apply mx-auto w-full px-6;
+    max-width: var(--container-max);
+  }
+}
+
+/* ==================== Scrollbar ==================== */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(212, 175, 55, 0.4);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.7);
+}
