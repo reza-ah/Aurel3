@@ -11,6 +11,13 @@ export const client = createClient({
 
 // Image URL builder
 const builder = createImageUrlBuilder(client);
+export const writeClient = createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2024-01-01',
+    useCdn: false,
+    token: process.env.SANITY_API_TOKEN,
+});
 
 export function urlFor(source: any) {
     return builder.image(source);
@@ -281,7 +288,7 @@ export async function createOrder(orderData: {
     message: string;
     files?: any[];
 }) {
-    return client.create({
+    return writeClient.create({
         _type: 'order',
         name: orderData.name,
         email: orderData.email,
@@ -302,7 +309,7 @@ export async function createContactMessage(messageData: {
     subject: string;
     message: string;
 }) {
-    return client.create({
+    return writeClient.create({
         _type: 'contactMessage',
         name: messageData.name,
         email: messageData.email,
