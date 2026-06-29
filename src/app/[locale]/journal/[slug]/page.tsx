@@ -1,4 +1,4 @@
-import { getJournalPost, getJournalPosts } from "@/lib/directus/client";
+import { getJournalPost, getJournalPosts } from "@/lib/sanity";
 import { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";

@@ -18,10 +18,10 @@ function applySecurityHeaders(response: NextResponse) {
             default-src 'self';
             script-src 'self' 'unsafe-inline' 'unsafe-eval';
             style-src 'self' 'unsafe-inline';
-            img-src 'self' data: blob: http://127.0.0.1:8055 http://localhost:8055 https:;
+            img-src 'self' data: blob: https://cdn.sanity.io https:;
             font-src 'self' data:;
-            connect-src 'self' http://127.0.0.1:8055 http://localhost:8055 https:;
-            media-src 'self' blob: data: http://127.0.0.1:8055 http://localhost:8055;
+            connect-src 'self' https://cdn.sanity.io https://api.sanity.io https:;
+            media-src 'self' blob: data: https://cdn.sanity.io;
             frame-ancestors 'none';
             base-uri 'self';
             form-action 'self';

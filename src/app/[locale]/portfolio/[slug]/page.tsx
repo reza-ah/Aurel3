@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
-import { getPortfolioItems } from "@/lib/directus/client";
+import { getPortfolioItems } from "@/lib/sanity";
 
 type PortfolioItem = {
     id: number;

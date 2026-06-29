@@ -1,4 +1,4 @@
-import { getProductBySlug } from "@/lib/directus/client";
+import { getProductBySlug } from "@/lib/sanity";
 import SiteHeader from "@/components/site-header";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";

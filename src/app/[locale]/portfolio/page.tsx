@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
-import { getPortfolioItems } from "@/lib/directus/client";
+import { getPortfolioItems } from "@/lib/sanity";
 
 import PortfolioGrid from "@/features/portfolio/components/portfolio-grid";
 

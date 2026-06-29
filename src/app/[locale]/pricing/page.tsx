@@ -1,4 +1,4 @@
-import { getPricingCategories, getPricingItems } from "@/lib/directus/client";
+import { getPricingCategories, getPricingItems } from "@/lib/sanity";
 
 import PricingAccordion from "@/features/pricing/components/pricing-accordion";
 

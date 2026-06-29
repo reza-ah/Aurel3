@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import Reveal from "@/components/reveal";
-import { getJournalPosts, getAssetUrl } from "@/lib/directus/client";
+import { getJournalPosts, getAssetUrl } from "@/lib/sanity";
 
 const getCoverId = (cover_image: unknown): string | null => {
     if (!cover_image) return null;

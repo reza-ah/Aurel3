@@ -1,7 +1,7 @@
 import Link from "next/link";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
-import { getHomepageSections, getProducts } from "@/lib/directus/client";
+import { getHomepageSections, getProducts } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 
 
