@@ -67,14 +67,9 @@ export async function middleware(request: NextRequest) {
     let isAuthenticated = false;
 
     if (token) {
-        if (token === "authenticated-admin") {
-            // Legacy cookie support
+        const payload = await verifyAdminToken(token);
+        if (payload) {
             isAuthenticated = true;
-        } else {
-            const payload = await verifyAdminToken(token);
-            if (payload) {
-                isAuthenticated = true;
-            }
         }
     }
 
