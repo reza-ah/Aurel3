@@ -252,10 +252,9 @@ export async function getHomepageSections(locale: string) {
     return client.fetch(
         `*[_type == "homepageSection" && enabled == true && locale == $locale] | order(sort asc) {
       _id,
-      title,
-      locale,
-      content,
+      type,
       enabled,
+      locale,
       sort
     }`,
         { locale }
