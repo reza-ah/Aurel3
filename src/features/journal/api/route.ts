@@ -1,105 +1,63 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { client, writeClient } from "@/lib/sanity";
 
-const DIRECTUS_URL = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || "http://127.0.0.1:8055";
+export async function GET(request: NextRequest) {
+    const locale = request.nextUrl.searchParams.get("locale") || "en";
 
-/* ---------------- GET ---------------- */
-
-export async function GET(req: Request) {
     try {
-        const { searchParams } = new URL(req.url);
-        const locale = searchParams.get("locale") || "en";
-
-        const res = await fetch(
-            `${DIRECTUS_URL}/items/faq?filter[locale][_eq]=${locale}&filter[enabled][_eq]=true&sort=sort`,
-            { cache: "no-store" }
+        const faqs = await client.fetch(
+            `*[_type == "faq" && locale == $locale] | order(sort asc) {
+                _id,
+                question_en,
+                question_fa,
+                answer_en,
+                answer_fa,
+                sort,
+                enabled
+            }`,
+            { locale }
         );
 
-        if (!res.ok) {
-            return NextResponse.json([]);
-        }
-
-        const json = await res.json();
-
-        return NextResponse.json(json?.data ?? []);
+        return NextResponse.json(faqs);
     } catch (error) {
-        console.error("FAQ GET error:", error);
-        return NextResponse.json([]);
+        console.error("FAQ error:", error);
+        return NextResponse.json([], { status: 200 });
     }
 }
 
-/* ---------------- POST ---------------- */
-
-export async function POST(req: Request) {
+export async function PATCH(request: NextRequest) {
     try {
-        const body = await req.json();
+        const body = await request.json();
+        const { faqs } = body;
 
-        const res = await fetch(`${DIRECTUS_URL}/items/faq`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-            return NextResponse.json({ error: true });
+        if (!Array.isArray(faqs)) {
+            return NextResponse.json({ error: "Invalid faqs" }, { status: 400 });
         }
 
-        const json = await res.json();
+        const updatePromises = faqs.map((faq) =>
+            writeClient
+                .patch(faq._id)
+                .set({
+                    question_en: faq.question_en,
+                    question_fa: faq.question_fa,
+                    answer_en: faq.answer_en,
+                    answer_fa: faq.answer_fa,
+                    sort: faq.sort,
+                    enabled: faq.enabled,
+                })
+                .commit()
+        );
 
-        return NextResponse.json(json?.data ?? null);
-    } catch (error) {
-        console.error("FAQ POST error:", error);
-        return NextResponse.json({ error: true });
-    }
-}
+        await Promise.all(updatePromises);
 
-/* ---------------- PATCH ---------------- */
-
-export async function PATCH(req: Request) {
-    try {
-        const body = await req.json();
-
-        const res = await fetch(`${DIRECTUS_URL}/items/faq/${body.id}`, {
-            method: "PATCH",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
-
-        if (!res.ok) {
-            return NextResponse.json({ error: true });
-        }
-
-        const json = await res.json();
-
-        return NextResponse.json(json?.data ?? null);
-    } catch (error) {
-        console.error("FAQ PATCH error:", error);
-        return NextResponse.json({ error: true });
-    }
-}
-
-/* ---------------- DELETE ---------------- */
-
-export async function DELETE(req: Request) {
-    try {
-        const { searchParams } = new URL(req.url);
-        const id = searchParams.get("id");
-
-        if (!id) {
-            return NextResponse.json({ error: true });
-        }
-
-        await fetch(`${DIRECTUS_URL}/items/faq/${id}`, {
-            method: "DELETE",
-        });
+        revalidatePath("/[locale]/faq", "page");
+        revalidatePath("/en/faq", "page");
+        revalidatePath("/fa/faq", "page");
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("FAQ DELETE error:", error);
-        return NextResponse.json({ error: true });
+        console.error("Update FAQ error:", error);
+        return NextResponse.json({ error: "Failed to update FAQ" }, { status: 500 });
     }
 }
-

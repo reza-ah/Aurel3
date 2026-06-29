@@ -18,7 +18,6 @@ export async function GET(request: NextRequest) {
             { locale }
         );
 
-        console.log("Sanity homepage sections:", sections);
         return NextResponse.json(sections);
     } catch (error) {
         console.error("Homepage sections error:", error);
@@ -35,7 +34,6 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "Invalid sections" }, { status: 400 });
         }
 
-        // Update all sections in Sanity
         const updatePromises = sections.map((section) =>
             writeClient
                 .patch(section._id)
@@ -48,7 +46,6 @@ export async function PATCH(request: NextRequest) {
 
         await Promise.all(updatePromises);
 
-        // Revalidate homepage
         revalidatePath("/[locale]", "page");
         revalidatePath(`/${locale || "en"}`, "page");
         revalidatePath("/en", "page");

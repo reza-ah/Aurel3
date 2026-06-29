@@ -1,94 +1,62 @@
-import { NextResponse } from "next/server";
-import { requireAdminAuth } from "@/lib/api-auth";
-
-const DIRECTUS_URL = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL;
-const DIRECTUS_ADMIN_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN;
-
-function authHeaders(): Record<string, string> {
-    return DIRECTUS_ADMIN_TOKEN ? { Authorization: `Bearer ${DIRECTUS_ADMIN_TOKEN}` } : {};
-}
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { client, writeClient } from "@/lib/sanity";
 
 export async function GET() {
-    const authError = await requireAdminAuth();
-
-    if (authError) {
-        return authError;
-    }
-
     try {
-        const res = await fetch(
-            `${DIRECTUS_URL}/items/journal?fields=id,slug,title_en,title_fa,excerpt_en,excerpt_fa,cover_image.id,status,date_created&sort=-date_created`,
-            {
-                headers: authHeaders(),
-                cache: "no-store",
-            }
+        const posts = await client.fetch(
+            `*[_type == "journal"] | order(date_created desc) {
+                _id,
+                slug,
+                title_en,
+                title_fa,
+                excerpt_en,
+                excerpt_fa,
+                content_en,
+                content_fa,
+                cover_image,
+                status,
+                date_created
+            }`
         );
 
-        return NextResponse.json(await res.json());
-    } catch {
-        return NextResponse.json({ error: "Failed to fetch journal posts" }, { status: 500 });
+        return NextResponse.json(posts);
+    } catch (error) {
+        console.error("Journal error:", error);
+        return NextResponse.json([], { status: 200 });
     }
 }
 
-export async function POST(request: Request) {
-    const authError = await requireAdminAuth();
-
-    if (authError) {
-        return authError;
-    }
-
+export async function PATCH(request: NextRequest) {
     try {
         const body = await request.json();
-        const res = await fetch(`${DIRECTUS_URL}/items/journal`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...authHeaders(),
-            },
-            body: JSON.stringify({
-                title_en: body.title_en || "",
-                title_fa: body.title_fa || "",
-                slug: body.slug,
-                excerpt_en: body.excerpt_en || "",
-                excerpt_fa: body.excerpt_fa || "",
-                content_en: body.content_en || "",
-                content_fa: body.content_fa || "",
-                cover_image: body.cover_image || null,
-                status: body.status || "draft",
-            }),
-        });
+        const { post } = body;
 
-        return NextResponse.json(await res.json());
-    } catch {
-        return NextResponse.json({ error: "Failed to create journal post" }, { status: 500 });
-    }
-}
-
-export async function DELETE(request: Request) {
-    const authError = await requireAdminAuth();
-
-    if (authError) {
-        return authError;
-    }
-
-    try {
-        const id = new URL(request.url).searchParams.get("id");
-
-        if (!id) {
-            return NextResponse.json({ error: "Missing id" }, { status: 400 });
+        if (!post || !post._id) {
+            return NextResponse.json({ error: "Invalid post" }, { status: 400 });
         }
 
-        const res = await fetch(`${DIRECTUS_URL}/items/journal/${id}`, {
-            method: "DELETE",
-            headers: authHeaders(),
-        });
+        await writeClient
+            .patch(post._id)
+            .set({
+                title_en: post.title_en,
+                title_fa: post.title_fa,
+                excerpt_en: post.excerpt_en,
+                excerpt_fa: post.excerpt_fa,
+                content_en: post.content_en,
+                content_fa: post.content_fa,
+                status: post.status,
+            })
+            .commit();
 
-        if (res.status === 204) {
-            return NextResponse.json({ success: true });
-        }
+        revalidatePath("/[locale]/journal", "page");
+        revalidatePath("/[locale]/journal/[slug]", "page");
+        revalidatePath("/en/journal", "page");
+        revalidatePath("/fa/journal", "page");
 
-        return NextResponse.json(await res.json());
-    } catch {
-        return NextResponse.json({ error: "Failed to delete journal post" }, { status: 500 });
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Update journal error:", error);
+        return NextResponse.json({ error: "Failed to update journal" }, { status: 500 });
     }
 }
