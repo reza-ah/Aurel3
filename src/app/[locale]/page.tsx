@@ -8,7 +8,7 @@ import Image from "next/image";
 // ✅ حذف dynamic imports - import مستقیم
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
 import PricingSection from "@/features/pricing/components/pricing-section";
-import ContactForm from "@/features/contact/components/contact-form";
+import { ContactForm } from "@/features/contact/components/contact-form";
 
 export default async function HomePage({
     params,
