@@ -38,7 +38,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  removeConsole: process.env.NODE_ENV === "production",
+
 };
 
 export default nextConfig;
