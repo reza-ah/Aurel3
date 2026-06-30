@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createAdminToken } from "@/lib/auth/verify-session";
+import { createAdminToken, createRefreshToken } from "@/lib/auth/verify-session";
 
 const loginAttempts = new Map<string, { count: number; blockedUntil?: number }>();
 const MAX_ATTEMPTS = 5;
@@ -45,15 +45,26 @@ export async function POST(request: Request) {
 
         loginAttempts.delete(ip);
 
-        const token = await createAdminToken();
+        const accessToken = await createAdminToken();
+        const refreshToken = await createRefreshToken();
         const response = NextResponse.json({ success: true });
 
-        response.cookies.set("admin_auth", token, {
+        // Access Token (1 hour)
+        response.cookies.set("admin_auth", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             path: "/",
-            maxAge: 60 * 60 * 24 * 7,
+            maxAge: 60 * 60, // 1 hour
+        });
+
+        // Refresh Token (7 days)
+        response.cookies.set("admin_refresh", refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+            maxAge: 60 * 60 * 24 * 7, // 7 days
         });
 
         return response;
