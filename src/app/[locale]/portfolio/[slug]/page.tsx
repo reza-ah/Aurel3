@@ -8,37 +8,20 @@ import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery"
 import { getPortfolioItems, getAssetUrl } from "@/lib/sanity";
 
 type PortfolioItem = {
-    id: number;
-    slug: string;
-
+    _id: string;
+    slug: { current: string } | string;
     title_fa: string;
     title_en: string;
-
     category_fa: string;
     category_en: string;
-
     description_fa: string;
     description_en: string;
-
     featured: boolean;
-
     tags?: {
-        portfolio_tags_id?: {
-            id: number;
-            slug: string;
-            title?: string;
-        };
+        _ref: string;
     }[];
-
-    cover_image?: {
-        id: string;
-    };
-
-    gallery?: {
-        directus_files_id: {
-            id: string;
-        };
-    }[];
+    cover_image?: any;
+    gallery?: any[];
 };
 
 type Props = {
@@ -437,32 +420,19 @@ export default async function ProjectPage({
                             gap-8
                         ">
 
-                            {relatedProjects.map(
-                                (item) => {
+                            {relatedProjects.map((item: PortfolioItem) => {
+                                const itemTitle = isFa ? item.title_fa : item.title_en;
+                                const itemCategory = isFa ? item.category_fa : item.category_en;
+                                const itemImage = getAssetUrl(item.cover_image) || "/placeholder.jpg";
 
-                                    const itemTitle =
-                                        isFa
-                                            ? item.title_fa
-                                            : item.title_en;
+                                return (
+                                    <Link
+                                        key={item._id}
+                                        href={`/${locale}/portfolio/${getSlug(item.slug)}`}
+                                        className="group block"
+                                    >
 
-                                    const itemCategory =
-                                        isFa
-                                            ? item.category_fa
-                                            : item.category_en;
-
-                                    const itemImage =
-                                        getAssetUrl(item.cover_image) ||
-                                        "/placeholder.jpg";
-
-                                    return (
-
-                                        <Link
-                                            key={item._id}
-                                            href={`/${locale}/portfolio/${item.slug}`}
-                                            className="group"
-                                        >
-
-                                            <div className="
+                                        <div className="
                                                 relative
                                                 aspect-[4/5]
                                                 overflow-hidden
@@ -471,45 +441,45 @@ export default async function ProjectPage({
                                                 mb-5
                                             ">
 
-                                                <Image
-                                                    src={itemImage}
-                                                    alt={itemTitle}
-                                                    fill
-                                                    unoptimized
-                                                    className="
+                                            <Image
+                                                src={itemImage}
+                                                alt={itemTitle}
+                                                fill
+                                                unoptimized
+                                                className="
                                                         object-cover
                                                         transition
                                                         duration-700
                                                         group-hover:scale-105
                                                     "
-                                                />
+                                            />
 
-                                            </div>
+                                        </div>
 
-                                            <p className="
+                                        <p className="
                                                 text-[#d4af37]
                                                 text-xs
                                                 tracking-[0.25em]
                                                 uppercase
                                                 mb-2
                                             ">
-                                                {itemCategory}
-                                            </p>
+                                            {itemCategory}
+                                        </p>
 
-                                            <h3 className="
+                                        <h3 className="
                                                 text-2xl
                                                 font-light
                                                 transition
                                                 group-hover:text-[#d4af37]
                                             ">
-                                                {itemTitle}
-                                            </h3>
+                                            {itemTitle}
+                                        </h3>
 
-                                        </Link>
+                                    </Link>
 
-                                    );
+                                );
 
-                                }
+                            }
                             )}
 
                         </div>
