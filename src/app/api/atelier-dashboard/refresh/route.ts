@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { verifyRefreshToken, createAdminToken } from "@/lib/auth/verify-session";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     const refreshToken = request.cookies.get("admin_refresh")?.value;
 
     if (!refreshToken) {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60,
+        maxAge: 60 * 60, // 1 hour
     });
 
     return response;
