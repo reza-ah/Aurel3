@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { client, writeClient } from "@/lib/sanity";
 import { requireAdminAuth } from "@/lib/api-auth";
 
 export async function GET() {
     const authError = await requireAdminAuth();
     if (authError) return authError;
+
     try {
         const posts = await client.fetch(
             `*[_type == "journal"] | order(date_created desc) {
@@ -15,8 +15,6 @@ export async function GET() {
                 title_fa,
                 excerpt_en,
                 excerpt_fa,
-                content_en,
-                content_fa,
                 cover_image,
                 status,
                 date_created
@@ -30,38 +28,48 @@ export async function GET() {
     }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function POST(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
+
     try {
         const body = await request.json();
-        const { post } = body;
 
-        if (!post || !post._id) {
-            return NextResponse.json({ error: "Invalid post" }, { status: 400 });
+        const result = await writeClient.create({
+            _type: "journal",
+            title_en: body.title_en || "",
+            title_fa: body.title_fa || "",
+            slug: { _type: "slug", current: body.slug },
+            excerpt_en: body.excerpt_en || "",
+            excerpt_fa: body.excerpt_fa || "",
+            content_en: body.content_en || "",
+            content_fa: body.content_fa || "",
+            cover_image: body.cover_image || null,
+            status: body.status || "draft",
+            date_created: new Date().toISOString(),
+        });
+
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error("Journal POST error:", error);
+        return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+
+    try {
+        const id = request.nextUrl.searchParams.get("id");
+        if (!id) {
+            return NextResponse.json({ error: "Missing id" }, { status: 400 });
         }
 
-        await writeClient
-            .patch(post._id)
-            .set({
-                title_en: post.title_en,
-                title_fa: post.title_fa,
-                excerpt_en: post.excerpt_en,
-                excerpt_fa: post.excerpt_fa,
-                content_en: post.content_en,
-                content_fa: post.content_fa,
-                status: post.status,
-            })
-            .commit();
-
-        revalidatePath("/[locale]/journal", "page");
-        revalidatePath("/[locale]/journal/[slug]", "page");
-        revalidatePath("/en/journal", "page");
-        revalidatePath("/fa/journal", "page");
-
+        await writeClient.delete(id);
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Update journal error:", error);
-        return NextResponse.json({ error: "Failed to update journal" }, { status: 500 });
+        console.error("Journal DELETE error:", error);
+        return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
     }
 }

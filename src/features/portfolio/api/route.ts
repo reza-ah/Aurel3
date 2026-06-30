@@ -6,6 +6,7 @@ import { requireAdminAuth } from "@/lib/api-auth";
 export async function GET(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
+
     const locale = request.nextUrl.searchParams.get("locale") || "en";
 
     try {
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
+
     try {
         const body = await request.json();
         const { sections, locale } = body;

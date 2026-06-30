@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { client, writeClient } from "@/lib/sanity";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+
     const locale = request.nextUrl.searchParams.get("locale") || "en";
 
     try {
@@ -26,38 +29,71 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function PATCH(request: NextRequest) {
+export async function POST(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+
     try {
         const body = await request.json();
-        const { faqs } = body;
 
-        if (!Array.isArray(faqs)) {
-            return NextResponse.json({ error: "Invalid faqs" }, { status: 400 });
-        }
+        const result = await writeClient.create({
+            _type: "faq",
+            question_en: body.question_en || "",
+            question_fa: body.question_fa || "",
+            answer_en: body.answer_en || "",
+            answer_fa: body.answer_fa || "",
+            sort: body.sort || 0,
+            enabled: body.enabled ?? true,
+            locale: body.locale || "en",
+        });
 
-        const updatePromises = faqs.map((faq) =>
-            writeClient
-                .patch(faq._id)
-                .set({
-                    question_en: faq.question_en,
-                    question_fa: faq.question_fa,
-                    answer_en: faq.answer_en,
-                    answer_fa: faq.answer_fa,
-                    sort: faq.sort,
-                    enabled: faq.enabled,
-                })
-                .commit()
-        );
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error("FAQ POST error:", error);
+        return NextResponse.json({ error: true }, { status: 500 });
+    }
+}
 
-        await Promise.all(updatePromises);
+export async function PATCH(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
 
-        revalidatePath("/[locale]/faq", "page");
-        revalidatePath("/en/faq", "page");
-        revalidatePath("/fa/faq", "page");
+    try {
+        const body = await request.json();
+
+        await writeClient
+            .patch(body._id)
+            .set({
+                question_en: body.question_en,
+                question_fa: body.question_fa,
+                answer_en: body.answer_en,
+                answer_fa: body.answer_fa,
+                sort: body.sort,
+                enabled: body.enabled,
+            })
+            .commit();
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("Update FAQ error:", error);
-        return NextResponse.json({ error: "Failed to update FAQ" }, { status: 500 });
+        console.error("FAQ PATCH error:", error);
+        return NextResponse.json({ error: true }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+
+    try {
+        const id = request.nextUrl.searchParams.get("id");
+        if (!id) {
+            return NextResponse.json({ error: true }, { status: 400 });
+        }
+
+        await writeClient.delete(id);
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("FAQ DELETE error:", error);
+        return NextResponse.json({ error: true }, { status: 500 });
     }
 }
