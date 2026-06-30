@@ -39,7 +39,7 @@ export default async function ProductPage({
 
     return (
         <>
-            <SiteHeader locale={locale} />
+            <SiteHeader dict={dict} />
 
             <main className="min-h-screen bg-black pt-32 pb-20">
                 <div className="mx-auto max-w-7xl px-6 lg:px-10">
