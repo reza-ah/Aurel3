@@ -1,35 +1,14 @@
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
 
-// ✅ Dynamic imports باید در top-level باشند (نه داخل کامپوننت)
-const PortfolioSection = dynamic(
-    () => import("@/features/portfolio/components/portfolio-section"),
-    {
-        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
-        ssr: true,
-    }
-);
-
-const PricingSection = dynamic(
-    () => import("@/features/pricing/components/pricing-section"),
-    {
-        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
-        ssr: true,
-    }
-);
-
-const ContactForm = dynamic(
-    () => import("@/features/contact/components/contact-form"),
-    {
-        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
-        ssr: true,
-    }
-);
+// ✅ حذف dynamic imports - import مستقیم
+import PortfolioSection from "@/features/portfolio/components/portfolio-section";
+import PricingSection from "@/features/pricing/components/pricing-section";
+import ContactForm from "@/features/contact/components/contact-form";
 
 export default async function HomePage({
     params,
@@ -57,6 +36,15 @@ export default async function HomePage({
                     dict={dict}
                 />
             ))}
+
+            {/* Portfolio Section - ✅ import مستقیم */}
+            <PortfolioSection locale={locale} />
+
+            {/* Pricing Section - ✅ import مستقیم */}
+            <PricingSection locale={locale} />
+
+            {/* Contact Form - ✅ import مستقیم */}
+            <ContactForm locale={locale} dict={dict} />
 
             {/* Products Section - ✅ اصلاح شده برای Sanity */}
             {productsEnabled && products.length > 0 && (
