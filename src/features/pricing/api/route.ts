@@ -1,25 +1,30 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-
-const DIRECTUS_URL = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL;
-const DIRECTUS_ADMIN_TOKEN = process.env.DIRECTUS_ADMIN_TOKEN;
+import { client } from "@/lib/sanity";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export async function GET() {
-    const cookieStore = await cookies();
-    if (!cookieStore.get("admin_auth")?.value) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authError = await requireAdminAuth();
+    if (authError) {
+        return authError;
     }
 
     try {
-        const res = await fetch(`${DIRECTUS_URL}/items/pricing_categories`, {
-            headers: { Authorization: `Bearer ${DIRECTUS_ADMIN_TOKEN}` },
-            cache: "no-store",
-        });
+        const categories = await client.fetch(
+            `*[_type == "pricingCategory"] | order(sort asc) {
+                _id,
+                title_en,
+                title_fa,
+                slug,
+                image,
+                sort,
+                description_en,
+                description_fa
+            }`
+        );
 
-        const data = await res.json();
-        return NextResponse.json(data);
+        return NextResponse.json(categories);
     } catch (error) {
+        console.error("Pricing categories error:", error);
         return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
     }
 }
-

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const DIRECTUS_URL = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || "http://127.0.0.1:8055";
-const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.DIRECTUS_ADMIN_TOKEN;
+import { writeClient } from "@/lib/sanity";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 const uploadCounts = new Map<string, { count: number; resetAt: number }>();
 
 export async function POST(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) {
+        return authError;
+    }
+
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
     const now = Date.now();
     const limit = uploadCounts.get(ip);
@@ -28,22 +32,20 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "No file field in form-data" }, { status: 400 });
         }
 
-        const directusForm = new FormData();
-        directusForm.append("file", file);
-
-        const res = await fetch(`${DIRECTUS_URL}/files`, {
-            method: "POST",
-            headers: DIRECTUS_TOKEN ? { Authorization: `Bearer ${DIRECTUS_TOKEN}` } : undefined,
-            body: directusForm,
+        // Upload to Sanity
+        const sanityAsset = await writeClient.assets.upload('image', file.stream(), {
+            filename: file.name,
         });
 
-        if (!res.ok) {
-            return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
-        }
-
-        const json = await res.json();
-        return NextResponse.json({ data: { id: json.data?.id, ...json.data } });
-    } catch {
-        return NextResponse.json({ error: "Unexpected server error" }, { status: 500 });
+        return NextResponse.json({
+            data: {
+                _id: sanityAsset._id,
+                url: sanityAsset.url,
+                metadata: sanityAsset.metadata,
+            }
+        });
+    } catch (error) {
+        console.error("Upload error:", error);
+        return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
     }
 }

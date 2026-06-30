@@ -10,12 +10,12 @@ export async function requireAdminAuth(): Promise<NextResponse | null> {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (token === "authenticated-admin") {
-        return null;
-    }
+    // ❌ حذف legacy cookie check
+    // if(token === "authenticated-admin") {
+    //     return null;
+    // }
 
     const payload = await verifyAdminToken(token);
-
     if (!payload) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
