@@ -1,7 +1,6 @@
 import { createClient } from 'next-sanity';
 import { createImageUrlBuilder } from '@sanity/image-url';
 
-// Sanity client configuration
 export const client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
@@ -9,7 +8,6 @@ export const client = createClient({
     useCdn: true,
 });
 
-// Image URL builder
 const builder = createImageUrlBuilder(client);
 
 export const writeClient = createClient({
@@ -27,15 +25,9 @@ export function urlFor(source: any) {
 /* =========================
    ASSET HELPERS
 ========================= */
-/**
- * تبدیل تصویر Sanity به URL
- * @param image - فیلد تصویر از Sanity (می‌تونه object یا string باشه)
- * @returns URL تصویر یا null
- */
 export function getAssetUrl(image: any): string | null {
     if (!image) return null;
 
-    // اگه image یه object با asset باشه
     if (image.asset) {
         try {
             return urlFor(image).url();
@@ -44,7 +36,6 @@ export function getAssetUrl(image: any): string | null {
         }
     }
 
-    // اگه image یه string (ID) باشه
     if (typeof image === "string") {
         try {
             return urlFor(image).url();
@@ -56,7 +47,6 @@ export function getAssetUrl(image: any): string | null {
     return null;
 }
 
-/**
 /**
  * تبدیل تصویر Sanity به URL بهینه‌شده
  */
