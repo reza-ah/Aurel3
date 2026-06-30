@@ -32,9 +32,14 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "No file field in form-data" }, { status: 400 });
         }
 
+        // Convert Blob to Buffer for Sanity
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
         // Upload to Sanity
-        const sanityAsset = await writeClient.assets.upload('image', file.stream(), {
+        const sanityAsset = await writeClient.assets.upload('image', buffer, {
             filename: file.name,
+            contentType: file.type,
         });
 
         return NextResponse.json({
