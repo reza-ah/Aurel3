@@ -5,6 +5,7 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import AmbientLights from "@/components/ambient-lights";
 import { getDictionary } from "@/lib/utils/get-dictionary";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import "../globals.css";
 
@@ -103,6 +104,7 @@ export default async function LocaleLayout({
                         <SiteFooter locale={locale} />
                     </SmoothScrollProvider>
                 </div>
+                <SpeedInsights />
             </body>
         </html>
     );
