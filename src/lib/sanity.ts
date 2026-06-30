@@ -56,20 +56,29 @@ export function getAssetUrl(image: any): string | null {
     return null;
 }
 
+/**
+ * تبدیل تصویر Sanity به URL بهینه‌شده
+ */
 export function getOptimizedImage(
     image: any,
-    width: number = 1200,
-    quality: number = 80,
-    format: string = 'webp'
-) {
-    if (!image || !image.asset) return null;
-    return urlFor(image)
-        .width(width)
-        .quality(quality)
-        .auto('format')
-        .url();
-}
+    options: { width?: number; height?: number; quality?: number; format?: "webp" | "avif" | "jpg" | "png" } = {}
+): string | null {
+    if (!image) return null;
 
+    const { width = 800, height, quality = 80, format = "webp" } = options;
+
+    try {
+        let url = builder.image(image).width(width).quality(quality).format(format);
+
+        if (height) {
+            url = url.height(height);
+        }
+
+        return url.url();
+    } catch {
+        return null;
+    }
+}
 /* =========================
 PRODUCTS
 ========================= */

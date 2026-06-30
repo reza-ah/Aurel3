@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
+import { getOptimizedImage } from "@/lib/sanity";
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
 import { getPortfolioItems, getAssetUrl } from "@/lib/sanity";
 
@@ -60,7 +60,16 @@ export default async function ProjectPage({
     const category = isFa ? project.category_fa : project.category_en;
     const description = isFa ? project.description_fa : project.description_en;
 
-    const imageUrl = getAssetUrl(project.cover_image) || "/placeholder.jpg";
+    const imageUrl = getOptimizedImage(project.cover_image, { width: 1200, quality: 85 }) || "/placeholder.jpg";
+
+    <Image
+        src={imageUrl}
+        alt={title}
+        fill
+        priority
+        // ✅ حذف unoptimized
+        sizes="100vw"
+    />
 
     /* =========================
        GALLERY IMAGES

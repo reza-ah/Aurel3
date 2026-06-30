@@ -3,7 +3,7 @@ import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
-
+import dynamic from "next/dynamic";
 
 export default async function HomePage({
     params,
@@ -13,7 +13,17 @@ export default async function HomePage({
 }) {
     // ۲. منتظر ماندن برای حل پرامیس params و تبدیل نوع آن
     const { locale } = (await params) as { locale: "en" | "fa" };
+    const PortfolioSection = dynamic(() => import("@/features/portfolio/components/portfolio-section"), {
+        loading: () => <div className="h-96" />,
+    });
 
+    const PricingSection = dynamic(() => import("@/features/pricing/components/pricing-section"), {
+        loading: () => <div className="h-96" />,
+    });
+
+    const ContactForm = dynamic(() => import("@/features/contact/components/contact-form"), {
+        loading: () => <div className="h-96" />,
+    });
     const dict = await getDictionary(locale);
     const sections = await getHomepageSections(locale);
     const productsEnabled = process.env.NEXT_PUBLIC_ENABLE_PRODUCTS === "true";

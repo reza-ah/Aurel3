@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { getAssetUrl } from "@/lib/sanity";
+import { getOptimizedImage } from "@/lib/sanity";
 
 type Props = {
     locale: string;
@@ -160,7 +161,15 @@ export default function PortfolioGrid({ locale, items }: Props) {
                     {displayedItems.map((item) => {
                         const title = isFa ? item.title_fa : item.title_en;
                         const category = isFa ? item.category_fa : item.category_en;
-                        const imageUrl = getAssetUrl(item.cover_image) || "/placeholder.jpg";
+                        const imageUrl = getOptimizedImage(item.cover_image, { width: 900, quality: 80 }) || "/placeholder.jpg";
+                        <Image
+                            src={imageUrl}
+                            alt={title}
+                            fill
+                            // ✅ حذف unoptimized
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
 
                         return (
                             <motion.div

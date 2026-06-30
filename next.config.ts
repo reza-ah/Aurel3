@@ -1,6 +1,18 @@
-import type { NextConfig } from "next";
-
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
+  },
+
+  // ✅ اضافه کن
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production" ? {
+      exclude: ["error", "warn"],
+    } : false,
+  },
+
+  // ✅ اضافه کن - حذف polyfills غیرضروری
+  transpilePackages: [],
+
   images: {
     remotePatterns: [
       {
@@ -8,7 +20,10 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
+    // ✅ اضافه کن - بهینه‌سازی تصاویر
+    formats: ["image/avif", "image/webp"],
   },
+
   async headers() {
     return [
       {
@@ -38,7 +53,4 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
 };
-
-export default nextConfig;
