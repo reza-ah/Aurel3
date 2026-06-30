@@ -58,10 +58,11 @@ export function getAssetUrl(image: any): string | null {
 
 /**
  * تبدیل تصویر Sanity به URL بهینه‌شده
+ * Sanity فقط از webp, jpg, png به عنوان فرمت خروجی پشتیبانی می‌کند
  */
 export function getOptimizedImage(
     image: any,
-    options: { width?: number; height?: number; quality?: number; format?: "webp" | "jpg" | "png" | "gif" } = {}
+    options: { width?: number; height?: number; quality?: number; format?: "webp" | "jpg" | "png" } = {}
 ): string | null {
     if (!image) return null;
 
@@ -70,8 +71,8 @@ export function getOptimizedImage(
     try {
         let url = builder.image(image).width(width).quality(quality);
 
-        // Sanity فقط از webp, jpg, png, gif پشتیبانی می‌کند
-        if (format && ["webp", "jpg", "png", "gif"].includes(format)) {
+        // ✅ Sanity فقط از webp, jpg, png به عنوان output format پشتیبانی می‌کند
+        if (format && ["webp", "jpg", "png"].includes(format)) {
             url = url.format(format);
         }
 
