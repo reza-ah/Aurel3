@@ -5,7 +5,7 @@ import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
 
-// ✅ حذف dynamic imports - import مستقیم
+// Import مستقیم (نه dynamic)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
 import PricingSection from "@/features/pricing/components/pricing-section";
 import { ContactForm } from "@/features/contact/components/contact-form";
@@ -37,16 +37,16 @@ export default async function HomePage({
                 />
             ))}
 
-            {/* Portfolio Section - ✅ import مستقیم */}
+            {/* Portfolio Section */}
             <PortfolioSection locale={locale} />
 
-            {/* Pricing Section - ✅ import مستقیم */}
+            {/* Pricing Section */}
             <PricingSection locale={locale} />
 
-            {/* Contact Form - ✅ import مستقیم */}
-            <ContactForm locale={locale} dict={dict} />
+            {/* Contact Form - ✅ فقط locale */}
+            <ContactForm locale={locale} />
 
-            {/* Products Section - ✅ اصلاح شده برای Sanity */}
+            {/* Products Section */}
             {productsEnabled && products.length > 0 && (
                 <section className="px-6 py-24">
                     <div className="container-lux">
@@ -62,18 +62,15 @@ export default async function HomePage({
 
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                             {products.map((product: any) => {
-                                // ✅ استفاده از getAssetUrl برای Sanity
                                 const imageUrl = getAssetUrl(product.image);
 
                                 const title = isFa ? product.title_fa : product.title_en;
                                 const description = isFa ? product.description_fa : product.description_en;
 
-                                // ✅ فرمت قیمت
                                 const price = isFa
                                     ? `${Number(product.price || 0).toLocaleString("fa-IR")} تومان`
                                     : `$${product.price || 0}`;
 
-                                // ✅ اصلاح slug برای Sanity
                                 const slug = typeof product.slug === "string"
                                     ? product.slug
                                     : product.slug?.current || product._id;
