@@ -4,13 +4,13 @@ import { requireAdminAuth } from "@/lib/api-auth";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }  // ✅ Promise
 ) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
 
     try {
-        const { id } = await params;
+        const { id } = await params;  // ✅ await
         const order = await client.fetch(
             `*[_type == "order" && _id == $id][0] {
                 _id,
@@ -38,13 +38,13 @@ export async function GET(
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }  // ✅ Promise
 ) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
 
     try {
-        const { id } = await params;
+        const { id } = await params;  // ✅ await
         const body = await request.json();
 
         await writeClient
@@ -61,13 +61,13 @@ export async function PATCH(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    { params }: { params: Promise<{ id: string }> }  // ✅ Promise
 ) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
 
     try {
-        const { id } = await params;
+        const { id } = await params;  // ✅ await
         await writeClient.delete(id);
         return NextResponse.json({ success: true });
     } catch (error) {
