@@ -1,10 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
 
+// Fallback برای زمانی که ADMIN_SECRET تنظیم نشده
 const secret = new TextEncoder().encode(
-    process.env.ADMIN_SECRET || "fallback-secret-change-me"
+    process.env.ADMIN_SECRET || "fallback-secret-change-me-in-production"
 );
 
-// Access Token (1 hour)
+/* =========================
+ACCESS TOKEN (1 ساعت اعتبار)
+========================= */
 export async function createAdminToken() {
     return await new SignJWT({ role: "admin", type: "access" })
         .setProtectedHeader({ alg: "HS256" })
@@ -13,7 +16,9 @@ export async function createAdminToken() {
         .sign(secret);
 }
 
-// Refresh Token (7 days)
+/* =========================
+REFRESH TOKEN (7 روز اعتبار)
+========================= */
 export async function createRefreshToken() {
     return await new SignJWT({ role: "admin", type: "refresh" })
         .setProtectedHeader({ alg: "HS256" })
@@ -22,7 +27,9 @@ export async function createRefreshToken() {
         .sign(secret);
 }
 
-// Verify Access Token
+/* =========================
+تأیید Access Token
+========================= */
 export async function verifyAdminToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, secret);
@@ -35,7 +42,9 @@ export async function verifyAdminToken(token: string) {
     }
 }
 
-// Verify Refresh Token
+/* =========================
+تأیید Refresh Token
+========================= */
 export async function verifyRefreshToken(token: string) {
     try {
         const { payload } = await jwtVerify(token, secret);
