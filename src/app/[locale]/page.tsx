@@ -5,9 +5,9 @@ import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 
-// Import مستقیم (نه dynamic)
+// ✅ همه default import (نه named)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
-import { PricingSection } from "@/features/pricing/components/pricing-section";
+import PricingSection from "@/features/pricing/components/pricing-section";
 import { ContactForm } from "@/features/contact/components/contact-form";
 
 export default async function HomePage({
@@ -43,7 +43,7 @@ export default async function HomePage({
             {/* Pricing Section */}
             <PricingSection locale={locale} />
 
-            {/* Contact Form - ✅ فقط locale */}
+            {/* Contact Form - فقط locale */}
             <ContactForm locale={locale} />
 
             {/* Products Section */}
