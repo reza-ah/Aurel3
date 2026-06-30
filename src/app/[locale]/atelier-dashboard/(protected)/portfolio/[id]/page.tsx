@@ -224,7 +224,7 @@ export default function PortfolioEditPage() {
                     galleryRefs.push(uploadedId);
                 } else if (typeof img === "string") {
                     galleryRefs.push(img);
-                } else if (img.asset?._ref) {
+                } else if ("asset" in img && img.asset?._ref) {
                     galleryRefs.push(img.asset._ref);
                 }
             }
