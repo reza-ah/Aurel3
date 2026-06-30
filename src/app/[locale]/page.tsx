@@ -3,7 +3,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
-import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
+import { getHomepageSections, getProducts, getOptimizedImage } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 
 // ✅ Default imports
@@ -66,7 +66,11 @@ export default async function HomePage({
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                             {products.map((product: any, index: number) => {
                                 // ✅ استفاده از getOptimizedImage
-                                const imageUrl = getAssetUrl(product.image);
+                                const imageUrl = getOptimizedImage(product.image, {
+                                    width: 800,
+                                    quality: 75,
+                                    format: "webp"
+                                });
 
                                 const title = isFa ? product.title_fa : product.title_en;
                                 const description = isFa ? product.description_fa : product.description_en;

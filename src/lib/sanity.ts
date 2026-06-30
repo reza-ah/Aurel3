@@ -57,6 +57,7 @@ export function getAssetUrl(image: any): string | null {
 }
 
 /**
+/**
  * تبدیل تصویر Sanity به URL بهینه‌شده
  */
 export function getOptimizedImage(
@@ -72,7 +73,7 @@ export function getOptimizedImage(
 
         // ✅ Sanity فقط از webp, jpg, png پشتیبانی می‌کند
         if (format && ["webp", "jpg", "png"].includes(format)) {
-            url = url.auto("format"); // ✅ فرمت خودکار بر اساس browser
+            url = url.format(format as "webp" | "jpg" | "png");
         }
 
         if (height) {
