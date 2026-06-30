@@ -11,6 +11,7 @@ export const client = createClient({
 
 // Image URL builder
 const builder = createImageUrlBuilder(client);
+
 export const writeClient = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
@@ -24,9 +25,8 @@ export function urlFor(source: any) {
 }
 
 /* =========================
-ASSET HELPERS
+   ASSET HELPERS
 ========================= */
-
 /**
  * تبدیل تصویر Sanity به URL
  * @param image - فیلد تصویر از Sanity (می‌تونه object یا string باشه)
@@ -61,14 +61,19 @@ export function getAssetUrl(image: any): string | null {
  */
 export function getOptimizedImage(
     image: any,
-    options: { width?: number; height?: number; quality?: number; format?: "webp" | "avif" | "jpg" | "png" } = {}
+    options: { width?: number; height?: number; quality?: number; format?: "webp" | "jpg" | "png" | "gif" } = {}
 ): string | null {
     if (!image) return null;
 
     const { width = 800, height, quality = 80, format = "webp" } = options;
 
     try {
-        let url = builder.image(image).width(width).quality(quality).format(format);
+        let url = builder.image(image).width(width).quality(quality);
+
+        // Sanity فقط از webp, jpg, png, gif پشتیبانی می‌کند
+        if (format && ["webp", "jpg", "png", "gif"].includes(format)) {
+            url = url.format(format);
+        }
 
         if (height) {
             url = url.height(height);
@@ -79,143 +84,60 @@ export function getOptimizedImage(
         return null;
     }
 }
+
 /* =========================
-PRODUCTS
+   PRODUCTS
 ========================= */
 export async function getProducts() {
     return client.fetch(
-        `*[_type == "products" && status == "published"] | order(date_created desc) {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      excerpt_en,
-      excerpt_fa,
-      image,
-      date_created
-    }`
+        `*[_type == "products" && status == "published"] | order(date_created desc) { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, image, date_created }`
     );
 }
 
 export async function getProductBySlug(slug: string) {
     const data = await client.fetch(
-        `*[_type == "products" && slug.current == $slug][0] {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      excerpt_en,
-      excerpt_fa,
-      content_en,
-      content_fa,
-      image,
-      date_created
-    }`,
+        `*[_type == "products" && slug.current == $slug][0] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, image, date_created }`,
         { slug }
     );
     return data ?? null;
 }
 
 /* =========================
-PORTFOLIO
+   PORTFOLIO
 ========================= */
 export async function getPortfolioItems() {
     return client.fetch(
-        `*[_type == "portfolio" && status == "published"] | order(date_created desc) {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      category_en,
-      category_fa,
-      description_en,
-      description_fa,
-      cover_image,
-      gallery,
-      tags,
-      featured,
-      date_created
-    }`
+        `*[_type == "portfolio" && status == "published"] | order(date_created desc) { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`
     );
 }
 
 export async function getFeaturedPortfolioItems() {
     return client.fetch(
-        `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc) {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      category_en,
-      category_fa,
-      description_en,
-      description_fa,
-      cover_image,
-      gallery,
-      tags,
-      featured,
-      date_created
-    }`
+        `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc) { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`
     );
 }
 
 export async function getPortfolioBySlug(slug: string) {
     const data = await client.fetch(
-        `*[_type == "portfolio" && slug.current == $slug][0] {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      category_en,
-      category_fa,
-      description_en,
-      description_fa,
-      cover_image,
-      gallery,
-      tags,
-      featured,
-      date_created
-    }`,
+        `*[_type == "portfolio" && slug.current == $slug][0] { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`,
         { slug }
     );
     return data ?? null;
 }
 
 /* =========================
-JOURNAL
+   JOURNAL
 ========================= */
 export async function getJournalPosts(limit?: number) {
     const limitQuery = limit ? `[0...${limit}]` : '';
     return client.fetch(
-        `*[_type == "journal" && status == "published"] | order(date_created desc) ${limitQuery} {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      excerpt_en,
-      excerpt_fa,
-      content_en,
-      content_fa,
-      cover_image,
-      date_created
-    }`
+        `*[_type == "journal" && status == "published"] | order(date_created desc) ${limitQuery} { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`
     );
 }
 
 export async function getJournalPost(slug: string) {
     const data = await client.fetch(
-        `*[_type == "journal" && slug.current == $slug][0] {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      excerpt_en,
-      excerpt_fa,
-      content_en,
-      content_fa,
-      cover_image,
-      date_created
-    }`,
+        `*[_type == "journal" && slug.current == $slug][0] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`,
         { slug }
     );
     return data ?? null;
@@ -223,96 +145,47 @@ export async function getJournalPost(slug: string) {
 
 export async function getRelatedJournalPosts(slug: string, limit = 3) {
     return client.fetch(
-        `*[_type == "journal" && slug.current != $slug && status == "published"] | order(date_created desc) [0...${limit}] {
-      _id,
-      slug,
-      title_en,
-      title_fa,
-      excerpt_en,
-      excerpt_fa,
-      cover_image,
-      date_created
-    }`,
+        `*[_type == "journal" && slug.current != $slug && status == "published"] | order(date_created desc) [0...${limit}] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, cover_image, date_created }`,
         { slug }
     );
 }
 
 /* =========================
-PRICING
+   PRICING
 ========================= */
 export async function getPricingCategories() {
     return client.fetch(
-        `*[_type == "pricingCategory"] | order(sort asc) {
-      _id,
-      title_en,
-      title_fa,
-      image,
-      sort
-    }`
+        `*[_type == "pricingCategory"] | order(sort asc) { _id, title_en, title_fa, image, sort }`
     );
 }
 
 export async function getPricingItems() {
     return client.fetch(
-        `*[_type == "pricingItem" && is_active == true] | order(sort asc) {
-      _id,
-      title_en,
-      title_fa,
-      description_en,
-      description_fa,
-      price_en,
-      price_fa,
-      delivery_time_en,
-      delivery_time_fa,
-      img,
-      sort,
-      category->{
-        _id,
-        title_en,
-        title_fa
-      },
-      suitable_en,
-      suitable_fa,
-      features_en,
-      features_fa
-    }`
+        `*[_type == "pricingItem" && is_active == true] | order(sort asc) { _id, title_en, title_fa, description_en, description_fa, price_en, price_fa, delivery_time_en, delivery_time_fa, img, sort, category->{ _id, title_en, title_fa }, suitable_en, suitable_fa, features_en, features_fa }`
     );
 }
 
 /* =========================
-HOMEPAGE SECTIONS
+   HOMEPAGE SECTIONS
 ========================= */
 export async function getHomepageSections(locale: string) {
     return client.fetch(
-        `*[_type == "homepageSection" && enabled == true && locale == $locale] | order(sort asc) {
-      _id,
-      type,
-      enabled,
-      locale,
-      sort
-    }`,
+        `*[_type == "homepageSection" && enabled == true && locale == $locale] | order(sort asc) { _id, type, enabled, locale, sort }`,
         { locale }
     );
 }
 
 /* =========================
-FAQ
+   FAQ
 ========================= */
 export async function getFaqs() {
     return client.fetch(
-        `*[_type == "faq"] | order(sort asc) {
-      _id,
-      question_en,
-      question_fa,
-      answer_en,
-      answer_fa,
-      sort
-    }`
+        `*[_type == "faq"] | order(sort asc) { _id, question_en, question_fa, answer_en, answer_fa, sort }`
     );
 }
 
 /* =========================
-ORDERS (Write Operations)
+   ORDERS (Write Operations)
 ========================= */
 export async function createOrder(orderData: {
     name: string;
@@ -334,7 +207,7 @@ export async function createOrder(orderData: {
 }
 
 /* =========================
-CONTACT MESSAGES (Write Operations)
+   CONTACT MESSAGES (Write Operations)
 ========================= */
 export async function createContactMessage(messageData: {
     name: string;

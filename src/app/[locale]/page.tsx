@@ -1,9 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
-import Image from "next/image";
 
 // Import مستقیم (نه dynamic)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
