@@ -26,9 +26,34 @@ export function urlFor(source: any) {
 /* =========================
 ASSET HELPERS
 ========================= */
-export function getAssetUrl(image: any) {
-    if (!image || !image.asset) return null;
-    return urlFor(image).url();
+
+/**
+ * تبدیل تصویر Sanity به URL
+ * @param image - فیلد تصویر از Sanity (می‌تونه object یا string باشه)
+ * @returns URL تصویر یا null
+ */
+export function getAssetUrl(image: any): string | null {
+    if (!image) return null;
+
+    // اگه image یه object با asset باشه
+    if (image.asset) {
+        try {
+            return urlFor(image).url();
+        } catch {
+            return null;
+        }
+    }
+
+    // اگه image یه string (ID) باشه
+    if (typeof image === "string") {
+        try {
+            return urlFor(image).url();
+        } catch {
+            return null;
+        }
+    }
+
+    return null;
 }
 
 export function getOptimizedImage(

@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 import { createAdminToken, createRefreshToken } from "@/lib/auth/verify-session";
+import { timingSafeEqual } from "crypto";
 
 const loginAttempts = new Map<string, { count: number; blockedUntil?: number }>();
 const MAX_ATTEMPTS = 5;
 const BLOCK_DURATION = 15 * 60 * 1000;
+
+// ✅ مقایسه امن با timingSafeEqual
+function secureCompare(a: string, b: string): boolean {
+    const bufA = Buffer.from(a);
+    const bufB = Buffer.from(b);
+    if (bufA.length !== bufB.length) return false;
+    return timingSafeEqual(bufA, bufB);
+}
 
 export async function POST(request: Request) {
     try {
@@ -12,7 +21,6 @@ export async function POST(request: Request) {
 
         if (attempt?.blockedUntil && attempt.blockedUntil > Date.now()) {
             const remaining = Math.ceil((attempt.blockedUntil - Date.now()) / 60000);
-
             return NextResponse.json(
                 { success: false, message: `Too many attempts. Try again in ${remaining} minute(s).` },
                 { status: 429 }
@@ -27,16 +35,14 @@ export async function POST(request: Request) {
             return NextResponse.json({ success: false }, { status: 500 });
         }
 
-        if (password !== adminPassword) {
+        // ✅ مقایسه امن
+        if (!secureCompare(password, adminPassword)) {
             const current = loginAttempts.get(ip) ?? { count: 0 };
             current.count += 1;
-
             if (current.count >= MAX_ATTEMPTS) {
                 current.blockedUntil = Date.now() + BLOCK_DURATION;
             }
-
             loginAttempts.set(ip, current);
-
             return NextResponse.json(
                 { success: false, message: "Incorrect password" },
                 { status: 401 }
@@ -49,26 +55,26 @@ export async function POST(request: Request) {
         const refreshToken = await createRefreshToken();
         const response = NextResponse.json({ success: true });
 
-        // Access Token (1 hour)
+        // ✅ sameSite: strict
         response.cookies.set("admin_auth", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: "strict",
             path: "/",
-            maxAge: 60 * 60, // 1 hour
+            maxAge: 60 * 60,
         });
 
-        // Refresh Token (7 days)
         response.cookies.set("admin_refresh", refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            sameSite: "strict",
             path: "/",
-            maxAge: 60 * 60 * 24 * 7, // 7 days
+            maxAge: 60 * 60 * 24 * 7,
         });
 
         return response;
-    } catch {
+    } catch (error) {
+        console.error("Login error:", error);
         return NextResponse.json({ success: false }, { status: 500 });
     }
 }

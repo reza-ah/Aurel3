@@ -1,12 +1,15 @@
 import { SignJWT, jwtVerify } from "jose";
 
-// Fallback برای زمانی که ADMIN_SECRET تنظیم نشده
-const secret = new TextEncoder().encode(
-    process.env.ADMIN_SECRET || "fallback-secret-change-me-in-production"
-);
+// ❌ حذف fallback - crash کن اگه تنظیم نشده
+const adminSecret = process.env.ADMIN_SECRET;
+if (!adminSecret) {
+    throw new Error("ADMIN_SECRET environment variable is not set");
+}
+
+const secret = new TextEncoder().encode(adminSecret);
 
 /* =========================
-ACCESS TOKEN (1 ساعت اعتبار)
+ACCESS TOKEN (1 ساعت)
 ========================= */
 export async function createAdminToken() {
     return await new SignJWT({ role: "admin", type: "access" })
@@ -17,7 +20,7 @@ export async function createAdminToken() {
 }
 
 /* =========================
-REFRESH TOKEN (7 روز اعتبار)
+REFRESH TOKEN (7 روز)
 ========================= */
 export async function createRefreshToken() {
     return await new SignJWT({ role: "admin", type: "refresh" })

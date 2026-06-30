@@ -22,13 +22,9 @@ export default async function ProtectedLayout({
     let isAuthenticated = false;
 
     if (token) {
-        if (token === "authenticated-admin") {
+        const payload = await verifyAdminToken(token);
+        if (payload) {
             isAuthenticated = true;
-        } else {
-            const payload = await verifyAdminToken(token);
-            if (payload) {
-                isAuthenticated = true;
-            }
         }
     }
 

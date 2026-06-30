@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { client, writeClient } from "@/lib/sanity";
+import { requireAdminAuth } from "@/lib/api-auth";
 
 export async function GET() {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
     try {
         const posts = await client.fetch(
             `*[_type == "journal"] | order(date_created desc) {
@@ -28,6 +31,8 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
     try {
         const body = await request.json();
         const { post } = body;

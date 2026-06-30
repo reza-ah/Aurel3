@@ -1,17 +1,38 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { writeClient } from "@/lib/sanity";
 
-export async function POST(req: Request) {
-    const formData = await req.formData();
+export async function POST(request: NextRequest) {
+    try {
+        const formData = await request.formData();
+        const name = formData.get("name") as string;
+        const email = formData.get("email") as string;
+        const phone = formData.get("phone") as string;
+        const subject = formData.get("subject") as string;
+        const message = formData.get("message") as string;
 
-    // ارسال فایل به دایرکتوس
-    const res = await fetch(`${process.env.DIRECTUS_URL}/files`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${process.env.DIRECTUS_ADMIN_TOKEN}` },
-        body: formData,
-    });
+        if (!name || !email || !message) {
+            return NextResponse.json(
+                { error: "Missing required fields" },
+                { status: 400 }
+            );
+        }
 
-    const result = await res.json();
-    // دایرکتوس id فایل آپلود شده را برمی‌گرداند
-    return NextResponse.json(result);
+        await writeClient.create({
+            _type: "contactMessage",
+            name,
+            email,
+            phone: phone || "",
+            subject: subject || "",
+            message,
+            date_created: new Date().toISOString(),
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Contact form error:", error);
+        return NextResponse.json(
+            { error: "Failed to submit message" },
+            { status: 500 }
+        );
+    }
 }
-
