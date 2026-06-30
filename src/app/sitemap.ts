@@ -1,40 +1,65 @@
 import { MetadataRoute } from 'next';
+import { client } from '@/lib/sanity';
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://aureldesign.ir'; // دامنه نهایی خود را اینجا بنویسید
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+    const baseUrl = 'https://www.aureldesign.ir';
 
-    // لیست تمام بخش‌های منو که در تصویر مشخص است
-    const routes = [
-        '',                  // خانه
-        '/portfolio',        // نمونه‌کارها
-        '/pricing',          // تعرفه خدمات
-        '/contact',          // تماس/سفارش
-        '/faq',              // سوالات متداول
-        '/about',            // درباره ما
-        '/articles',         // مقالات (یا /blog)
+    // صفحات استاتیک
+    const staticPages = [
+        { url: `${baseUrl}/en`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 1 },
+        { url: `${baseUrl}/fa`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 1 },
+        { url: `${baseUrl}/en/portfolio`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
+        { url: `${baseUrl}/fa/portfolio`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.8 },
+        { url: `${baseUrl}/en/journal`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
+        { url: `${baseUrl}/fa/journal`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 },
+        { url: `${baseUrl}/en/pricing`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.7 },
+        { url: `${baseUrl}/fa/pricing`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.7 },
+        { url: `${baseUrl}/en/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.6 },
+        { url: `${baseUrl}/fa/contact`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.6 },
+        { url: `${baseUrl}/en/faq`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
+        { url: `${baseUrl}/fa/faq`, lastModified: new Date(), changeFrequency: "monthly" as const, priority: 0.5 },
+        { url: `${baseUrl}/en/about`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.4 },
+        { url: `${baseUrl}/fa/about`, lastModified: new Date(), changeFrequency: "yearly" as const, priority: 0.4 },
     ];
 
-    const sitemapEntries: MetadataRoute.Sitemap = [];
+    // صفحات پویا از Sanity
+    const portfolioItems = await client.fetch(
+        `*[_type == "portfolio" && status == "published"] { _id, slug, date_created }`
+    );
 
-    // تولید خودکار آدرس‌ها برای هر دو زبان فارسی و انگلیسی
-    routes.forEach((route) => {
-        // مسیرهای فارسی
-        sitemapEntries.push({
-            url: `${baseUrl}/fa${route}`,
-            lastModified: new Date(),
-            changeFrequency: route === '/articles' ? 'weekly' : 'monthly', // مقالات ترجیحاً هفتگی آپدیت می‌شوند
-            priority: route === '' ? 1.0 : 0.8, // صفحه اصلی بالاترین اولویت را دارد
-        });
+    const journalPosts = await client.fetch(
+        `*[_type == "journal" && status == "published"] { _id, slug, date_created }`
+    );
 
-        // مسیرهای انگلیسی
-        sitemapEntries.push({
-            url: `${baseUrl}/en${route}`,
-            lastModified: new Date(),
-            changeFrequency: route === '/articles' ? 'weekly' : 'monthly',
-            priority: route === '' ? 1.0 : 0.8,
-        });
-    });
+    const portfolioPages = portfolioItems.flatMap((item: any) => [
+        {
+            url: `${baseUrl}/en/portfolio/${item.slug?.current || item._id}`,
+            lastModified: new Date(item.date_created),
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+        },
+        {
+            url: `${baseUrl}/fa/portfolio/${item.slug?.current || item._id}`,
+            lastModified: new Date(item.date_created),
+            changeFrequency: "monthly" as const,
+            priority: 0.6,
+        },
+    ]);
 
-    return sitemapEntries;
+    const journalPages = journalPosts.flatMap((item: any) => [
+        {
+            url: `${baseUrl}/en/journal/${item.slug?.current || item._id}`,
+            lastModified: new Date(item.date_created),
+            changeFrequency: "yearly" as const,
+            priority: 0.5,
+        },
+        {
+            url: `${baseUrl}/fa/journal/${item.slug?.current || item._id}`,
+            lastModified: new Date(item.date_created),
+            changeFrequency: "yearly" as const,
+            priority: 0.5,
+        },
+    ]);
+
+    return [...staticPages, ...portfolioPages, ...journalPages];
 }
-
