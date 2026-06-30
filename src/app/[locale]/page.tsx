@@ -1,94 +1,108 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
-import { getHomepageSections, getProducts } from "@/lib/sanity";
+import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
-import dynamic from "next/dynamic";
+import Image from "next/image";
+
+// ✅ Dynamic imports باید در top-level باشند (نه داخل کامپوننت)
+const PortfolioSection = dynamic(
+    () => import("@/features/portfolio/components/portfolio-section"),
+    {
+        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
+        ssr: true,
+    }
+);
+
+const PricingSection = dynamic(
+    () => import("@/features/pricing/components/pricing-section"),
+    {
+        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
+        ssr: true,
+    }
+);
+
+const ContactForm = dynamic(
+    () => import("@/features/contact/components/contact-form"),
+    {
+        loading: () => <div className="h-96 bg-white/5 animate-pulse rounded-3xl" />,
+        ssr: true,
+    }
+);
 
 export default async function HomePage({
     params,
 }: {
-    // ۱. به‌روزرسانی تایپ کامپوننت برای پشتیبانی از Promise در Next.js جدید
     params: Promise<{ locale: string }>;
 }) {
-    // ۲. منتظر ماندن برای حل پرامیس params و تبدیل نوع آن
     const { locale } = (await params) as { locale: "en" | "fa" };
-    const PortfolioSection = dynamic(() => import("@/features/portfolio/components/portfolio-section"), {
-        loading: () => <div className="h-96" />,
-    });
+    const isFa = locale === "fa";
 
-    const PricingSection = dynamic(() => import("@/features/pricing/components/pricing-section"), {
-        loading: () => <div className="h-96" />,
-    });
-
-    const ContactForm = dynamic(() => import("@/features/contact/components/contact-form"), {
-        loading: () => <div className="h-96" />,
-    });
     const dict = await getDictionary(locale);
     const sections = await getHomepageSections(locale);
+
     const productsEnabled = process.env.NEXT_PUBLIC_ENABLE_PRODUCTS === "true";
     const products = productsEnabled ? await getProducts() : [];
 
     return (
-        // ۳. اضافه کردن کامنت کنترل بیلد برای نادیده گرفتن خطای تایپ کامپوننت پایه
-        // @ts-expect-error PageBase accepts showGrid at runtime.
+        // @ts-expect-error PageBase accepts showGrid at runtime
         <PageBase showGrid={true}>
             {/* Dynamic Homepage Sections */}
             {sections.map((section: any) => (
                 <HomepageSectionRenderer
-                    key={section.id}
+                    key={section._id || section.id}
                     section={section}
                     locale={locale}
                     dict={dict}
                 />
             ))}
 
-            {/* Products Section */}
-            {productsEnabled && (
+            {/* Products Section - ✅ اصلاح شده برای Sanity */}
+            {productsEnabled && products.length > 0 && (
                 <section className="px-6 py-24">
                     <div className="container-lux">
                         <div className="mb-16 text-center">
                             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/60">
-                                {locale === "fa" ? "محصولات دایرکتوس" : "Directus Products"}
+                                {isFa ? "محصولات" : "Products"}
                             </p>
 
                             <h2 className="text-4xl font-light md:text-5xl text-[#F5F1E8]">
-                                {locale === "fa" ? "کالکشن جواهرات" : "Jewelry Collection"}
+                                {isFa ? "کالکشن جواهرات" : "Jewelry Collection"}
                             </h2>
                         </div>
 
-                        {products.length === 0 && (
-                            <p className="text-center text-white/60">No products found</p>
-                        )}
-
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-                            {products?.map((product: any) => {
-                                let imageId: string | null = null;
-                                if (product.image) {
-                                    if (typeof product.image === "string") {
-                                        imageId = product.image;
-                                    } else if (product.image.id) {
-                                        imageId = product.image.id;
-                                    }
-                                }
+                            {products.map((product: any) => {
+                                // ✅ استفاده از getAssetUrl برای Sanity
+                                const imageUrl = getAssetUrl(product.image);
 
-                                const title = locale === "fa" ? product.title_fa : product.title_en;
-                                const description = locale === "fa" ? product.description_fa : product.description_en;
-                                const price = locale === "fa"
-                                    ? `${product.price?.toLocaleString("fa-IR")} تومان`
-                                    : `$${product.price}`;
+                                const title = isFa ? product.title_fa : product.title_en;
+                                const description = isFa ? product.description_fa : product.description_en;
+
+                                // ✅ فرمت قیمت
+                                const price = isFa
+                                    ? `${Number(product.price || 0).toLocaleString("fa-IR")} تومان`
+                                    : `$${product.price || 0}`;
+
+                                // ✅ اصلاح slug برای Sanity
+                                const slug = typeof product.slug === "string"
+                                    ? product.slug
+                                    : product.slug?.current || product._id;
 
                                 return (
                                     <div
-                                        key={product.id}
+                                        key={product._id}
                                         className="group flex flex-col bg-zinc-900/30 backdrop-blur-sm border border-white/5 rounded-3xl overflow-hidden transition-all hover:bg-zinc-900/40"
                                     >
-                                        {imageId ? (
+                                        {imageUrl ? (
                                             <div className="relative h-80 w-full overflow-hidden">
-                                                <img
-                                                    src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${imageId}`}
+                                                <Image
+                                                    src={imageUrl}
                                                     alt={title}
-                                                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    fill
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                 />
                                             </div>
                                         ) : (
@@ -109,10 +123,10 @@ export default async function HomePage({
                                                     {price}
                                                 </span>
                                                 <Link
-                                                    href={`/${locale}/products/${product.slug}`}
+                                                    href={`/${locale}/products/${slug}`}
                                                     className="px-6 py-2 border border-[#C6A86A] text-[#C6A86A] hover:bg-[#C6A86A] hover:text-black transition-colors rounded-full text-sm uppercase tracking-widest"
                                                 >
-                                                    {locale === "fa" ? "مشاهده" : "View"}
+                                                    {isFa ? "مشاهده" : "View"}
                                                 </Link>
                                             </div>
                                         </div>
