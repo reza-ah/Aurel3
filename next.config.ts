@@ -15,7 +15,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // ✅ تنظیمات تصاویر
+  // ✅ تنظیمات تصاویر - بدون quality
   images: {
     remotePatterns: [
       {
@@ -23,13 +23,11 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
-    // ✅ فرمت‌های مدرن + کاهش quality
+    // ✅ فرمت‌های مدرن
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 روز cache
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
-    // ✅ کاهش quality پیش‌فرض
-    quality: 75,
   },
 
   // ✅ بهینه‌سازی compiler
