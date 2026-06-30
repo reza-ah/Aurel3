@@ -3,24 +3,59 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { urlFor } from "@/lib/sanity";
+
+type SanityImage = {
+    _type: "image";
+    asset?: {
+        _ref: string;
+        _type: "reference";
+    };
+};
 
 type PortfolioItem = {
-    id: number;
-    slug: string;
+    _id: string;
+    slug: { current: string } | string;
     title_fa: string;
     title_en: string;
-    cover_image?: {
-        id: string;
-    };
+    cover_image?: SanityImage | string;
 };
 
 type Props = {
     items: PortfolioItem[];
+    locale?: string;
 };
 
-export default function PortfolioSectionClient({ items }: Props) {
+// ✅ تابع کمکی برای ساخت URL تصویر Sanity
+function getImageUrl(image: SanityImage | string | null | undefined): string | null {
+    if (!image) return null;
+
+    try {
+        if (typeof image === "string") {
+            return urlFor({ _type: "image", asset: { _ref: image } }).width(800).url();
+        }
+
+        if (image.asset) {
+            return urlFor(image).width(800).url();
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+// ✅ تابع کمکی برای گرفتن slug
+function getSlug(slug: { current: string } | string | undefined): string {
+    if (!slug) return "";
+    if (typeof slug === "string") return slug;
+    return slug.current || "";
+}
+
+export default function PortfolioSectionClient({ items, locale = "en" }: Props) {
+    const isFa = locale === "fa";
+
     return (
-        // افزودن padding برای فاصله استاندارد و استفاده از bg-transparent
         <section className="relative px-6 py-24 bg-transparent">
             <div className="mx-auto max-w-7xl">
 
@@ -36,20 +71,19 @@ export default function PortfolioSectionClient({ items }: Props) {
                     </h2>
 
                     <p className="text-gray-400">
-                        Timeless luxury crafted with precision.
+                        {isFa ? "ظرافت بی‌زمان با دقت ساخته شده." : "Timeless luxury crafted with precision."}
                     </p>
                 </motion.div>
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {items.map((item, index) => {
-
-                        const imageUrl = item.cover_image?.id
-                            ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${item.cover_image.id}`
-                            : "/placeholder.jpg";
+                        // ✅ استفاده از urlFor برای Sanity
+                        const imageUrl = getImageUrl(item.cover_image) || "/placeholder.jpg";
+                        const slug = getSlug(item.slug);
 
                         return (
                             <motion.div
-                                key={item.id}
+                                key={item._id}
                                 initial={{ opacity: 0, y: 60 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 transition={{
@@ -59,7 +93,8 @@ export default function PortfolioSectionClient({ items }: Props) {
                                 viewport={{ once: true }}
                             >
                                 <Link
-                                    href={`/en/portfolio?project=${item.slug}`}
+                                    // ✅ اصلاح: لینک به صفحه portfolio item
+                                    href={`/${locale}/portfolio/${slug}`}
                                     className="
                                         group
                                         relative
@@ -78,9 +113,8 @@ export default function PortfolioSectionClient({ items }: Props) {
                                 >
                                     <Image
                                         src={imageUrl}
-                                        alt={item.title_en}
+                                        alt={isFa ? item.title_fa : item.title_en}
                                         fill
-                                        unoptimized
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                                     />
@@ -89,10 +123,10 @@ export default function PortfolioSectionClient({ items }: Props) {
 
                                     <div className="absolute bottom-0 left-0 z-10 w-full p-8">
                                         <h3 className="mb-2 text-3xl font-light tracking-[0.15em] text-white">
-                                            {item.title_en}
+                                            {isFa ? item.title_fa : item.title_en}
                                         </h3>
                                         <p className="text-sm uppercase tracking-[0.2em] text-white/70">
-                                            Luxury Collection
+                                            {isFa ? "کالکشن لوکس" : "Luxury Collection"}
                                         </p>
                                     </div>
                                 </Link>
@@ -104,4 +138,3 @@ export default function PortfolioSectionClient({ items }: Props) {
         </section>
     );
 }
-

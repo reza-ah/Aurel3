@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-const DIRECTUS_URL = process.env.NEXT_PUBLIC_DIRECTUS_URL || "http://127.0.0.1:8055";
+import { urlFor } from "@/lib/sanity";
 
 export default function JournalManager() {
-
     const [items, setItems] = useState<any[]>([]);
     const [titleEn, setTitleEn] = useState("");
     const [titleFa, setTitleFa] = useState("");
@@ -27,7 +25,8 @@ export default function JournalManager() {
     async function fetchItems() {
         const res = await fetch("/api/atelier-dashboard/journal");
         const json = await res.json();
-        setItems(json.data || []);
+        // ✅ اصلاح: Sanity از data استفاده نمی‌کند، مستقیم آرایه است
+        setItems(Array.isArray(json) ? json : json.data || []);
     }
 
     function handleImage(e: any) {
@@ -41,12 +40,16 @@ export default function JournalManager() {
         if (!coverImage) return null;
         const form = new FormData();
         form.append("file", coverImage);
-        const res = await fetch("/api/atelier-dashboard/journal/upload-image", {
+
+        // ✅ اصلاح: استفاده از endpoint عمومی آپلود Sanity
+        const res = await fetch("/api/atelier-dashboard/files/upload", {
             method: "POST",
-            body: form
+            body: form,
         });
         const json = await res.json();
-        return json?.fileId ?? null;
+
+        // ✅ اصلاح: Sanity از _id استفاده می‌کند
+        return json?.data?._id ?? null;
     }
 
     // اتوماتیک slug از title انگلیسی
@@ -81,19 +84,25 @@ export default function JournalManager() {
                 excerpt_fa: excerptFa,
                 content_en: contentEn,
                 content_fa: contentFa,
-                cover_image: coverId,
+                // ✅ اصلاح: ساختار Sanity برای تصویر
+                cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
                 status: "published",
-            })
+            }),
         });
 
         setLoading(false);
 
         if (res.ok) {
             setSuccess("Article created successfully!");
-            setTitleEn(""); setTitleFa(""); setSlug("");
-            setExcerptEn(""); setExcerptFa("");
-            setContentEn(""); setContentFa("");
-            setCoverImage(null); setCoverPreview(null);
+            setTitleEn("");
+            setTitleFa("");
+            setSlug("");
+            setExcerptEn("");
+            setExcerptFa("");
+            setContentEn("");
+            setContentFa("");
+            setCoverImage(null);
+            setCoverPreview(null);
             setTimeout(() => setSuccess(""), 3000);
             fetchItems();
         } else {
@@ -101,24 +110,36 @@ export default function JournalManager() {
         }
     }
 
-    async function deleteArticle(id: number) {
+    async function deleteArticle(id: string) {
         if (!confirm("Delete this article?")) return;
+        // ✅ اصلاح: Sanity از _id استفاده می‌کند
         await fetch(`/api/atelier-dashboard/journal?id=${id}`, { method: "DELETE" });
         fetchItems();
     }
 
+    // ✅ اصلاح: استفاده از urlFor برای Sanity
     function getImageUrl(item: any) {
-        // cover_image ممکنه string (id) یا object ({id}) باشه
-        const id = typeof item.cover_image === "string"
-            ? item.cover_image
-            : item.cover_image?.id;
-        if (!id) return null;
-        return `${DIRECTUS_URL}/assets/${id}`;
+        if (!item.cover_image) return null;
+
+        try {
+            // اگر cover_image یک object با asset باشد
+            if (item.cover_image.asset) {
+                return urlFor(item.cover_image).width(200).url();
+            }
+
+            // اگر cover_image یک string (reference ID) باشد
+            if (typeof item.cover_image === "string") {
+                return urlFor({ _type: "image", asset: { _ref: item.cover_image } }).width(200).url();
+            }
+
+            return null;
+        } catch {
+            return null;
+        }
     }
 
     return (
         <main className="pt-32 px-10 text-white pb-32 max-w-5xl">
-
             <h1 className="text-3xl mb-10 font-light tracking-wide">Journal Manager</h1>
 
             {/* FORM */}
@@ -135,7 +156,7 @@ export default function JournalManager() {
                             className="w-full p-2 bg-zinc-800 rounded"
                             placeholder="Article title in English"
                             value={titleEn}
-                            onChange={e => handleTitleEn(e.target.value)}
+                            onChange={(e) => handleTitleEn(e.target.value)}
                         />
                     </div>
                     <div className="flex-1">
@@ -144,19 +165,23 @@ export default function JournalManager() {
                             className="w-full p-2 bg-zinc-800 rounded"
                             placeholder="عنوان مقاله به فارسی"
                             value={titleFa}
-                            onChange={e => setTitleFa(e.target.value)}
+                            onChange={(e) => setTitleFa(e.target.value)}
                             dir="rtl"
                         />
                     </div>
                 </div>
 
                 <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">Slug * (no spaces, English only)</label>
+                    <label className="text-xs text-zinc-400 mb-1 block">
+                        Slug * (no spaces, English only)
+                    </label>
                     <input
                         className="w-full p-2 bg-zinc-800 rounded font-mono text-sm"
                         placeholder="my-article-slug"
                         value={slug}
-                        onChange={e => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                        onChange={(e) =>
+                            setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))
+                        }
                     />
                 </div>
 
@@ -167,7 +192,7 @@ export default function JournalManager() {
                             className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
                             placeholder="Short description in English"
                             value={excerptEn}
-                            onChange={e => setExcerptEn(e.target.value)}
+                            onChange={(e) => setExcerptEn(e.target.value)}
                         />
                     </div>
                     <div className="flex-1">
@@ -176,7 +201,7 @@ export default function JournalManager() {
                             className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
                             placeholder="توضیح کوتاه به فارسی"
                             value={excerptFa}
-                            onChange={e => setExcerptFa(e.target.value)}
+                            onChange={(e) => setExcerptFa(e.target.value)}
                             dir="rtl"
                         />
                     </div>
@@ -188,7 +213,7 @@ export default function JournalManager() {
                         className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
                         placeholder="<p>Article content in English...</p>"
                         value={contentEn}
-                        onChange={e => setContentEn(e.target.value)}
+                        onChange={(e) => setContentEn(e.target.value)}
                     />
                 </div>
 
@@ -198,7 +223,7 @@ export default function JournalManager() {
                         className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
                         placeholder="<p>محتوای مقاله به فارسی...</p>"
                         value={contentFa}
-                        onChange={e => setContentFa(e.target.value)}
+                        onChange={(e) => setContentFa(e.target.value)}
                         dir="rtl"
                     />
                 </div>
@@ -213,9 +238,15 @@ export default function JournalManager() {
                     />
                     {coverPreview && (
                         <div className="relative w-40">
-                            <img src={coverPreview} className="w-40 h-40 object-cover rounded border border-zinc-700" />
+                            <img
+                                src={coverPreview}
+                                className="w-40 h-40 object-cover rounded border border-zinc-700"
+                            />
                             <button
-                                onClick={() => { setCoverImage(null); setCoverPreview(null); }}
+                                onClick={() => {
+                                    setCoverImage(null);
+                                    setCoverPreview(null);
+                                }}
                                 className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
                             >
                                 ✕
@@ -237,14 +268,12 @@ export default function JournalManager() {
             <h2 className="text-xl mb-4 font-light">Articles ({items.length})</h2>
 
             <div className="space-y-3">
-                {items.length === 0 && (
-                    <p className="text-zinc-500 text-sm">No articles yet.</p>
-                )}
-                {items.map(item => {
+                {items.length === 0 && <p className="text-zinc-500 text-sm">No articles yet.</p>}
+                {items.map((item) => {
                     const imgUrl = getImageUrl(item);
                     return (
                         <div
-                            key={item.id}
+                            key={item._id}
                             className="border border-zinc-700 p-4 rounded-lg flex justify-between items-center hover:border-zinc-500 transition-colors"
                         >
                             <div className="flex items-center gap-4">
@@ -261,14 +290,18 @@ export default function JournalManager() {
                                 )}
                                 <div>
                                     <div className="font-medium">{item.title_en}</div>
-                                    <div className="text-sm text-zinc-400" dir="rtl">{item.title_fa}</div>
-                                    <div className="text-xs text-zinc-600 mt-1 font-mono">/journal/{item.slug}</div>
+                                    <div className="text-sm text-zinc-400" dir="rtl">
+                                        {item.title_fa}
+                                    </div>
+                                    <div className="text-xs text-zinc-600 mt-1 font-mono">
+                                        /journal/{item.slug?.current || item.slug}
+                                    </div>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-3">
                                 <a
-                                    href={`/en/journal/${item.slug}`}
+                                    href={`/en/journal/${item.slug?.current || item.slug}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-xs text-blue-400 hover:text-blue-300"
@@ -276,7 +309,7 @@ export default function JournalManager() {
                                     View →
                                 </a>
                                 <button
-                                    onClick={() => deleteArticle(item.id)}
+                                    onClick={() => deleteArticle(item._id)}
                                     className="text-red-400 hover:text-red-200 text-sm"
                                 >
                                     Delete

@@ -3,48 +3,46 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { urlFor } from "@/lib/sanity";
 
-const DIRECTUS_URL = (process.env.NEXT_PUBLIC_DIRECTUS_URL || "").replace(/\/+$/, "");
-
-type DirectusFileRef =
-    | string
-    | {
-        id?: string;
-        directus_files_id?: string | { id?: string };
+type SanityImage = {
+    _type: "image";
+    asset?: {
+        _ref: string;
+        _type: "reference";
     };
+};
 
-type DirectusTagRef =
-    | string
-    | number
-    | {
-        id?: string | number;
-        portfolio_tags_id?: { id?: string | number };
-    };
+type SanityReference = {
+    _type: "reference";
+    _ref: string;
+};
 
 type PortfolioItem = {
-    id: string;
+    _id: string;
     title_en?: string;
     title_fa?: string;
-    slug?: string;
+    slug?: { current: string } | string;
     category_fa?: string;
     category_en?: string;
     description_fa?: string;
     description_en?: string;
     featured?: boolean;
-    status?: string; // 👈 اضافه شدن در تایپ‌ها
-    cover_image?: DirectusFileRef;
-    gallery?: DirectusFileRef[];
-    tags?: DirectusTagRef[];
+    status?: string;
+    cover_image?: SanityImage | string;
+    gallery?: (SanityImage | string)[];
+    tags?: SanityReference[];
 };
 
 type TagItem = {
-    id: string;
+    _id: string;
     name_fa?: string;
     name_en?: string;
 };
 
 type GalleryDraftItem =
-    | DirectusFileRef
+    | SanityImage
+    | string
     | {
         id: string;
         preview: true;
@@ -60,25 +58,39 @@ function slugify(text: string) {
         .replace(/-+/g, "-");
 }
 
-function resolveFileId(file: DirectusFileRef | null | undefined): string | null {
-    if (!file) return null;
-    if (typeof file === "string") return file;
-    if (file.directus_files_id) {
-        if (typeof file.directus_files_id === "string") return file.directus_files_id;
-        if (file.directus_files_id.id) return file.directus_files_id.id;
+// ✅ تابع کمکی برای ساخت URL تصویر Sanity
+function getImageUrl(image: SanityImage | string | null | undefined): string | null {
+    if (!image) return null;
+
+    try {
+        if (typeof image === "string") {
+            return urlFor({ _type: "image", asset: { _ref: image } }).width(200).url();
+        }
+
+        if (image.asset) {
+            return urlFor(image).width(200).url();
+        }
+
+        return null;
+    } catch {
+        return null;
     }
-    if (file.id) return file.id;
-    return null;
 }
 
-function normalizeTagIds(input: DirectusTagRef[] | null | undefined): string[] {
+// ✅ تابع کمکی برای گرفتن slug
+function getSlug(slug: { current: string } | string | undefined): string {
+    if (!slug) return "";
+    if (typeof slug === "string") return slug;
+    return slug.current || "";
+}
+
+// ✅ تابع کمکی برای استخراج tag IDs
+function normalizeTagIds(input: SanityReference[] | null | undefined): string[] {
     if (!input || !Array.isArray(input)) return [];
     return input
         .map((t) => {
             if (typeof t === "string") return t;
-            if (typeof t === "number") return t.toString();
-            if (t?.id) return t.id.toString();
-            if (t?.portfolio_tags_id?.id) return t.portfolio_tags_id.id.toString();
+            if (t?._ref) return t._ref;
             return null;
         })
         .filter(Boolean) as string[];
@@ -107,8 +119,8 @@ export default function PortfolioEditPage() {
         description_fa: "",
         description_en: "",
         featured: false,
-        status: "published", // 👈 ۱. مقدار پیش‌فرض فیلد وضعیت برای آیتم‌های جدید
-        cover_image: null as DirectusFileRef | null,
+        status: "published",
+        cover_image: null as SanityImage | string | null,
     });
 
     useEffect(() => {
@@ -139,13 +151,13 @@ export default function PortfolioEditPage() {
             setForm({
                 title_en: current?.title_en || "",
                 title_fa: current?.title_fa || "",
-                slug: current?.slug || "",
+                slug: getSlug(current?.slug),
                 category_fa: current?.category_fa || "",
                 category_en: current?.category_en || "",
                 description_fa: current?.description_fa || "",
                 description_en: current?.description_en || "",
                 featured: !!current?.featured,
-                status: current?.status || "published", // 👈 ۲. لود کردن وضعیت از دایرکتوس هنگام ادیت
+                status: current?.status || "published",
                 cover_image: current?.cover_image || null,
             });
 
@@ -181,7 +193,8 @@ export default function PortfolioEditPage() {
         });
 
         const json = await res.json().catch(() => null);
-        const fileId = json?.data?.id || json?.id;
+        // ✅ اصلاح: Sanity از _id استفاده می‌کند
+        const fileId = json?.data?._id || json?._id;
 
         if (!res.ok || !fileId) throw new Error(json?.message || "Upload failed");
         return fileId;
@@ -193,32 +206,46 @@ export default function PortfolioEditPage() {
         try {
             setSaving(true);
 
-            let coverId = resolveFileId(form.cover_image);
-            if (editCover) coverId = await uploadFile(editCover);
+            let coverId: string | null = null;
+            if (typeof form.cover_image === "string") {
+                coverId = form.cover_image;
+            } else if (form.cover_image?.asset?._ref) {
+                coverId = form.cover_image.asset._ref;
+            }
 
-            const galleryIds: string[] = [];
+            if (editCover) {
+                coverId = await uploadFile(editCover);
+            }
+
+            const galleryRefs: string[] = [];
             for (const img of editGallery) {
                 if (typeof img === "object" && "preview" in img && img.preview) {
-                    galleryIds.push(await uploadFile(img.file));
-                } else {
-                    const fileId = resolveFileId(img as DirectusFileRef);
-                    if (fileId) galleryIds.push(fileId);
+                    const uploadedId = await uploadFile(img.file);
+                    galleryRefs.push(uploadedId);
+                } else if (typeof img === "string") {
+                    galleryRefs.push(img);
+                } else if (img.asset?._ref) {
+                    galleryRefs.push(img.asset._ref);
                 }
             }
 
             const payload = {
                 title_en: form.title_en,
                 title_fa: form.title_fa,
-                slug: form.slug,
+                // ✅ اصلاح: slug به صورت object برای Sanity
+                slug: { current: form.slug },
                 category_fa: form.category_fa,
                 category_en: form.category_en,
                 description_fa: form.description_fa,
                 description_en: form.description_en,
                 featured: form.featured,
-                status: form.status, // 👈 ۳. ارسال وضعیت انتخاب شده به بک‌اند
-                cover_image: coverId,
-                gallery: galleryIds,
-                tags: editSelectedTags,
+                status: form.status,
+                // ✅ اصلاح: ساختار Sanity برای cover_image
+                cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
+                // ✅ اصلاح: ساختار Sanity برای gallery
+                gallery: galleryRefs.map(ref => ({ _type: "image", asset: { _ref: ref } })),
+                // ✅ اصلاح: ساختار Sanity برای tags (references)
+                tags: editSelectedTags.map(tagId => ({ _type: "reference", _ref: tagId })),
             };
 
             const apiUrl = isNew
@@ -335,7 +362,6 @@ export default function PortfolioEditPage() {
                         onChange={(e) => setForm((prev) => ({ ...prev, description_en: e.target.value }))}
                     />
 
-                    {/* 👈 ۴. المان سلکتور انتخاب وضعیت (Status Dropdown) اضافه شده */}
                     <div className="grid gap-1.5">
                         <label className="text-sm text-zinc-400">Status (وضعیت انتشار)</label>
                         <select
@@ -374,8 +400,8 @@ export default function PortfolioEditPage() {
                         }
                     >
                         {tags.map((t) => (
-                            <option key={t.id} value={t.id}>
-                                {t.name_fa || t.name_en || t.id}
+                            <option key={t._id} value={t._id}>
+                                {t.name_fa || t.name_en || t._id}
                             </option>
                         ))}
                     </select>
@@ -385,10 +411,13 @@ export default function PortfolioEditPage() {
                     <label className="text-sm text-zinc-400 block mb-2">Gallery</label>
                     <div className="grid grid-cols-4 gap-2">
                         {editGallery.map((img, i) => {
-                            const srcUrl =
-                                typeof img === "object" && "preview" in img && img.preview
-                                    ? img.id
-                                    : `${DIRECTUS_URL}/assets/${resolveFileId(img as DirectusFileRef)}`;
+                            let srcUrl: string | null = null;
+
+                            if (typeof img === "object" && "preview" in img && img.preview) {
+                                srcUrl = img.id;
+                            } else {
+                                srcUrl = getImageUrl(img as SanityImage | string);
+                            }
 
                             if (!srcUrl) return null;
 
@@ -425,14 +454,13 @@ export default function PortfolioEditPage() {
 
                 <div>
                     <label className="text-sm text-zinc-400 block mb-2">Cover Image</label>
-                    {/* نمایش cover فعلی */}
                     {!editCover && form.cover_image && (() => {
-                        const coverId = resolveFileId(form.cover_image);
-                        return coverId ? (
+                        const coverUrl = getImageUrl(form.cover_image);
+                        return coverUrl ? (
                             <div className="mb-2">
                                 <p className="text-xs text-zinc-500 mb-1">Current cover:</p>
                                 <img
-                                    src={`${DIRECTUS_URL}/assets/${coverId}`}
+                                    src={coverUrl}
                                     className="w-32 h-32 object-cover rounded-lg border border-zinc-700"
                                     alt="Current cover"
                                 />

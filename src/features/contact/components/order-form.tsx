@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import UploadZone from "./upload-zone"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -42,6 +42,21 @@ export function OrderForm({ locale, onSuccess }: Props) {
     const [uploadedFileIds, setUploadedFileIds] = useState<string[]>([])
     const [serverError, setServerError] = useState("")
 
+    // ✅ Anti-spam: honeypot
+    const [honeypot, setHoneypot] = useState("")
+
+    // ✅ Anti-spam: timeSpent
+    const [timeSpent, setTimeSpent] = useState(0)
+    const startTimeRef = useRef<number>(Date.now())
+
+    // ✅ محاسبه زمان صرف شده
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setTimeSpent(Math.floor((Date.now() - startTimeRef.current) / 1000))
+        }, 1000)
+        return () => clearInterval(interval)
+    }, [])
+
     const services = isFa
         ? ["طراحی", "مدل سازی سه بعدی", "پرینت سه بعدی", "ریخته گری", "اصلاح فایل"]
         : ["Design", "3D Modeling", "3D Printing", "Casting", "File modification"]
@@ -65,6 +80,7 @@ export function OrderForm({ locale, onSuccess }: Props) {
     async function onSubmit(data: OrderFormData) {
         try {
             setServerError("")
+
             const payload = {
                 full_name: data.name,
                 email: data.email,
@@ -73,7 +89,11 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 jewelry_type: data.jewelryType || "",
                 details: data.details,
                 created_at: new Date().toISOString(),
-                files: uploadedFileIds.map(id => ({ directus_files_id: id })),
+                // ✅ اصلاح ساختار فایل‌ها برای Sanity (نه Directus)
+                files: uploadedFileIds.map(id => ({ _ref: id })),
+                // ✅ ارسال honeypot و timeSpent برای anti-spam
+                honeypot,
+                timeSpent,
             }
 
             const response = await fetch("/api/atelier-dashboard/orders", {
@@ -98,14 +118,16 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 sendOrderConfirmationToCustomer({
                     customerName: data.name,
                     customerEmail: data.email,
-                    orderNumber: String(order.id),
+                    // ✅ اصلاح: Sanity از _id استفاده می‌کند
+                    orderNumber: String(order._id),
                     orderDetails,
                 }),
                 sendOrderNotificationToAdmin({
                     customerName: data.name,
                     customerEmail: data.email,
                     customerPhone: data.phone,
-                    orderNumber: String(order.id),
+                    // ✅ اصلاح: Sanity از _id استفاده می‌کند
+                    orderNumber: String(order._id),
                     orderDetails,
                 }),
             ])
@@ -154,6 +176,18 @@ export function OrderForm({ locale, onSuccess }: Props) {
             autoComplete="on"
             className="w-full max-w-4xl mx-auto flex flex-col gap-5 text-right"
         >
+            {/* ✅ Honeypot - مخفی از کاربر، فقط برای botها */}
+            <div className="absolute left-[-9999px]" aria-hidden="true">
+                <input
+                    type="text"
+                    name="website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={honeypot}
+                    onChange={(e) => setHoneypot(e.target.value)}
+                />
+            </div>
+
             {/* ردیف اول: نام + ایمیل */}
             <div className="flex flex-col sm:flex-row gap-5 w-full">
                 <div className="flex-1 flex flex-col gap-1.5 w-full">

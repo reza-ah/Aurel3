@@ -2,35 +2,25 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { urlFor } from "@/lib/sanity";
 
-const DIRECTUS_URL = (process.env.NEXT_PUBLIC_DIRECTUS_URL || "").replace(/\/+$/, "");
-
-type DirectusFileRef =
-    | string
-    | {
-        id?: string;
-        directus_files_id?: string | { id?: string };
+type SanityImage = {
+    _type: "image";
+    asset?: {
+        _ref: string;
+        _type: "reference";
     };
-
-type PortfolioItem = {
-    id: string;
-    title_en?: string;
-    title_fa?: string;
-    status?: string;
-    cover_image?: DirectusFileRef;
-    gallery?: DirectusFileRef[];
 };
 
-function resolveFileId(file: DirectusFileRef | null | undefined): string | null {
-    if (!file) return null;
-    if (typeof file === "string") return file;
-    if (file.directus_files_id) {
-        if (typeof file.directus_files_id === "string") return file.directus_files_id;
-        if (file.directus_files_id.id) return file.directus_files_id.id;
-    }
-    if (file.id) return file.id;
-    return null;
-}
+type PortfolioItem = {
+    _id: string;
+    title_en?: string;
+    title_fa?: string;
+    slug?: { current: string } | string;
+    status?: string;
+    cover_image?: SanityImage | string;
+    gallery?: (SanityImage | string)[];
+};
 
 function renderStatusBadge(status?: string) {
     const currentStatus = status || "published";
@@ -63,6 +53,34 @@ function renderStatusBadge(status?: string) {
                 </span>
             );
     }
+}
+
+// ✅ تابع کمکی برای ساخت URL تصویر Sanity
+function getImageUrl(image: SanityImage | string | null | undefined): string | null {
+    if (!image) return null;
+
+    try {
+        if (typeof image === "string") {
+            // اگر string باشد (reference ID)
+            return urlFor({ _type: "image", asset: { _ref: image } }).width(200).url();
+        }
+
+        if (image.asset) {
+            // اگر object با asset باشد
+            return urlFor(image).width(200).url();
+        }
+
+        return null;
+    } catch {
+        return null;
+    }
+}
+
+// ✅ تابع کمکی برای گرفتن slug
+function getSlug(slug: { current: string } | string | undefined): string {
+    if (!slug) return "";
+    if (typeof slug === "string") return slug;
+    return slug.current || "";
 }
 
 export default function PortfolioListPage() {
@@ -146,17 +164,17 @@ export default function PortfolioListPage() {
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
                             {items.map((p) => (
-                                <tr key={p.id} className="hover:bg-zinc-900/40 transition">
+                                <tr key={p._id} className="hover:bg-zinc-900/40 transition">
                                     <td className="px-4 py-4">
                                         <Link
-                                            href={`/en/atelier-dashboard/portfolio/${p.id}`}
+                                            href={`/en/atelier-dashboard/portfolio/${p._id}`}
                                             className="text-blue-400 hover:text-blue-300 mr-4"
                                         >
                                             Edit
                                         </Link>
                                         <button
                                             className="text-red-400 hover:text-red-300"
-                                            onClick={() => deleteItem(p.id)}
+                                            onClick={() => deleteItem(p._id)}
                                         >
                                             Delete
                                         </button>
@@ -165,12 +183,12 @@ export default function PortfolioListPage() {
                                     <td className="px-4 py-4">
                                         <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
                                             {(p.gallery || []).map((img, i) => {
-                                                const id = resolveFileId(img);
-                                                if (!id) return null;
+                                                const imgUrl = getImageUrl(img);
+                                                if (!imgUrl) return null;
                                                 return (
                                                     <img
                                                         key={i}
-                                                        src={`${DIRECTUS_URL}/assets/${id}`}
+                                                        src={imgUrl}
                                                         className="w-16 h-16 object-cover rounded-lg border border-zinc-700 snap-start"
                                                         alt={`Gallery ${i}`}
                                                     />
@@ -186,6 +204,9 @@ export default function PortfolioListPage() {
                                                 {p.title_fa}
                                             </div>
                                         )}
+                                        <div className="text-xs text-zinc-600 mt-1 font-mono">
+                                            /portfolio/{getSlug(p.slug)}
+                                        </div>
                                     </td>
 
                                     <td className="px-4 py-4">
@@ -194,10 +215,10 @@ export default function PortfolioListPage() {
 
                                     <td className="px-4 py-4">
                                         {(() => {
-                                            const coverId = resolveFileId(p.cover_image);
-                                            return coverId ? (
+                                            const coverUrl = getImageUrl(p.cover_image);
+                                            return coverUrl ? (
                                                 <img
-                                                    src={`${DIRECTUS_URL}/assets/${coverId}`}
+                                                    src={coverUrl}
                                                     className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
                                                     alt="Cover"
                                                 />
