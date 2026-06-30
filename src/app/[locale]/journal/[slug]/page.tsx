@@ -1,7 +1,8 @@
-import { getJournalPost, getJournalPosts, getAssetUrl } from "@/lib/sanity";
+import { getJournalPost, getJournalPosts, getOptimizedImage } from "@/lib/sanity";
 import { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import Image from "next/image";
 import ShareButtons from "@/components/share-buttons";
 
 type Params = {
@@ -9,7 +10,6 @@ type Params = {
     slug: string;
 };
 
-// ۱. به‌روزرسانی تایپ کامپوننت برای سازگاری با پرامیس در Next.js جدید
 type Props = {
     params: Promise<Params>;
 };
@@ -20,36 +20,16 @@ const toFaNumber = (n: number) =>
 const escapeRegex = (str: string) =>
     str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// ✅ helper برای normalize کردن cover_image (هم string هم object)
-const getCoverId = (cover_image: unknown): string | null => {
-    if (!cover_image) return null;
-    if (typeof cover_image === "string") return cover_image;
-    if (typeof cover_image === "object" && cover_image !== null && "id" in cover_image) {
-        return (cover_image as { id: string }).id ?? null;
-    }
-    return null;
-};
-
-/* =========================
-    SEO METADATA
-========================= */
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    // منتظر ماندن برای حل شدن پرامیسِ params
     const { locale, slug } = (await params) as { locale: "en" | "fa"; slug: string };
 
     const post = await getJournalPost(slug);
     if (!post) return {};
 
     const isFa = locale === "fa";
-
     const title = isFa ? post.title_fa : post.title_en;
     const description = isFa ? post.excerpt_fa : post.excerpt_en;
-
-    const coverId = getCoverId(post.cover_image);
-    const image = coverId
-        ? getAssetUrl(coverId)
-        : null;
+    const image = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 
     return {
         title,
@@ -69,14 +49,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-/* =========================
-    PAGE
-========================= */
-
 export default async function JournalArticlePage({ params }: Props) {
-    // منتظر ماندن برای حل شدن پرامیسِ params و تبدیل ایمن تایپ
     const { locale, slug } = (await params) as { locale: "en" | "fa"; slug: string };
-
     const isFa = locale === "fa";
 
     const post = await getJournalPost(slug);
@@ -90,29 +64,24 @@ export default async function JournalArticlePage({ params }: Props) {
     }
 
     const posts = await getJournalPosts();
-
-    const currentIndex = posts.findIndex((p: any) => p.slug === slug);
+    const currentIndex = posts.findIndex((p: any) => {
+        const pSlug = typeof p.slug === "string" ? p.slug : p.slug?.current;
+        return pSlug === slug;
+    });
     const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
-    const nextPost =
-        currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
+    const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
-    /* =========================
-        AUTOMATIC RELATED ARTICLES
-        (based on title similarity)
-     ========================= */
-
-    const currentTitleWords = (
-        isFa ? post.title_fa : post.title_en
-    )
+    const currentTitleWords = (isFa ? post.title_fa : post.title_en)
         .toLowerCase()
         .split(/\s+/);
 
     const related = posts
-        .filter((p: any) => p.slug !== slug)
+        .filter((p: any) => {
+            const pSlug = typeof p.slug === "string" ? p.slug : p.slug?.current;
+            return pSlug !== slug;
+        })
         .map((p: any) => {
-            const titleWords = (
-                isFa ? p.title_fa : p.title_en
-            )
+            const titleWords = (isFa ? p.title_fa : p.title_en)
                 .toLowerCase()
                 .split(/\s+/);
 
@@ -128,18 +97,12 @@ export default async function JournalArticlePage({ params }: Props) {
     const title = isFa ? post.title_fa : post.title_en;
     const description = isFa ? post.excerpt_fa : post.excerpt_en;
     const content = isFa ? post.content_fa : post.content_en || "";
-
-    // ✅ fix: از getCoverId استفاده می‌کنه — هم string هم object رو handle می‌کنه
-    const coverId = getCoverId(post.cover_image);
-    const imageUrl = coverId
-        ? getAssetUrl(coverId)
-        : null;
+    const imageUrl = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 
     const plainText = content.replace(/<[^>]+>/g, "");
     const words = plainText.trim().split(/\s+/).length;
     const readingTime = Math.max(1, Math.round(words / 200));
 
-    // ۲. حل قطعی مشکل تایپ با جایگزینی [...] به جای Array.from
     const headings = [...content.matchAll(/<(h2|h3)[^>]*>(.*?)<\/\1>/gi)]
         .map((match, index) => {
             const level = match[1];
@@ -147,7 +110,7 @@ export default async function JournalArticlePage({ params }: Props) {
 
             const baseId = text
                 .toLowerCase()
-                .replace(/[^\w\sآ-ی]/g, "") // پشتیبانی هم‌زمان از کاراکترهای فارسی و انگلیسی
+                .replace(/[^\w\sآ-ی]/g, "")
                 .replace(/\s+/g, "-")
                 .trim();
 
@@ -160,42 +123,29 @@ export default async function JournalArticlePage({ params }: Props) {
 
     headings.forEach((h) => {
         const safeText = escapeRegex(h.text);
-
-        const regex = new RegExp(
-            `<${h.level}([^>]*)>${safeText}</${h.level}>`,
-            "i"
-        );
-
+        const regex = new RegExp(`<${h.level}([^>]*)>${safeText}</${h.level}>`, "i");
         processedContent = processedContent.replace(
             regex,
             `<${h.level} id="${h.id}"$1>${h.text}</${h.level}>`
         );
     });
 
-    const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/journal/${post.slug}`;
-
-    /* =========================
-        FULL SEO ARTICLE SCHEMA
-     ========================= */
+    const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/journal/${slug}`;
 
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-
         headline: title,
         description: description,
         image: imageUrl,
-
         mainEntityOfPage: {
             "@type": "WebPage",
             "@id": articleUrl,
         },
-
         author: {
             "@type": "Organization",
             "@name": "Atelier",
         },
-
         publisher: {
             "@type": "Organization",
             "name": "Atelier",
@@ -204,18 +154,12 @@ export default async function JournalArticlePage({ params }: Props) {
                 "url": `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
             },
         },
-
         datePublished: post.date_created,
         dateModified: post.date_created,
-
         inLanguage: locale,
-
         wordCount: words,
-
         timeRequired: `PT${readingTime}M`,
-
         articleSection: "Jewelry",
-
         keywords: [
             "luxury jewelry",
             "custom jewelry design",
@@ -265,65 +209,51 @@ export default async function JournalArticlePage({ params }: Props) {
             />
 
             <style>{`
-        .highlight-active{
-          background:rgba(250,204,21,0.15);
-          transition:background 0.6s ease;
-          padding:4px;
-          border-radius:4px;
-        }
-      `}</style>
+                .highlight-active{
+                    background:rgba(250,204,21,0.15);
+                    transition:background 0.6s ease;
+                    padding:4px;
+                    border-radius:4px;
+                }
+            `}</style>
 
             <Script id="toc-highlight" strategy="afterInteractive">
                 {`
-        document.addEventListener("click",function(e){
-
-          const link = e.target.closest('a[data-toc]');
-          if(!link) return;
-
-          e.preventDefault();
-
-          const id = link.getAttribute("href").replace("#","");
-          const el = document.getElementById(id);
-
-          if(!el) return;
-
-          el.scrollIntoView({behavior:"smooth",block:"center"});
-
-          el.classList.add("highlight-active");
-
-          setTimeout(()=>{
-            el.classList.remove("highlight-active");
-          },2000);
-
-        });
-        `}
+                    document.addEventListener("click",function(e){
+                        const link = e.target.closest('a[data-toc]');
+                        if(!link) return;
+                        e.preventDefault();
+                        const id = link.getAttribute("href").replace("#","");
+                        const el = document.getElementById(id);
+                        if(!el) return;
+                        el.scrollIntoView({behavior:"smooth",block:"center"});
+                        el.classList.add("highlight-active");
+                        setTimeout(()=>{
+                            el.classList.remove("highlight-active");
+                        },2000);
+                    });
+                `}
             </Script>
 
             <article className="max-w-3xl mx-auto px-6 py-24">
 
                 <nav className="text-sm text-neutral-500 mb-6">
                     <ol className="flex items-center gap-2">
-
                         <li>
                             <Link href={`/${locale}`} className="hover:underline">
                                 {isFa ? "خانه" : "Home"}
                             </Link>
                         </li>
-
                         <li>/</li>
-
                         <li>
                             <Link href={`/${locale}/journal`} className="hover:underline">
                                 {isFa ? "مقالات" : "Journal"}
                             </Link>
                         </li>
-
                         <li>/</li>
-
                         <li className="text-neutral-300 font-medium">
                             {title}
                         </li>
-
                     </ol>
                 </nav>
 
@@ -338,22 +268,24 @@ export default async function JournalArticlePage({ params }: Props) {
                 </p>
 
                 {imageUrl && (
-                    <img
-                        src={imageUrl}
-                        alt={title}
-                        className="w-full mb-12"
-                    />
+                    <div className="relative w-full aspect-video mb-12 rounded-2xl overflow-hidden">
+                        <Image
+                            src={imageUrl}
+                            alt={title}
+                            fill
+                            priority
+                            sizes="(max-width: 768px) 100vw, 768px"
+                            className="object-cover"
+                        />
+                    </div>
                 )}
 
                 {headings.length > 0 && (
-                    <nav className="mb-16 border border-neutral-800 p-6">
-
+                    <nav className="mb-16 border border-neutral-800 p-6 rounded-xl">
                         <p className="text-sm text-neutral-400 mb-4">
                             {isFa ? "فهرست مقاله" : "Table of Contents"}
                         </p>
-
                         <ul className="space-y-2">
-
                             {headings.map((h) => (
                                 <li
                                     key={h.id}
@@ -368,9 +300,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                     </a>
                                 </li>
                             ))}
-
                         </ul>
-
                     </nav>
                 )}
 
@@ -387,10 +317,9 @@ export default async function JournalArticlePage({ params }: Props) {
                 />
 
                 <div className="grid grid-cols-2 gap-6 border-t border-neutral-800 pt-12 mb-24">
-
                     {prevPost && (
                         <Link
-                            href={`/${locale}/journal/${prevPost.slug}`}
+                            href={`/${locale}/journal/${typeof prevPost.slug === "string" ? prevPost.slug : prevPost.slug?.current}`}
                             className="text-neutral-400 hover:text-white"
                         >
                             ← {isFa ? "مقاله قبلی" : "Previous Article"}
@@ -402,7 +331,7 @@ export default async function JournalArticlePage({ params }: Props) {
 
                     {nextPost && (
                         <Link
-                            href={`/${locale}/journal/${nextPost.slug}`}
+                            href={`/${locale}/journal/${typeof nextPost.slug === "string" ? nextPost.slug : nextPost.slug?.current}`}
                             className="text-right text-neutral-400 hover:text-white"
                         >
                             {isFa ? "مقاله بعدی" : "Next Article"} →
@@ -411,53 +340,49 @@ export default async function JournalArticlePage({ params }: Props) {
                             </p>
                         </Link>
                     )}
-
                 </div>
 
                 {related.length > 0 && (
                     <section>
-
                         <h2 className="text-2xl font-light mb-8">
                             {isFa ? "مقالات مرتبط" : "Related Articles"}
                         </h2>
 
                         <div className="grid md:grid-cols-3 gap-8">
-
                             {related.map((p: any) => {
-
                                 const relTitle = isFa ? p.title_fa : p.title_en;
-
-                                // ✅ fix: از getCoverId استفاده می‌کنه
-                                const relCoverId = getCoverId(p.cover_image);
-                                const relImage = relCoverId
-                                    ? getAssetUrl(relCoverId)
-                                    : null;
+                                const relSlug = typeof p.slug === "string" ? p.slug : p.slug?.current;
+                                const relImage = getOptimizedImage(p.cover_image, {
+                                    width: 600,
+                                    quality: 75,
+                                    format: "webp"
+                                });
 
                                 return (
                                     <Link
-                                        key={p.slug}
-                                        href={`/${locale}/journal/${p.slug}`}
+                                        key={p._id}
+                                        href={`/${locale}/journal/${relSlug}`}
                                         className="group"
                                     >
-
                                         {relImage && (
-                                            <img
-                                                src={relImage}
-                                                alt={relTitle}
-                                                className="mb-4 group-hover:opacity-80 transition"
-                                            />
+                                            <div className="relative w-full aspect-video mb-4 rounded-xl overflow-hidden">
+                                                <Image
+                                                    src={relImage}
+                                                    alt={relTitle}
+                                                    fill
+                                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                                    className="object-cover group-hover:opacity-80 transition"
+                                                />
+                                            </div>
                                         )}
 
                                         <p className="text-sm text-neutral-300 group-hover:text-white">
                                             {relTitle}
                                         </p>
-
                                     </Link>
                                 );
                             })}
-
                         </div>
-
                     </section>
                 )}
 

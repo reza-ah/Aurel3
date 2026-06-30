@@ -1,11 +1,9 @@
-// src/app/[locale]/portfolio/[slug]/page.tsx
-
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOptimizedImage } from "@/lib/sanity";
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
-import { getPortfolioItems, getAssetUrl } from "@/lib/sanity";
+import { getPortfolioItems } from "@/lib/sanity";
 
 type PortfolioItem = {
     _id: string;
@@ -29,7 +27,6 @@ type Props = {
     }>;
 };
 
-// ✅ helper برای گرفتن slug
 const getSlug = (slug: any): string => {
     if (!slug) return "";
     if (typeof slug === "string") return slug;
@@ -37,17 +34,12 @@ const getSlug = (slug: any): string => {
     return "";
 };
 
-export default async function ProjectPage({
-    params,
-}: Props) {
-
+export default async function ProjectPage({ params }: Props) {
     const { locale, slug } = await params;
-
     const isFa = locale === "fa";
 
     const portfolioItems: PortfolioItem[] = await getPortfolioItems();
 
-    // ✅ اصلاح: استفاده از getSlug
     const project = portfolioItems.find(
         (item) => getSlug(item.slug) === slug
     );
@@ -60,43 +52,26 @@ export default async function ProjectPage({
     const category = isFa ? project.category_fa : project.category_en;
     const description = isFa ? project.description_fa : project.description_en;
 
-    const imageUrl = getOptimizedImage(project.cover_image, { width: 1200, quality: 85 }) || "/placeholder.jpg";
+    const imageUrl = getOptimizedImage(project.cover_image, {
+        width: 1200,
+        quality: 80,
+        format: "webp"
+    }) || "/placeholder.jpg";
 
-    <Image
-        src={imageUrl}
-        alt={title}
-        fill
-        priority
-        // ✅ حذف unoptimized
-        sizes="100vw"
-    />
-
-    /* =========================
-       GALLERY IMAGES
-    ========================= */
-
-    // ✅ اصلاح: حذف directus_files_id
     const galleryImages = (project.gallery || [])
-        .map((g) => getAssetUrl(g))
+        .map((g) => getOptimizedImage(g, { width: 1200, quality: 80, format: "webp" }))
         .filter(Boolean) as string[];
 
-    /* =========================
-       RELATED PROJECTS
-    ========================= */
-
-    // ✅ در Sanity، تگ‌ها فقط _ref دارن (مگر اینکه dereference بشن)
     const currentTags = (project.tags || [])
         .map((tag) => tag._ref || tag.slug?.current || tag.slug)
         .filter(Boolean);
 
     const relatedProjects = portfolioItems
         .filter((item) => {
-            // ✅ اصلاح: استفاده از getSlug
             if (getSlug(item.slug) === slug) {
                 return false;
             }
 
-            // ✅ سازگار با Sanity
             const itemTags = (item.tags || [])
                 .map((tag) => tag._ref || tag.slug?.current || tag.slug)
                 .filter(Boolean);
@@ -145,7 +120,7 @@ export default async function ProjectPage({
                                 alt={title}
                                 fill
                                 priority
-                                unoptimized
+                                sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover transition duration-700 group-hover:scale-105"
                             />
                         </div>
@@ -215,7 +190,11 @@ export default async function ProjectPage({
                             {relatedProjects.map((item: PortfolioItem) => {
                                 const itemTitle = isFa ? item.title_fa : item.title_en;
                                 const itemCategory = isFa ? item.category_fa : item.category_en;
-                                const itemImage = getAssetUrl(item.cover_image) || "/placeholder.jpg";
+                                const itemImage = getOptimizedImage(item.cover_image, {
+                                    width: 900,
+                                    quality: 75,
+                                    format: "webp"
+                                }) || "/placeholder.jpg";
 
                                 return (
                                     <Link
@@ -228,7 +207,7 @@ export default async function ProjectPage({
                                                 src={itemImage}
                                                 alt={itemTitle}
                                                 fill
-                                                unoptimized
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                 className="object-cover transition duration-700 group-hover:scale-105"
                                             />
                                         </div>

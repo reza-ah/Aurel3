@@ -8,25 +8,25 @@ import { getDictionary } from "@/lib/utils/get-dictionary";
 
 import "../globals.css";
 
-// ✅ بهینه‌سازی فونت‌ها با preload
+// ✅ فونت اصلی با preload
 const vazir = localFont({
     src: "../../fonts/Vazirmatn[wght].woff2",
     variable: "--font-vazir",
-    display: "swap",
-    preload: true, // ✅ اضافه شد - فونت اصلی preload می‌شود
+    display: "swap", // ✅ مهم: جلوگیری از FOIT
+    preload: true,
     fallback: ["system-ui", "sans-serif"],
-    weight: "100 900", // ✅ اضافه شد - محدوده وزن
+    weight: "100 900",
 });
 
+// ✅ فونت دوم بدون preload (برای کاهش critical path)
 const cormorant = localFont({
     src: "../../fonts/CormorantGaramond[wght].woff2",
     variable: "--font-cormorant",
     display: "swap",
-    preload: false, // ✅ فقط یک فونت preload شود
+    preload: false, // ✅ مهم: فقط یک فونت preload شود
     fallback: ["Georgia", "serif"],
-    weight: "300 700", // ✅ اضافه شد - محدوده وزن
+    weight: "300 700",
 });
-
 // ✅ Viewport metadata (Next.js 14+)
 export const viewport: Viewport = {
     themeColor: "#070707",

@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { getAssetUrl } from "@/lib/sanity";
 import { getOptimizedImage } from "@/lib/sanity";
 
 type Props = {
@@ -26,11 +25,9 @@ export default function PortfolioGrid({ locale, items }: Props) {
     const isFa = locale === "fa";
     const [activeTags, setActiveTags] = useState<string[]>([]);
 
-    // تعداد آیتم‌هایی که در هر مرحله (لود اول و هر بار اسکرول) اضافه می‌شوند
     const ITEMS_PER_PAGE = 6;
     const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
 
-    // المانی برای تشخیص رسیدن کاربر به انتهای صفحه
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
     const toggleTag = (slug: string) => {
@@ -72,7 +69,6 @@ export default function PortfolioGrid({ locale, items }: Props) {
         return Array.from(map.values());
     }, [items, isFa]);
 
-    // ۱. ابتدا آیتم‌ها بر اساس تگ‌ها فیلتر می‌شوند
     const filteredItems = useMemo(() => {
         if (activeTags.length === 0) return items;
         return items.filter((item) => {
@@ -84,17 +80,14 @@ export default function PortfolioGrid({ locale, items }: Props) {
         });
     }, [items, activeTags]);
 
-    // ۲. هر زمان که فیلتر تغییر کرد، تعداد کارت‌های نمایشی به مقدار اولیه (مثلاً ۶) برمی‌گردد
     useEffect(() => {
         setVisibleCount(ITEMS_PER_PAGE);
     }, [activeTags]);
 
-    // ۳. جدا کردن آیتم‌های مجاز برای نمایش فعلی (تعداد محدود شده)
     const displayedItems = useMemo(() => {
         return filteredItems.slice(0, visibleCount);
     }, [filteredItems, visibleCount]);
 
-    // ۴. تشخیص اسکرول به انتهای صفحه با استفاده از Intersection Observer (بهینه‌ترین روش فرانت‌اند)
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
@@ -102,7 +95,7 @@ export default function PortfolioGrid({ locale, items }: Props) {
                     setVisibleCount((prev) => prev + ITEMS_PER_PAGE);
                 }
             },
-            { threshold: 0.1, rootMargin: "200px" } // ۲۰۰ پیکسل قبل از رسیدن به انتها، لود را شروع می‌کند
+            { threshold: 0.1, rootMargin: "200px" }
         );
 
         if (loadMoreRef.current) {
@@ -156,37 +149,34 @@ export default function PortfolioGrid({ locale, items }: Props) {
             )}
 
             {/* GRID */}
-            <motion.div layout className="grid md:grid-cols-3  xl:grid-cols-3 gap-8">
+            <motion.div layout className="grid md:grid-cols-3 xl:grid-cols-3 gap-8">
                 <AnimatePresence>
-                    {displayedItems.map((item) => {
+                    {displayedItems.map((item, index) => {
                         const title = isFa ? item.title_fa : item.title_en;
                         const category = isFa ? item.category_fa : item.category_en;
-                        const imageUrl = getOptimizedImage(item.cover_image, { width: 900, quality: 80 }) || "/placeholder.jpg";
-                        <Image
-                            src={imageUrl}
-                            alt={title}
-                            fill
-                            // ✅ حذف unoptimized
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                        />
+                        const imageUrl = getOptimizedImage(item.cover_image, {
+                            width: 900,
+                            quality: 75,
+                            format: "webp"
+                        }) || "/placeholder.jpg";
 
                         return (
                             <motion.div
-                                key={item.id}
+                                key={item._id || item.id}
                                 layout
                                 initial={{ opacity: 0, scale: 0.92 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.92 }}
                                 transition={{ duration: 0.35 }}
                             >
-                                <Link href={`/${locale}/portfolio/${item.slug}`} className="group block">
+                                <Link href={`/${locale}/portfolio/${item.slug?.current || item.slug}`} className="group block">
                                     <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-zinc-900/30 backdrop-blur-sm border border-white/5">
                                         <Image
                                             src={imageUrl}
                                             alt={title}
                                             fill
-                                            unoptimized
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            priority={index < 3}
                                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                                         />
 

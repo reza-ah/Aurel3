@@ -1,14 +1,18 @@
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import HomepageSectionRenderer from "@/components/homepage-section-renderer";
 import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts, getAssetUrl } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 
-// ✅ همه default import (نه named)
+// ✅ Default imports
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
 import PricingSection from "@/features/pricing/components/pricing-section";
 import { ContactForm } from "@/features/contact/components/contact-form";
+
+// ✅ Dynamic import برای کامپوننت‌های سنگین در صورت نیاز
+// (اگر کامپوننت‌های سنگین دیگری داری که در initial render لازم نیستند)
 
 export default async function HomePage({
     params,
@@ -43,7 +47,7 @@ export default async function HomePage({
             {/* Pricing Section */}
             <PricingSection locale={locale} />
 
-            {/* Contact Form - فقط locale */}
+            {/* Contact Form */}
             <ContactForm locale={locale} />
 
             {/* Products Section */}
@@ -54,14 +58,14 @@ export default async function HomePage({
                             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/60">
                                 {isFa ? "محصولات" : "Products"}
                             </p>
-
                             <h2 className="text-4xl font-light md:text-5xl text-[#F5F1E8]">
                                 {isFa ? "کالکشن جواهرات" : "Jewelry Collection"}
                             </h2>
                         </div>
 
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-                            {products.map((product: any) => {
+                            {products.map((product: any, index: number) => {
+                                // ✅ استفاده از getOptimizedImage
                                 const imageUrl = getAssetUrl(product.image);
 
                                 const title = isFa ? product.title_fa : product.title_en;
@@ -86,8 +90,8 @@ export default async function HomePage({
                                                     src={imageUrl}
                                                     alt={title}
                                                     fill
-                                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    className="object-cover transition-transform duration-700 group-hover:scale-105"
                                                 />
                                             </div>
                                         ) : (

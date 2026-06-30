@@ -1,4 +1,4 @@
-import { getProductBySlug, getAssetUrl } from "@/lib/sanity";
+import { getProductBySlug, getOptimizedImage } from "@/lib/sanity";
 import SiteHeader from "@/components/site-header";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
@@ -16,26 +16,26 @@ export default async function ProductPage({
 
     if (!product) return notFound();
 
-    // Safe title
     const title =
         locale === "fa"
             ? product.title_fa || "محصول"
             : product.title_en || "Product";
 
-    // Safe description
     const description =
         locale === "fa"
             ? product.description_fa || "توضیحاتی ثبت نشده است"
             : product.description_en || "No description available";
 
-    // Safe price
     const formattedPrice =
         locale === "fa"
             ? `${Number(product.price || 0).toLocaleString("fa-IR")} تومان`
             : `$${product.price || 0}`;
 
-    // ✅ استفاده از getAssetUrl برای Sanity
-    const imageUrl = getAssetUrl(product.image) || null;
+    const imageUrl = getOptimizedImage(product.image, {
+        width: 800,
+        quality: 80,
+        format: "webp"
+    });
 
     return (
         <>
@@ -51,8 +51,9 @@ export default async function ProductPage({
                                     src={imageUrl}
                                     alt={title}
                                     fill
-                                    className="object-cover"
                                     priority
+                                    sizes="(max-width: 768px) 100vw, 50vw"
+                                    className="object-cover"
                                 />
                             ) : (
                                 <div className="flex h-full items-center justify-center text-zinc-500">
