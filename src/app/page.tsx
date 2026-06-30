@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function Home() {
-    redirect("/fa");
+    redirect("/en");  // ✅ هماهنگ با defaultLocale در middleware
 }
-

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
-import { getPortfolioItems } from "@/lib/sanity";
+import { getPortfolioItems, getAssetUrl } from "@/lib/sanity";
 
 type PortfolioItem = {
     id: number;
@@ -87,9 +87,8 @@ export default async function ProjectPage({
             : project.description_en;
 
     const imageUrl =
-        project.cover_image?.id
-            ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${project.cover_image.id}`
-            : "/placeholder.jpg";
+        getAssetUrl(project.cover_image) ||
+        "/placeholder.jpg";
 
     /* =========================
        GALLERY IMAGES
@@ -99,8 +98,8 @@ export default async function ProjectPage({
         (project.gallery || [])
             .map((g) => g.directus_files_id)
             .filter(Boolean)
-            .map((id) =>
-                `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${id}`
+            .map((img) =>
+                getAssetUrl(img) || "/placeholder.jpg"
             );
 
     /* =========================
@@ -452,14 +451,13 @@ export default async function ProjectPage({
                                             : item.category_en;
 
                                     const itemImage =
-                                        item.cover_image?.id
-                                            ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${item.cover_image.id}`
-                                            : "/placeholder.jpg";
+                                        getAssetUrl(item.cover_image) ||
+                                        "/placeholder.jpg";
 
                                     return (
 
                                         <Link
-                                            key={item.id}
+                                            key={item._id}
                                             href={`/${locale}/portfolio/${item.slug}`}
                                             className="group"
                                         >

@@ -1,4 +1,4 @@
-import { getProductBySlug } from "@/lib/sanity";
+import { getProductBySlug, getAssetUrl } from "@/lib/sanity";
 import SiteHeader from "@/components/site-header";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 export default async function ProductPage({
     params,
 }: {
-    params: { locale: "en" | "fa"; slug: string };
+    params: Promise<{ locale: "en" | "fa"; slug: string }>;
 }) {
     const { locale, slug } = await params;
 
@@ -34,61 +34,56 @@ export default async function ProductPage({
             ? `${Number(product.price || 0).toLocaleString("fa-IR")} تومان`
             : `$${product.price || 0}`;
 
-    // Safe image handling
-    let imageId: string | null = null;
-
-    if (product.image) {
-        if (typeof product.image === "string") {
-            imageId = product.image;
-        } else if (product.image.id) {
-            imageId = product.image.id;
-        }
-    }
+    // ✅ استفاده از getAssetUrl برای Sanity
+    const imageUrl = getAssetUrl(product.image) || null;
 
     return (
-        <main className="min-h-screen bg-black text-white">
+        <>
+            <SiteHeader locale={locale} />
 
-
-            <section className="max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16">
-                {/* Image */}
-                <div className="relative w-full h-[500px] overflow-hidden rounded-2xl bg-zinc-900">
-                    {imageId ? (
-                        <Image
-                            src={`${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${imageId}`}
-                            alt={title || "Product Image"}
-                            width={800}
-                            height={800}
-                            className="w-full h-full object-cover"
-                            priority
-                        />
-                    ) : (
-                        <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-zinc-400">
-                            No Image
+            <main className="min-h-screen bg-black pt-32 pb-20">
+                <div className="mx-auto max-w-7xl px-6 lg:px-10">
+                    <div className="grid gap-12 md:grid-cols-2">
+                        {/* Image */}
+                        <div className="relative aspect-square overflow-hidden rounded-3xl bg-zinc-900/30 border border-white/5">
+                            {imageUrl ? (
+                                <Image
+                                    src={imageUrl}
+                                    alt={title}
+                                    fill
+                                    className="object-cover"
+                                    priority
+                                />
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-zinc-500">
+                                    No Image
+                                </div>
+                            )}
                         </div>
-                    )}
-                </div>
 
-                {/* Info */}
-                <div className="flex flex-col justify-center">
-                    <h1 className="text-4xl md:text-5xl font-light mb-6">
-                        {title}
-                    </h1>
+                        {/* Info */}
+                        <div className="flex flex-col justify-center">
+                            <h1 className="mb-6 text-4xl font-light text-white md:text-5xl">
+                                {title}
+                            </h1>
 
-                    <p className="text-zinc-400 mb-10 leading-relaxed">
-                        {description}
-                    </p>
+                            <p className="mb-8 text-lg leading-8 text-white/80">
+                                {description}
+                            </p>
 
-                    <div className="text-3xl font-bold text-yellow-500 mb-10">
-                        {formattedPrice}
+                            <p className="mb-8 text-3xl font-light text-[#d4af37]">
+                                {formattedPrice}
+                            </p>
+
+                            <button className="inline-flex w-full items-center justify-center rounded-full border border-[#d4af37]/40 px-8 py-4 text-sm uppercase tracking-[0.2em] text-[#d4af37] transition-all duration-300 hover:bg-[#d4af37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] md:w-auto">
+                                {locale === "fa"
+                                    ? "افزودن به سبد خرید"
+                                    : "Add to Cart"}
+                            </button>
+                        </div>
                     </div>
-
-                    <button className="w-fit px-8 py-3 border border-white rounded-full hover:bg-white hover:text-black transition duration-300">
-                        {locale === "fa"
-                            ? "افزودن به سبد خرید"
-                            : "Add to Cart"}
-                    </button>
                 </div>
-            </section>
-        </main>
+            </main>
+        </>
     );
 }

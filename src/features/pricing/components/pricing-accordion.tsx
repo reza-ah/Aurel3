@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import Reveal from "@/components/reveal";
+import { getAssetUrl } from "@/lib/sanity";
 
 type Props = {
     locale: string;
@@ -20,8 +21,6 @@ export default function PricingAccordion({
 
     const isFa = locale === "fa";
 
-    const directus = process.env.NEXT_PUBLIC_DIRECTUS_URL;
-
     return (
         <div className="space-y-4">
 
@@ -30,17 +29,17 @@ export default function PricingAccordion({
                 const categoryItems = items.filter((item: any) => {
                     const catId =
                         typeof item.category === "object"
-                            ? item.category?.id
+                            ? item.category?._id
                             : item.category;
 
-                    return catId === category.id;
+                    return catId === category._id;
                 });
 
                 const isOpen = openIndex === index;
 
                 return (
                     <div
-                        key={category.id}
+                        key={category._id}
                         className="group border-b border-white/5 last:border-none"
                     >
                         {/* HEADER */}
@@ -94,14 +93,14 @@ export default function PricingAccordion({
                                         <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                                             {categoryItems.map((item: any) => (
                                                 <div
-                                                    key={item.id}
+                                                    key={item._id}
                                                     className="group/item flex min-h-[28rem] flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#070707]/85 shadow-[0_24px_90px_-40px_rgba(0,0,0,0.8)] transition-all duration-500 hover:-translate-y-2 hover:border-[#d4af37]/30 hover:bg-white/[0.08]"
                                                 >
                                                     {/* IMAGE */}
                                                     {item.img && (
                                                         <div className="relative overflow-hidden">
                                                             <img
-                                                                src={`${directus}/assets/${item.img.id}?width=900&format=webp`}
+                                                                src={getAssetUrl(item.img) || "/placeholder.jpg"}
                                                                 alt={
                                                                     isFa
                                                                         ? item.title_fa
@@ -154,35 +153,6 @@ export default function PricingAccordion({
                                                                     </p>
                                                                 </div>
                                                             )}
-
-                                                            {/*
-                                                            {(item.features_fa || item.features_en) && (
-                                                                <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
-                                                                    <span className="mb-3 block text-[10px] uppercase tracking-[0.25em] text-[#d4af37]/70">
-                                                                        {isFa
-                                                                            ? "مشخصات"
-                                                                            : "Features"}
-                                                                    </span>
-                                                                    <ul className="space-y-3">
-                                                                        {(isFa
-                                                                            ? item.features_fa
-                                                                            : item.features_en
-                                                                        )
-                                                                            ?.split("\n")
-                                                                            .filter(Boolean)
-                                                                            .map((feature: string, i: number) => (
-                                                                                <li
-                                                                                    key={i}
-                                                                                    className="flex items-start gap-3 text-sm leading-7 text-white/65"
-                                                                                >
-                                                                                    <span className="mt-[10px] h-2 w-2 rounded-full bg-[#d4af37]" />
-                                                                                    <span>{feature}</span>
-                                                                                </li>
-                                                                            ))}
-                                                                    </ul>
-                                                                </div>
-                                                            )}
-                                                            */}
                                                         </div>
 
                                                         <div className="mt-auto rounded-[24px] border border-white/10 bg-[#090909]/70 p-5 backdrop-blur-xl">
@@ -274,4 +244,3 @@ export default function PricingAccordion({
         </div>
     );
 }
-

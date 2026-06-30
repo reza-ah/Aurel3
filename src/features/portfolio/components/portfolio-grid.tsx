@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { getAssetUrl } from "@/lib/sanity";
 
 type Props = {
     locale: string;
@@ -159,15 +160,7 @@ export default function PortfolioGrid({ locale, items }: Props) {
                     {displayedItems.map((item) => {
                         const title = isFa ? item.title_fa : item.title_en;
                         const category = isFa ? item.category_fa : item.category_en;
-
-                        const fileId =
-                            item.cover_image?.id ||
-                            item.cover_image?.directus_files_id ||
-                            (typeof item.cover_image === "string" ? item.cover_image : null);
-
-                        const imageUrl = fileId
-                            ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${fileId}?fit=cover&width=900&quality=85`
-                            : "/placeholder.jpg";
+                        const imageUrl = getAssetUrl(item.cover_image) || "/placeholder.jpg";
 
                         return (
                             <motion.div

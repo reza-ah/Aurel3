@@ -6,20 +6,20 @@ export async function POST() {
         message: "Logged out",
     });
 
-    // پاک کردن Access Token
+    // ✅ پاک کردن Access Token با sameSite: strict
     response.cookies.set("admin_auth", "", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "strict",
         path: "/",
         expires: new Date(0),
     });
 
-    // ✅ پاک کردن Refresh Token
+    // ✅ پاک کردن Refresh Token با sameSite: strict
     response.cookies.set("admin_refresh", "", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "strict",
         path: "/",
         expires: new Date(0),
     });

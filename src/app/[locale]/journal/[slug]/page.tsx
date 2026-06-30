@@ -1,4 +1,4 @@
-import { getJournalPost, getJournalPosts } from "@/lib/sanity";
+import { getJournalPost, getJournalPosts, getAssetUrl } from "@/lib/sanity";
 import { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const coverId = getCoverId(post.cover_image);
     const image = coverId
-        ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${coverId}`
+        ? getAssetUrl(coverId)
         : null;
 
     return {
@@ -132,7 +132,7 @@ export default async function JournalArticlePage({ params }: Props) {
     // ✅ fix: از getCoverId استفاده می‌کنه — هم string هم object رو handle می‌کنه
     const coverId = getCoverId(post.cover_image);
     const imageUrl = coverId
-        ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${coverId}`
+        ? getAssetUrl(coverId)
         : null;
 
     const plainText = content.replace(/<[^>]+>/g, "");
@@ -430,7 +430,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                 // ✅ fix: از getCoverId استفاده می‌کنه
                                 const relCoverId = getCoverId(p.cover_image);
                                 const relImage = relCoverId
-                                    ? `${process.env.NEXT_PUBLIC_DIRECTUS_URL}/assets/${relCoverId}`
+                                    ? getAssetUrl(relCoverId)
                                     : null;
 
                                 return (

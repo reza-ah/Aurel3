@@ -1,42 +1,64 @@
-export async function MessagesList() {
-    const DIRECTUS_URL = process.env.DIRECTUS_URL || process.env.NEXT_PUBLIC_DIRECTUS_URL || "http://127.0.0.1:8055";
-    const DIRECTUS_TOKEN = process.env.DIRECTUS_STATIC_TOKEN || process.env.DIRECTUS_ADMIN_TOKEN;
+"use client";
 
-    const res = await fetch(`${DIRECTUS_URL}/items/messages?sort=-date_created`, {
-        headers: { ...(DIRECTUS_TOKEN ? { 'Authorization': `Bearer ${DIRECTUS_TOKEN}` } : {}) },
-        cache: 'no-store'
-    });
+import { useEffect, useState } from "react";
 
-    const { data } = await res.json();
+interface ContactMessage {
+    _id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    subject?: string;
+    message: string;
+    date_created: string;
+}
+
+export default function MessagesList() {
+    const [messages, setMessages] = useState<ContactMessage[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch("/api/atelier-dashboard/contact")
+            .then((res) => res.json())
+            .then((data) => {
+                setMessages(Array.isArray(data) ? data : []);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, []);
+
+    if (loading) {
+        return <div className="p-4">Loading...</div>;
+    }
+
+    if (messages.length === 0) {
+        return <div className="p-4 text-gray-500">No messages yet</div>;
+    }
 
     return (
-        <div className="space-y-4 w-full">
-            {data?.map((msg: any) => (
-                <div key={msg.id} className="p-4 border border-white/10 rounded-lg w-full overflow-hidden">
-                    <div className="flex justify-between items-center mb-2 gap-4">
-                        <h3 className="font-medium truncate">{msg.name}</h3>
-                        <span className="text-xs text-white/50 shrink-0">
+        <div className="space-y-4">
+            {messages.map((msg) => (
+                <div
+                    key={msg._id}
+                    className="p-4 bg-white/5 rounded-lg border border-white/10"
+                >
+                    <div className="flex justify-between items-start mb-2">
+                        <div>
+                            <h3 className="font-semibold text-white">{msg.name}</h3>
+                            <p className="text-sm text-gray-400">{msg.email}</p>
+                        </div>
+                        <span className="text-xs text-gray-500">
                             {new Date(msg.date_created).toLocaleDateString()}
                         </span>
                     </div>
-
-                    {/* استفاده از سبک خاص برای شکستن کلمات طولانی */}
-                    <p
-                        className="text-white/70 mt-2 w-full"
-                        style={{
-                            wordBreak: 'break-all',
-                            overflowWrap: 'break-word'
-                        }}
-                    >
-                        {msg.message}
-                    </p>
-
-                    <a href={`mailto:${msg.email}`} className="text-amber-500 text-sm underline mt-3 block truncate">
-                        {msg.email}
-                    </a>
+                    {msg.subject && (
+                        <p className="text-sm text-[#C6A86A] mb-2">{msg.subject}</p>
+                    )}
+                    <p className="text-gray-300">{msg.message}</p>
+                    {msg.phone && (
+                        <p className="text-sm text-gray-400 mt-2">Phone: {msg.phone}</p>
+                    )}
                 </div>
             ))}
         </div>
     );
 }
-

@@ -16,12 +16,13 @@ export async function POST(request: NextRequest) {
     const newAccessToken = await createAdminToken();
     const response = NextResponse.json({ success: true });
 
+    // ✅ sameSite: strict (هماهنگ با login)
     response.cookies.set("admin_auth", newAccessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
+        sameSite: "strict",
         path: "/",
-        maxAge: 60 * 60, // 1 hour
+        maxAge: 60 * 60,
     });
 
     return response;
