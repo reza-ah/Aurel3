@@ -55,28 +55,54 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ✅ Validation
+        console.log("Order payload:", JSON.stringify(body, null, 2));
+
+        // Validation
         if (!body.full_name || !body.email || !body.details) {
+            console.error("Missing fields:", {
+                full_name: !!body.full_name,
+                email: !!body.email,
+                details: !!body.details,
+            });
             return NextResponse.json(
-                { success: false, error: "Missing required fields" },
+                {
+                    success: false,
+                    error: "Missing required fields",
+                    missing: {
+                        full_name: !body.full_name,
+                        email: !body.email,
+                        details: !body.details,
+                    }
+                },
                 { status: 400 }
             );
         }
 
         // ✅ ایجاد سفارش در Sanity
+        const tracking_code = `AUR-${Date.now().toString(36).toUpperCase()}`;
+
         const order = await writeClient.create({
             _type: "order",
             name: body.full_name,
             email: body.email,
             phone: body.phone || "",
             message: body.details,
-            files: body.files || [],
+            service: body.service || "",
+            jewelry_type: body.jewelry_type || "",
+            files: Array.isArray(body.files)
+                ? body.files.map((file: any, index: number) => ({
+                    _key: `file-${Date.now()}-${index}`,
+                    _type: 'file',
+                    asset: {
+                        _type: 'reference',
+                        _ref: typeof file === 'string' ? file : file._ref || file,
+                    },
+                }))
+                : [],
             status: "new",
+            tracking_code: tracking_code,
             date_created: new Date().toISOString(),
         });
-
-        // ✅ کد پیگیری (۸ کاراکتر آخر _id)
-        const tracking_code = order._id.slice(-8);
 
         return NextResponse.json({
             success: true,

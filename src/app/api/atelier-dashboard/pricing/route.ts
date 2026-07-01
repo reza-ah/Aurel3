@@ -95,11 +95,11 @@ export async function POST(request: NextRequest) {
             suitable_fa: body.suitable_fa || "",
             features_en: body.features_en || "",
             features_fa: body.features_fa || "",
-            img: body.img || null,
-            category: body.category ? { _type: "reference", _ref: body.category } : null,
+            img: body.img ? { _type: "image", asset: { _type: "reference", _ref: typeof body.img === "string" ? body.img : body.img._ref } } : null,
+            category: body.category ? { _type: "reference", _ref: typeof body.category === "string" ? body.category : body.category._ref } : null,
             sort: body.sort || 999,
             is_active: body.is_active !== false,
-            date_created: new Date().toISOString(),
+            // ❌ حذف date_created - Sanity خودش _createdAt را اضافه می‌کند
         });
 
         revalidatePath("/[locale]/pricing", "page");
@@ -166,7 +166,13 @@ export async function PATCH(request: NextRequest) {
                     suitable_fa: body.suitable_fa,
                     features_en: body.features_en,
                     features_fa: body.features_fa,
-                    img: body.img || null,
+                    img: body.img ? {
+                        _type: "image",
+                        asset: {
+                            _type: "reference",
+                            _ref: typeof body.img === "string" ? body.img : body.img._ref || body.img
+                        }
+                    } : null,
                     category: body.category ? { _type: "reference", _ref: typeof body.category === "string" ? body.category : body.category._ref } : null,
                 })
                 .commit();

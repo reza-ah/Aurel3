@@ -1,0 +1,16 @@
+{
+    "name": "Aurel Design",
+    "short_name": "Aurel",
+    "description": "Luxury Jewelry Design Studio",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#070707",
+    "theme_color": "#D4AF37",
+    "icons": [
+        {
+            "src": "/icon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}
