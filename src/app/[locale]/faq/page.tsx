@@ -10,14 +10,14 @@ export default async function Page({
     const { locale } = await params;
     const isFa = locale === "fa";
 
-    // ✅ اصلاح: استفاده از URL کامل
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aureldesign.ir";
 
     let faqItems: any[] = [];
 
     try {
+        // ✅ اصلاح: حذف فیلتر locale - همه FAQ ها را نمایش بده
         const res = await fetch(
-            `${baseUrl}/api/atelier-dashboard/faq?locale=${locale}`,
+            `${baseUrl}/api/atelier-dashboard/faq`,
             {
                 cache: "no-store",
                 headers: {
@@ -28,7 +28,7 @@ export default async function Page({
 
         if (res.ok) {
             faqItems = await res.json();
-            console.log(`FAQ items for ${locale}:`, faqItems.length);
+            console.log(`FAQ items loaded:`, faqItems.length);
         } else {
             console.error(`FAQ API error: ${res.status}`);
         }

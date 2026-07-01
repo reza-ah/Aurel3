@@ -42,11 +42,9 @@ export function OrderForm({ locale, onSuccess }: Props) {
     const [uploadedFileIds, setUploadedFileIds] = useState<string[]>([])
     const [serverError, setServerError] = useState("")
 
-    // ✅ Anti-spam: honeypot
     const [honeypot, setHoneypot] = useState("")
     const startTimeRef = useRef<number>(Date.now())
 
-    // ✅ اضافه کردن useEffect برای اطمینان از شروع timer
     useEffect(() => {
         startTimeRef.current = Date.now()
     }, [])
@@ -75,10 +73,12 @@ export function OrderForm({ locale, onSuccess }: Props) {
         try {
             setServerError("")
 
-            // ✅ محاسبه timeSpent با حداقل ۵ ثانیه
             const timeSpent = Math.max(5, Math.floor((Date.now() - startTimeRef.current) / 1000))
 
-            console.log("Order form - timeSpent:", timeSpent, "honeypot:", honeypot)
+            console.log("=== ORDER FORM DEBUG ===");
+            console.log("timeSpent:", timeSpent);
+            console.log("honeypot:", honeypot);
+            console.log("data:", data);
 
             const payload = {
                 full_name: data.name,
@@ -90,8 +90,10 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 created_at: new Date().toISOString(),
                 files: uploadedFileIds.map(id => ({ _ref: id })),
                 honeypot,
-                timeSpent,  // ✅ الان مقدار درست دارد
+                timeSpent,
             }
+
+            console.log("Payload to send:", payload);
 
             const response = await fetch("/api/atelier-dashboard/orders", {
                 method: "POST",
@@ -99,8 +101,11 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 body: JSON.stringify(payload),
             })
 
-            const result = await response.json()
-            if (!response.ok) throw new Error(result?.message || "Order failed")
+            console.log("Response status:", response.status);
+            const result = await response.json();
+            console.log("Response body:", result);
+
+            if (!response.ok) throw new Error(result?.error || result?.message || "Order failed")
 
             const order = result.data
             const orderDetails = formatOrderDetails(data)
@@ -115,7 +120,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 sendOrderConfirmationToCustomer({
                     customerName: data.name,
                     customerEmail: data.email,
-                    // ✅ اصلاح: Sanity از _id استفاده می‌کند
                     orderNumber: String(order._id),
                     orderDetails,
                 }),
@@ -123,13 +127,12 @@ export function OrderForm({ locale, onSuccess }: Props) {
                     customerName: data.name,
                     customerEmail: data.email,
                     customerPhone: data.phone,
-                    // ✅ اصلاح: Sanity از _id استفاده می‌کند
                     orderNumber: String(order._id),
                     orderDetails,
                 }),
             ])
         } catch (error) {
-            console.error(error)
+            console.error("Order error:", error)
             setServerError(isFa ? "خطا در ثبت سفارش. دوباره تلاش کنید." : "Failed to submit order.")
         }
     }
@@ -173,7 +176,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
             autoComplete="on"
             className="w-full max-w-4xl mx-auto flex flex-col gap-5 text-right"
         >
-            {/* ✅ Honeypot - مخفی از کاربر، فقط برای botها */}
             <div className="absolute left-[-9999px]" aria-hidden="true">
                 <input
                     type="text"
@@ -185,7 +187,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 />
             </div>
 
-            {/* ردیف اول: نام + ایمیل */}
             <div className="flex flex-col sm:flex-row gap-5 w-full">
                 <div className="flex-1 flex flex-col gap-1.5 w-full">
                     <label className="text-sm uppercase tracking-[0.15em] text-white/85 font-medium">
@@ -216,7 +217,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 </div>
             </div>
 
-            {/* ردیف دوم: تلفن + نوع مدل */}
             <div className="flex flex-col sm:flex-row gap-5 w-full">
                 <div className="flex-1 flex flex-col gap-1.5 w-full">
                     <label className="text-sm uppercase tracking-[0.15em] text-white/85 font-medium block">
@@ -248,7 +248,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 </div>
             </div>
 
-            {/* خدمات */}
             <div className="flex flex-col gap-1.5 w-full">
                 <label className="text-sm uppercase tracking-[0.15em] text-white/70 font-medium block">
                     {isFa ? "خدمات مورد نیاز را انتخاب کنید:" : "Select Required Services:"}
@@ -279,7 +278,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 {errors.services && <p className="mt-2 text-sm text-red-400">{isFa ? "لطفاً حداقل یک مورد را انتخاب کنید" : "Select at least one"}</p>}
             </div>
 
-            {/* توضیحات */}
             <div className="flex flex-col gap-1.5 w-full">
                 <label className="text-sm uppercase tracking-[0.15em] text-white/85 font-medium block">
                     {isFa ? "توضیحات سفارش" : "Order Details"}
@@ -297,7 +295,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 {errors.details && <p className="mt-2 text-sm text-red-400">{isFa ? "توضیحات باید حداقل ۲۰ کاراکتر باشد" : "Too short"}</p>}
             </div>
 
-            {/* فایل ضمیمه */}
             <div className="flex flex-col gap-1.5 w-full">
                 <label className="text-sm uppercase tracking-[0.15em] text-white/85 font-medium block">
                     {isFa ? "فایل ضمیمه" : "Attachments"}
@@ -316,7 +313,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 </div>
             )}
 
-            {/* دکمه submit */}
             <div className="w-full pt-1">
                 <button
                     type="submit"

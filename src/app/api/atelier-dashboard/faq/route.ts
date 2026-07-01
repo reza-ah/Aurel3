@@ -14,14 +14,14 @@ type FAQItem = {
     locale?: string;
 };
 
+// ✅ GET - عمومی (بدون auth) - برای نمایش در صفحه FAQ
 export async function GET(request: NextRequest) {
-    const authError = await requireAdminAuth();
-    if (authError) return authError;
-    const locale = request.nextUrl.searchParams.get("locale") || "en";
-
     try {
+        const locale = request.nextUrl.searchParams.get("locale");
+
+        // ✅ حذف فیلتر locale - همه FAQ های enabled را برگردان
         const faqs = await client.fetch(
-            `*[_type == "faq"] | order(sort asc) {
+            `*[_type == "faq" && enabled == true] | order(sort asc) {
                 _id,
                 question_en,
                 question_fa,
@@ -33,8 +33,10 @@ export async function GET(request: NextRequest) {
             }`
         );
 
-        // ✅ فیلتر بر اساس locale (اگر فیلد locale وجود دارد)
-        const filtered = locale ? faqs.filter((f: FAQItem) => !f.locale || f.locale === locale) : faqs;
+        // ✅ اگر locale مشخص شد، فیلتر کن (ولی اگر نبود، همه را برگردان)
+        const filtered = locale
+            ? faqs.filter((f: FAQItem) => !f.locale || f.locale === locale)
+            : faqs;
 
         return NextResponse.json(filtered);
     } catch (error) {
@@ -43,7 +45,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// ✅ POST - اضافه کردن FAQ جدید
+// ✅ POST - فقط ادمین
 export async function POST(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -74,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// ✅ PATCH - به‌روزرسانی FAQ
+// ✅ PATCH - فقط ادمین
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -82,7 +84,6 @@ export async function PATCH(request: NextRequest) {
     try {
         const body = await request.json();
 
-        // ✅ پشتیبانی از دو فرمت: array یا single item
         if (Array.isArray(body.faqs)) {
             const updatePromises = body.faqs.map((faq: FAQItem) =>
                 writeClient
@@ -100,7 +101,6 @@ export async function PATCH(request: NextRequest) {
 
             await Promise.all(updatePromises);
         } else if (body.id) {
-            // ✅ فرمت single item (برای updateItem در dashboard)
             await writeClient
                 .patch(body.id)
                 .set({
@@ -125,7 +125,7 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-// ✅ DELETE - حذف FAQ
+// ✅ DELETE - فقط ادمین
 export async function DELETE(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
