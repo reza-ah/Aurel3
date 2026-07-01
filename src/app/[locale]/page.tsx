@@ -7,8 +7,6 @@ import Image from "next/image";
 
 // Import مستقیم (نه dynamic)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
-import PricingSection from "@/features/pricing/components/pricing-section";
-import { ContactForm } from "@/features/contact/components/contact-form";
 
 export default async function HomePage({
     params,
@@ -21,14 +19,27 @@ export default async function HomePage({
     const dict = await getDictionary(locale);
     const sections = await getHomepageSections(locale);
 
+    // ✅ جلوگیری از duplicate - فقط اولین hero را نگه دار
+    const uniqueSections = sections.reduce((acc: any[], section: any) => {
+        if (section.type === "hero") {
+            // فقط اگر هنوز hero اضافه نشده، اضافه کن
+            if (!acc.some(s => s.type === "hero")) {
+                acc.push(section);
+            }
+        } else {
+            acc.push(section);
+        }
+        return acc;
+    }, []);
+
     const productsEnabled = process.env.NEXT_PUBLIC_ENABLE_PRODUCTS === "true";
     const products = productsEnabled ? await getProducts() : [];
 
     return (
         // @ts-expect-error PageBase accepts showGrid at runtime
         <PageBase showGrid={true}>
-            {/* Dynamic Homepage Sections */}
-            {sections.map((section: any) => (
+            {/* Dynamic Homepage Sections - ✅ بدون duplicate */}
+            {uniqueSections.map((section: any) => (
                 <HomepageSectionRenderer
                     key={section._id || section.id}
                     section={section}
@@ -40,11 +51,8 @@ export default async function HomePage({
             {/* Portfolio Section */}
             <PortfolioSection locale={locale} />
 
-            {/* Pricing Section */}
-            <PricingSection locale={locale} />
-
-            {/* Contact Form - ✅ فقط locale */}
-            <ContactForm locale={locale} />
+            {/* ✅ حذف شد - Pricing Section */}
+            {/* ✅ حذف شد - Contact Form */}
 
             {/* Products Section */}
             {productsEnabled && products.length > 0 && (

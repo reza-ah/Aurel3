@@ -27,6 +27,7 @@ const cormorant = localFont({
     fallback: ["Georgia", "serif"],
     weight: "300 700",
 });
+
 // ✅ Viewport metadata (Next.js 14+)
 export const viewport: Viewport = {
     themeColor: "#070707",
@@ -172,6 +173,14 @@ export default async function LocaleLayout({
                 `}
                 suppressHydrationWarning
             >
+                {/* ✅ Skip to main content (Accessibility) - اولین element در body */}
+                <a
+                    href="#main-content"
+                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#d4af37] focus:text-black focus:px-4 focus:py-2 focus:rounded"
+                >
+                    {isFa ? "رفتن به محتوای اصلی" : "Skip to main content"}
+                </a>
+
                 {/* لایه پس‌زمینه که همراه اسکرول حرکت می‌کند */}
                 <div
                     className="absolute inset-0 z-0 h-full w-full pointer-events-none select-none"
@@ -194,14 +203,6 @@ export default async function LocaleLayout({
                         <SiteFooter locale={locale} />
                     </SmoothScrollProvider>
                 </div>
-
-                {/* ✅ Skip to main content (Accessibility) */}
-                <a
-                    href="#main-content"
-                    className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#d4af37] focus:text-black focus:px-4 focus:py-2 focus:rounded"
-                >
-                    {isFa ? "رفتن به محتوای اصلی" : "Skip to main content"}
-                </a>
             </body>
         </html>
     );

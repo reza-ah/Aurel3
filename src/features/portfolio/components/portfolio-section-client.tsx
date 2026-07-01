@@ -70,7 +70,8 @@ export default function PortfolioSectionClient({ items, locale = "en" }: Props) 
                         PORTFOLIO
                     </h2>
 
-                    <p className="text-gray-400">
+                    {/* ✅ اصلاح: text-gray-400 → text-white/75 */}
+                    <p className="text-white/75">
                         {isFa ? "ظرافت بی‌زمان با دقت ساخته شده." : "Timeless luxury crafted with precision."}
                     </p>
                 </motion.div>

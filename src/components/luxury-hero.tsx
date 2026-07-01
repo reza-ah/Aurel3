@@ -79,19 +79,19 @@ export default function LuxuryHero({ dict }: Props) {
                 </Reveal>
 
                 {/* Description */}
-                    <p
-                        className="
-                            mx-auto
-                            max-w-3xl
-                            text-base
-                            sm:text-lg
-                            md:text-xl
-                            leading-8
-                            text-gray-400
-                        "
-                    >
-                        {dict.heroDescription}
-                    </p>
+                <p
+                    className="
+                        mx-auto
+                        max-w-3xl
+                        text-base
+                        sm:text-lg
+                        md:text-xl
+                        leading-8
+                        text-white/75
+                    "
+                >
+                    {dict.heroDescription}
+                </p>
 
                 {/* CTA */}
                 <Reveal delay={0.2}>
@@ -136,4 +136,3 @@ export default function LuxuryHero({ dict }: Props) {
         </section>
     );
 }
-

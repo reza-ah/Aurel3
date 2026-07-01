@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { client } from "@/lib/sanity";
-import { getAssetUrl } from "@/lib/sanity";
+import { client, getOptimizedImage } from "@/lib/sanity";
 
 async function getFeaturedPortfolioItems() {
     return client.fetch(
@@ -21,7 +20,17 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
     const items = await getFeaturedPortfolioItems();
     const isFa = locale === "fa";
 
-    if (!items || items.length === 0) {
+    // ✅ فیلتر کردن آیتم‌های placeholder (Test, Sample, Demo)
+    const validItems = (items || []).filter((item: any) => {
+        const title = (isFa ? item.title_fa : item.title_en) || "";
+        const lowerTitle = title.toLowerCase();
+        return !lowerTitle.includes("test") &&
+            !lowerTitle.includes("sample") &&
+            !lowerTitle.includes("demo") &&
+            !lowerTitle.includes("آزمایشی");
+    });
+
+    if (validItems.length === 0) {
         return null;
     }
 
@@ -38,8 +47,14 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                    {items.map((item: any) => {
-                        const imageUrl = getAssetUrl(item.cover_image) || "/placeholder.jpg";
+                    {validItems.map((item: any) => {
+                        // ✅ استفاده از getOptimizedImage
+                        const imageUrl = getOptimizedImage(item.cover_image, {
+                            width: 800,
+                            quality: 75,
+                            format: "webp"
+                        }) || "/placeholder.jpg";
+
                         const title = isFa ? item.title_fa : item.title_en;
                         const category = isFa ? item.category_fa : item.category_en;
 

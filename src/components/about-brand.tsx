@@ -84,11 +84,13 @@ export default function AboutBrand({ locale }: Props) {
                             </h2>
                         </div>
 
-                        <p className="mt-8 text-base leading-8 text-gray-400 sm:text-lg">
+                        {/* ✅ اصلاح: text-gray-400 → text-white/75 */}
+                        <p className="mt-8 text-base leading-8 text-white/75 sm:text-lg">
                             {content.description}
                         </p>
 
-                        <p className="mt-6 text-base leading-8 text-gray-500">
+                        {/* ✅ اصلاح: text-gray-500 → text-white/65 */}
+                        <p className="mt-6 text-base leading-8 text-white/65">
                             {content.secondary}
                         </p>
 
@@ -101,7 +103,8 @@ export default function AboutBrand({ locale }: Props) {
                                     <div className="text-2xl font-light text-[#D4AF37] sm:text-3xl">
                                         {stat.value}
                                     </div>
-                                    <div className="mt-2 text-xs uppercase tracking-[0.2em] text-gray-500">
+                                    {/* ✅ اصلاح: text-gray-500 → text-white/65 */}
+                                    <div className="mt-2 text-xs uppercase tracking-[0.2em] text-white/65">
                                         {stat.label}
                                     </div>
                                 </div>
@@ -161,4 +164,3 @@ export default function AboutBrand({ locale }: Props) {
         </section>
     );
 }
-

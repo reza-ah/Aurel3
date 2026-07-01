@@ -181,7 +181,8 @@ export default function SiteFooter({ locale }: Props) {
 
                         <div className="mt-4 h-px w-24 bg-gradient-to-r from-[#D4AF37] to-transparent" />
 
-                        <p className="persian-smooth mt-7 max-w-xl text-[15px] leading-8 text-gray-400">
+                        {/* ✅ اصلاح: text-gray-400 → text-white/75 */}
+                        <p className="persian-smooth mt-7 max-w-xl text-[15px] leading-8 text-white/75">
                             {content.description}
                         </p>
 
@@ -207,7 +208,7 @@ export default function SiteFooter({ locale }: Props) {
                                             border
                                             border-white/10
                                             bg-white/[0.03]
-                                            text-gray-400
+                                            text-white/70
                                             backdrop-blur-xl
                                             transition-all
                                             duration-500
@@ -240,7 +241,7 @@ export default function SiteFooter({ locale }: Props) {
                                             inline-flex
                                             items-center
                                             text-[15px]
-                                            text-gray-400
+                                            text-white/70
                                             transition-all
                                             duration-300
                                             hover:text-white
@@ -261,7 +262,8 @@ export default function SiteFooter({ locale }: Props) {
                             {content.newsletter}
                         </h3>
 
-                        <p className="persian-smooth mt-6 text-sm leading-7 text-gray-400">
+                        {/* ✅ اصلاح: text-gray-400 → text-white/70 */}
+                        <p className="persian-smooth mt-6 text-sm leading-7 text-white/70">
                             {content.newsletterText}
                         </p>
 
@@ -288,7 +290,7 @@ export default function SiteFooter({ locale }: Props) {
                                                 text-sm
                                                 text-white
                                                 outline-none
-                                                placeholder:text-gray-500
+                                                placeholder:text-white/50
                                             "
                                         />
 
@@ -391,7 +393,7 @@ export default function SiteFooter({ locale }: Props) {
                         border-white/10
                         pt-7
                         text-sm
-                        text-gray-500
+                        text-white/60
                         md:flex-row
                     "
                 >
@@ -399,7 +401,7 @@ export default function SiteFooter({ locale }: Props) {
                         © 2026 AUREL — {content.rights}
                     </p>
 
-                    <p className="tracking-[0.15em] text-gray-600">
+                    <p className="tracking-[0.15em] text-white/50">
                         LUXURY JEWELRY EXPERIENCE
                     </p>
                 </div>
@@ -407,4 +409,3 @@ export default function SiteFooter({ locale }: Props) {
         </footer>
     );
 }
-

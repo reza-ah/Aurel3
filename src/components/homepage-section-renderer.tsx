@@ -1,9 +1,6 @@
 import LuxuryHero from "@/components/luxury-hero";
 import AboutBrand from "@/components/about-brand";
 import LuxuryCollections from "@/components/luxury-collections";
-import PortfolioSection from "@/features/portfolio/components/portfolio-section";
-
-
 
 type Props = {
     section: any;
@@ -40,12 +37,9 @@ export default function HomepageSectionRenderer({
                 />
             );
 
+        // ✅ حذف شد - portfolio در page.tsx مستقیم رندر می‌شود
         case "portfolio":
-            return (
-                <PortfolioSection
-                    locale={locale}
-                />
-            );
+            return null;
 
         default:
             return null;
@@ -53,4 +47,3 @@ export default function HomepageSectionRenderer({
     }
 
 }
-

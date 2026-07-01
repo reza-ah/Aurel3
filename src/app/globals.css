@@ -7,7 +7,8 @@
     --color-gold-studio: #d4af37;
     --color-gold-muted: #c6a86a;
     --color-text-primary: #f5f1e8;
-    --color-text-muted: #ffffff;
+    --color-text-secondary: #ffffff;
+    /* ✅ اصلاح نام */
     --color-link: #e2b932;
     --color-link-hover: #ffd700;
     --radius-card: 28px;
@@ -17,7 +18,8 @@
 
   body {
     background-color: var(--color-bg-studio);
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
+    /* ✅ اصلاح نام */
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -74,7 +76,7 @@
     backdrop-filter: blur(12px);
     transform: translateZ(0);
     backface-visibility: hidden;
-    contain: paint;
+    /* ✅ حذف contain: paint - ممکن است باعث clipping شود */
     will-change: transform;
   }
 
@@ -86,7 +88,8 @@
 
   /* Input */
   .lux-input {
-    @apply w-full border border-white/10 bg-white/3 px-4 py-3.5 text-[var(--color-text-primary)] rounded-[var(--radius-input)] transition-all;
+    @apply w-full border border-white/10 bg-white/[0.03] px-4 py-3.5 text-[var(--color-text-primary)] rounded-[var(--radius-input)] transition-all;
+    /* ✅ اصلاح syntax */
   }
 
   .lux-input:focus {
