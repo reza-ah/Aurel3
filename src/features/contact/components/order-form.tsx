@@ -176,12 +176,18 @@ export function OrderForm({ locale, onSuccess }: Props) {
             autoComplete="on"
             className="w-full max-w-4xl mx-auto flex flex-col gap-5 text-right"
         >
-            <div className="absolute left-[-9999px]" aria-hidden="true">
+            <div
+                className="absolute left-[-9999px] opacity-0 h-0 w-0 overflow-hidden"
+                aria-hidden="true"
+                tabIndex={-1}
+            >
                 <input
                     type="text"
-                    name="website"
+                    name="aurel_hp_token"
+                    id="aurel_hp_token"
                     tabIndex={-1}
-                    autoComplete="off"
+                    autoComplete="nope"
+                    readOnly
                     value={honeypot}
                     onChange={(e) => setHoneypot(e.target.value)}
                 />
