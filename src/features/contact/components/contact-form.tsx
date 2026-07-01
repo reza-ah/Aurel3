@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import emailjs from '@emailjs/browser';
 
 type Props = {
     locale: "fa" | "en";
@@ -43,20 +44,44 @@ export function ContactForm({ locale }: Props) {
         const timeSpent = Date.now() - startTime.current;
 
         try {
+            // ✅ مرحله ۱: ذخیره در Sanity
             const response = await fetch('/api/atelier-dashboard/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...data, timeSpent }),
             });
 
-            if (response.ok) {
-                reset();
-                setSuccess(true);
-            } else {
-                alert(isFa ? "خطایی رخ داد یا امکان ارسال وجود ندارد." : "An error occurred.");
+            if (!response.ok) {
+                throw new Error('Failed to save message');
             }
+
+            // ✅ مرحله ۲: ارسال ایمیل به ادمین (اگر EmailJS تنظیم شده)
+            if (process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID) {
+                try {
+                    await emailjs.send(
+                        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+                        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN!,
+                        {
+                            customer_name: data.name,
+                            customer_email: data.email,
+                            customer_phone: data.phone || "N/A",
+                            order_number: `MSG-${Date.now()}`,
+                            order_details: `${data.subject ? `Subject: ${data.subject}\n` : ''}Message: ${data.message}`,
+                            order_date: new Date().toLocaleDateString(isFa ? 'fa-IR' : 'en-US'),
+                        },
+                        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+                    );
+                } catch (emailError) {
+                    console.error('EmailJS error:', emailError);
+                    // ایمیل نرفت ولی پیام ذخیره شده، ادامه بده
+                }
+            }
+
+            reset();
+            setSuccess(true);
         } catch (error) {
             console.error(error);
+            alert(isFa ? "خطایی رخ داد یا امکان ارسال وجود ندارد." : "An error occurred.");
         }
     }
 

@@ -1,15 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import Reveal from "@/components/reveal";
-import { getJournalPosts, getAssetUrl } from "@/lib/sanity";
+import { getJournalPosts, getOptimizedImage } from "@/lib/sanity";
 
-const getCoverId = (cover_image: unknown): string | null => {
-    if (!cover_image) return null;
-    if (typeof cover_image === "string") return cover_image;
-    if (typeof cover_image === "object" && cover_image !== null && "id" in cover_image) {
-        return (cover_image as { id: string }).id ?? null;
-    }
-    return null;
+// ✅ تابع کمکی برای گرفتن slug
+const getSlug = (slug: any): string => {
+    if (!slug) return "";
+    if (typeof slug === "string") return slug;
+    return slug.current || "";
 };
 
 export default async function JournalPage({
@@ -27,14 +25,14 @@ export default async function JournalPage({
                 <Reveal>
                     <div className="mx-auto mb-20 max-w-3xl text-center">
                         <p className="mb-4 text-sm uppercase tracking-[0.3em] text-[#D4AF37]">
-                            {isFa ? "ژورنال برند" : "Brand Journal"}
+                            {isFa ? "مقالات برند" : "Brand Journal"}
                         </p>
                         <h1 className="text-4xl font-light leading-tight text-white sm:text-5xl md:text-6xl">
-                            {isFa ? "مقالات و الهام‌ها" : "Stories & Insights"}
+                            {isFa ? "مقالات و الهام‌بخشی‌ها" : "Stories & Insights"}
                         </h1>
-                        <p className="mt-6 text-base leading-8 text-gray-400">
+                        <p className="mt-6 text-base leading-8 text-white/75">
                             {isFa
-                                ? "نگاهی به فرآیند طراحی جواهرات، الهامات و داستان‌های شکل‌گیری هر قطعه."
+                                ? "نگاهی به فرآیند طراحی جواهرات، الهامات و داستان‌های پشت هر قطعه."
                                 : "A closer look at jewelry craftsmanship, design inspiration, and the stories behind each piece."}
                         </p>
                     </div>
@@ -43,17 +41,25 @@ export default async function JournalPage({
                     {posts.map((post: any, index: number) => {
                         const title = locale === "fa" ? post.title_fa : post.title_en;
                         const excerpt = locale === "fa" ? post.excerpt_fa : post.excerpt_en;
-                        const coverId = getCoverId(post.cover_image);
-                        const image = coverId ? getAssetUrl(coverId) : "/images/jewel-1.jpg";
+                        // ✅ اصلاح: استفاده از getOptimizedImage
+                        const image = getOptimizedImage(post.cover_image, {
+                            width: 800,
+                            quality: 75,
+                            format: "webp"
+                        }) || "/images/jewel-1.jpg";
+
+                        // ✅ اصلاح: استفاده از getSlug
+                        const slug = getSlug(post.slug);
+
                         return (
-                            <Reveal key={post.id} delay={index * 0.08}>
+                            <Reveal key={post._id} delay={index * 0.08}>
                                 <Link
-                                    href={`/${locale}/journal/${post.slug}`}
+                                    href={`/${locale}/journal/${slug}`}
                                     className="group flex h-full flex-col overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] backdrop-blur-sm"
                                 >
                                     <div className="relative h-[420px] overflow-hidden">
                                         <Image
-                                            src={image || "/images/jewel-1.jpg"}
+                                            src={image}
                                             alt={title}
                                             fill
                                             className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -64,7 +70,7 @@ export default async function JournalPage({
                                     <div className="flex flex-1 flex-col p-8">
                                         <h2 className="text-2xl font-light text-white">{title}</h2>
                                         {excerpt && (
-                                            <p className="mt-4 text-sm leading-7 text-gray-400 line-clamp-3">{excerpt}</p>
+                                            <p className="mt-4 text-sm leading-7 text-white/70 line-clamp-3">{excerpt}</p>
                                         )}
                                         <span className="mt-auto pt-8 inline-flex items-center text-sm uppercase tracking-[0.2em] text-[#D4AF37] transition-all duration-300 group-hover:translate-x-1">
                                             {isFa ? "مطالعه مقاله" : "Read Article"}
