@@ -5,6 +5,24 @@ import { verifyAdminToken } from "@/lib/auth/verify-session";
 const locales = ["en", "fa"];
 const defaultLocale = "en";
 
+// ✅ لیست کشورهای فارسی‌زبان
+const FA_LOCALE_COUNTRIES = ["IR", "AF", "TJ"]; // ایران، افغانستان، تاجیکستان
+
+// ✅ نوع برای geo
+interface GeoInfo {
+    country?: string;
+    city?: string;
+    region?: string;
+}
+
+function getGeoCountry(request: NextRequest): string {
+    // ✅ Vercel Geolocation - استفاده از header
+    // Vercel این header ها را اضافه می‌کند:
+    // x-vercel-ip-country, x-vercel-ip-city, etc.
+    const country = request.headers.get("x-vercel-ip-country");
+    return country || "US";
+}
+
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
@@ -18,9 +36,28 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // ✅ ۲. Redirect ریشه به defaultLocale
+    // ✅ ۲. Redirect ریشه به locale مناسب بر اساس IP
     if (pathname === "/") {
-        return NextResponse.redirect(new URL(`/${defaultLocale}`, request.url));
+        // ✅ تشخیص کشور از header های Vercel
+        const country = getGeoCountry(request);
+
+        // ✅ تشخیص locale بر اساس کشور
+        const detectedLocale = FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en";
+
+        console.log(`🌍 Geo detection: country=${country}, locale=${detectedLocale}`);
+
+        // ✅ Set cookie برای حفظ انتخاب کاربر
+        const response = NextResponse.redirect(
+            new URL(`/${detectedLocale}`, request.url)
+        );
+
+        response.cookies.set("detected_locale", detectedLocale, {
+            maxAge: 60 * 60 * 24 * 30, // 30 روز
+            path: "/",
+            sameSite: "lax",
+        });
+
+        return response;
     }
 
     // ✅ ۳. اضافه کردن locale به مسیرهای بدون locale
@@ -29,8 +66,13 @@ export async function middleware(request: NextRequest) {
     );
 
     if (!pathnameHasLocale) {
+        // ✅ اگر کاربر locale ندارد، از cookie یا geo استفاده کن
+        const cookieLocale = request.cookies.get("detected_locale")?.value;
+        const country = getGeoCountry(request);
+        const detectedLocale = cookieLocale || (FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en");
+
         return NextResponse.redirect(
-            new URL(`/${defaultLocale}${pathname}`, request.url)
+            new URL(`/${detectedLocale}${pathname}`, request.url)
         );
     }
 
