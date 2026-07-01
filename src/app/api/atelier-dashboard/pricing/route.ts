@@ -19,8 +19,8 @@ type PricingItem = {
     suitable_fa?: string;
     features_en?: string;
     features_fa?: string;
-    img?: string | null;
-    category?: { _type: string; _ref: string } | string | null;
+    img?: string | { _ref?: string } | null;
+    category?: { _type?: string; _ref?: string } | string | null;
 };
 
 export async function GET() {
@@ -73,13 +73,27 @@ export async function GET() {
     }
 }
 
-// ✅ POST - اضافه کردن pricing item جدید
 export async function POST(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
 
     try {
         const body = await request.json();
+
+        let imgAsset = null;
+
+        if (body.img && typeof body.img === "string" && body.img.startsWith("http")) {
+            const response = await fetch(body.img);
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const fileName = body.img.split("/").pop() || "image.jpg";
+
+            imgAsset = await writeClient.assets.upload("image", buffer, {
+                filename: fileName,
+                contentType: "image/jpeg",
+            });
+        }
 
         const result = await writeClient.create({
             _type: "pricingItem",
@@ -95,11 +109,16 @@ export async function POST(request: NextRequest) {
             suitable_fa: body.suitable_fa || "",
             features_en: body.features_en || "",
             features_fa: body.features_fa || "",
-            img: body.img ? { _type: "image", asset: { _type: "reference", _ref: typeof body.img === "string" ? body.img : body.img._ref } } : null,
-            category: body.category ? { _type: "reference", _ref: typeof body.category === "string" ? body.category : body.category._ref } : null,
+            img: imgAsset ? {
+                _type: "image",
+                asset: {
+                    _type: "reference",
+                    _ref: imgAsset._id,
+                },
+            } : undefined,
+            category: body.category ? { _type: "reference", _ref: typeof body.category === "string" ? body.category : body.category._ref } : undefined,
             sort: body.sort || 999,
             is_active: body.is_active !== false,
-            // ❌ حذف date_created - Sanity خودش _createdAt را اضافه می‌کند
         });
 
         revalidatePath("/[locale]/pricing", "page");
@@ -113,17 +132,19 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// ✅ PATCH - به‌روزرسانی pricing items
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
     try {
         const body = await request.json();
 
-        // ✅ پشتیبانی از دو فرمت: array یا single item
         if (Array.isArray(body.items)) {
-            const updatePromises = body.items.map((item: PricingItem) =>
-                writeClient
+            const updatePromises = body.items.map((item: PricingItem) => {
+                // ✅ اصلاح: type casting درست
+                const imgRef = typeof item.img === "string" ? item.img : (item.img as { _ref?: string })?._ref;
+                const categoryRef = typeof item.category === "string" ? item.category : (item.category as { _ref?: string })?._ref;
+
+                return writeClient
                     .patch(item._id)
                     .set({
                         title_en: item.title_en,
@@ -140,15 +161,27 @@ export async function PATCH(request: NextRequest) {
                         suitable_fa: item.suitable_fa,
                         features_en: item.features_en,
                         features_fa: item.features_fa,
-                        img: item.img || null,
-                        category: item.category ? { _type: "reference", _ref: typeof item.category === "string" ? item.category : item.category._ref } : null,
+                        img: item.img ? {
+                            _type: "image",
+                            asset: {
+                                _type: "reference",
+                                _ref: imgRef || item.img,
+                            }
+                        } : undefined,
+                        category: item.category ? {
+                            _type: "reference",
+                            _ref: categoryRef
+                        } : undefined,
                     })
-                    .commit()
-            );
+                    .commit();
+            });
 
             await Promise.all(updatePromises);
         } else if (body._id) {
-            // ✅ فرمت single item
+            // ✅ اصلاح: type casting درست
+            const imgRef = typeof body.img === "string" ? body.img : (body.img as { _ref?: string })?._ref;
+            const categoryRef = typeof body.category === "string" ? body.category : (body.category as { _ref?: string })?._ref;
+
             await writeClient
                 .patch(body._id)
                 .set({
@@ -170,10 +203,13 @@ export async function PATCH(request: NextRequest) {
                         _type: "image",
                         asset: {
                             _type: "reference",
-                            _ref: typeof body.img === "string" ? body.img : body.img._ref || body.img
+                            _ref: imgRef || body.img,
                         }
-                    } : null,
-                    category: body.category ? { _type: "reference", _ref: typeof body.category === "string" ? body.category : body.category._ref } : null,
+                    } : undefined,
+                    category: body.category ? {
+                        _type: "reference",
+                        _ref: categoryRef
+                    } : undefined,
                 })
                 .commit();
         }
@@ -189,7 +225,6 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-// ✅ DELETE - حذف pricing item
 export async function DELETE(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
