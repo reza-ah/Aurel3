@@ -95,9 +95,8 @@ export async function POST(request: NextRequest) {
         const buffer = Buffer.from(arrayBuffer);
 
         // ✅ تعیین نوع asset بر اساس پسوند
-        const assetType = fileExtension === ".pdf" || fileExtension === ".zip"
-            ? "file"
-            : "image";
+        const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
+        const assetType = imageExtensions.includes(fileExtension) ? "image" : "file";
 
         const asset = await writeClient.assets.upload(assetType, buffer, {
             filename: (file as File).name,

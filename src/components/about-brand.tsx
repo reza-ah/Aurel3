@@ -134,7 +134,7 @@ export default function AboutBrand({ locale }: Props) {
                             <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
                             <Image
-                                src="/images/jewel-2.webp"
+                                src="/images/jewel-2.jpg"
                                 alt="Luxury Jewelry CAD Design"
                                 width={900}
                                 height={1200}

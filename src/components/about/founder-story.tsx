@@ -15,7 +15,7 @@ export default function FounderStory({ locale }: Props) {
                 <div className="relative">
                     <div className="relative overflow-hidden rounded-xl">
                         <Image
-                            src="/images/founder.webp"
+                            src="/images/founder.jpg"
                             alt="Founder"
                             width={900}
                             height={1100}

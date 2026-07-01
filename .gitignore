@@ -1,76 +1,49 @@
-cd "I:\site Asset\All_backups\26"
-
-# حذف فایل قدیمی
-Remove-Item ".gitignore" -Force
-
-# ساخت فایل جدید با UTF-8
-$content = @"
-# =========================
 # Dependencies
-# =========================
 node_modules/
 .pnp
 .pnp.js
 
-# =========================
 # Next.js
-# =========================
 .next/
 out/
 build/
 
-# =========================
 # Environment Variables
-# =========================
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# =========================
 # Vercel
-# =========================
 .vercel
 
-# =========================
 # TypeScript
-# =========================
 *.tsbuildinfo
 next-env.d.ts
 
-# =========================
 # OS Files
-# =========================
 .DS_Store
 Thumbs.db
 
-# =========================
 # IDE
-# =========================
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# =========================
 # Logs & Debug
-# =========================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# =========================
 # Sanity Studio (local only)
-# =========================
 aurel-studio/
 
-# =========================
 # Project-Specific
-# =========================
 New folder/
 Dockerfile
 docker-compose.yml
@@ -81,7 +54,3 @@ docker-compose.yml
 ssl/
 nginx/
 debug-files.txt
-"@
-
-# ذخیره با UTF-8 بدون BOM
-[System.IO.File]::WriteAllText("$PWD\.gitignore", $content, [System.Text.UTF8Encoding]::new($false))

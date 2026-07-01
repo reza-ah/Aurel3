@@ -12,10 +12,10 @@ export default function LuxuryCollections({ locale }: Props) {
     const isFa = locale === "fa";
 
     const collectionsImages = [
-        "/images/sketch.webp",
-        "/images/modeling.webp",
-        "/images/print.webp",
-        "/images/final.webp",
+        "/images/sketch.jpg",
+        "/images/modeling.jpg",
+        "/images/print.jpg",
+        "/images/final.jpg",
     ];
 
     const content = isFa
