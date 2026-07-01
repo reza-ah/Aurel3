@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { client, writeClient } from "@/lib/sanity";
 import { requireAdminAuth } from "@/lib/api-auth";
 
-/* =========================
-   GET - لیست سفارش‌ها (فقط ادمین)
-========================= */
 export async function GET() {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -17,8 +14,11 @@ export async function GET() {
                 email,
                 phone,
                 message,
+                service,
+                jewelry_type,
                 files,
                 status,
+                tracking_code,
                 date_created
             }`
         );
@@ -30,16 +30,15 @@ export async function GET() {
     }
 }
 
-/* =========================
-   POST - ثبت سفارش جدید (عمومی - بدون auth)
-   ✅ با honeypot و timeSpent برای anti-spam
-========================= */
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
+        console.log("Order payload received:", JSON.stringify(body, null, 2));
+
         // ✅ Anti-spam: honeypot
         if (body.honeypot) {
+            console.error("Spam detected - honeypot filled");
             return NextResponse.json(
                 { success: false, error: "Spam detected" },
                 { status: 400 }
@@ -48,14 +47,15 @@ export async function POST(request: NextRequest) {
 
         // ✅ Anti-spam: timeSpent (حداقل ۴ ثانیه)
         const timeSpent = Number.parseInt(String(body.timeSpent), 10);
-        if (!timeSpent || timeSpent < 4) {
+        console.log("Parsed timeSpent:", timeSpent);
+
+        if (isNaN(timeSpent) || timeSpent < 4) {
+            console.error("Too fast - timeSpent:", timeSpent);
             return NextResponse.json(
-                { success: false, error: "Too fast" },
+                { success: false, error: "Too fast", receivedTimeSpent: body.timeSpent, parsedTimeSpent: timeSpent },
                 { status: 400 }
             );
         }
-
-        console.log("Order payload:", JSON.stringify(body, null, 2));
 
         // Validation
         if (!body.full_name || !body.email || !body.details) {
@@ -104,6 +104,8 @@ export async function POST(request: NextRequest) {
             date_created: new Date().toISOString(),
         });
 
+        console.log("Order created successfully:", order._id);
+
         return NextResponse.json({
             success: true,
             data: order,
@@ -112,15 +114,12 @@ export async function POST(request: NextRequest) {
     } catch (error) {
         console.error("Create order error:", error);
         return NextResponse.json(
-            { success: false, error: "Failed to create order" },
+            { success: false, error: "Failed to create order", details: String(error) },
             { status: 500 }
         );
     }
 }
 
-/* =========================
-   PATCH - تغییر وضعیت سفارش (فقط ادمین)
-========================= */
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -150,9 +149,6 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-/* =========================
-   DELETE - حذف سفارش (فقط ادمین)
-========================= */
 export async function DELETE(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;

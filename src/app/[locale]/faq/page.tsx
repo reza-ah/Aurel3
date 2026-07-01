@@ -1,36 +1,40 @@
 import FAQAccordion from "@/features/journal/components/faq-accordion";
-
-
 import Reveal from "@/components/reveal";
-import { headers } from "next/headers";
 import Link from "next/link";
 
 export default async function Page({
     params,
 }: {
-    params: { locale: "en" | "fa" };
+    params: Promise<{ locale: "en" | "fa" }>;
 }) {
     const { locale } = await params;
     const isFa = locale === "fa";
 
-    const headersList = await headers();
-    const host = headersList.get("host");
-
-    const protocol = "http";
-
-    const res = await fetch(
-        `${protocol}://${host}/api/atelier-dashboard/faq?locale=${locale}`,
-        { cache: "no-store" }
-    );
+    // ✅ اصلاح: استفاده از URL کامل
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aureldesign.ir";
 
     let faqItems: any[] = [];
 
-    if (res.ok) {
-        try {
+    try {
+        const res = await fetch(
+            `${baseUrl}/api/atelier-dashboard/faq?locale=${locale}`,
+            {
+                cache: "no-store",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }
+        );
+
+        if (res.ok) {
             faqItems = await res.json();
-        } catch {
-            faqItems = [];
+            console.log(`FAQ items for ${locale}:`, faqItems.length);
+        } else {
+            console.error(`FAQ API error: ${res.status}`);
         }
+    } catch (error) {
+        console.error("FAQ fetch error:", error);
+        faqItems = [];
     }
 
     return (
@@ -47,7 +51,13 @@ export default async function Page({
                     </h1>
                 </Reveal>
 
-                <FAQAccordion locale={locale} items={faqItems} />
+                {faqItems.length > 0 ? (
+                    <FAQAccordion locale={locale} items={faqItems} />
+                ) : (
+                    <div className="text-center text-white/60 py-12">
+                        {isFa ? "هیچ سوالی یافت نشد" : "No FAQs found"}
+                    </div>
+                )}
 
                 <Reveal className="mt-32">
                     <div className="relative overflow-hidden border border-white/10 rounded-2xl py-16 px-8 md:px-16 text-center">
@@ -62,9 +72,9 @@ export default async function Page({
                                     : "Didn't Find Your Answer?"}
                             </h2>
 
-                            <p className="text-gray-400 leading-relaxed mb-10">
+                            <p className="text-white/70 leading-relaxed mb-10">
                                 {isFa
-                                    ? "اگر پاسخ سوال مورد نظر خود را در این صفحه پیدا نکردید، می‌توانید از طریق صفحه تماس با ما با ما در ارتباط باشید. ما با خوشحالی به سوالات شما پاسخ می‌دهیم."
+                                    ? "اگر پاسخ سوال مورد نظر خود را پیدا نکردید، می‌توانید از طریق صفحه تماس با ما در ارتباط باشید. ما با کمال میل به سوالات شما پاسخ می‌دهیم."
                                     : "If you couldn't find the answer you're looking for, feel free to reach out through our contact page. Our team will be happy to assist you."}
                             </p>
 

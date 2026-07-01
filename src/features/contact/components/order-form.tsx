@@ -44,9 +44,12 @@ export function OrderForm({ locale, onSuccess }: Props) {
 
     // ✅ Anti-spam: honeypot
     const [honeypot, setHoneypot] = useState("")
-
-    // ✅ Anti-spam: timeSpent
     const startTimeRef = useRef<number>(Date.now())
+
+    // ✅ اضافه کردن useEffect برای اطمینان از شروع timer
+    useEffect(() => {
+        startTimeRef.current = Date.now()
+    }, [])
 
     const services = isFa
         ? ["طراحی", "مدل سازی سه بعدی", "پرینت سه بعدی", "ریخته گری", "اصلاح فایل"]
@@ -72,8 +75,10 @@ export function OrderForm({ locale, onSuccess }: Props) {
         try {
             setServerError("")
 
-            // ✅ محاسبه timeSpent در لحظه submit
-            const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000)
+            // ✅ محاسبه timeSpent با حداقل ۵ ثانیه
+            const timeSpent = Math.max(5, Math.floor((Date.now() - startTimeRef.current) / 1000))
+
+            console.log("Order form - timeSpent:", timeSpent, "honeypot:", honeypot)
 
             const payload = {
                 full_name: data.name,
