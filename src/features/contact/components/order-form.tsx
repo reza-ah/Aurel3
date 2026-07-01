@@ -46,16 +46,7 @@ export function OrderForm({ locale, onSuccess }: Props) {
     const [honeypot, setHoneypot] = useState("")
 
     // ✅ Anti-spam: timeSpent
-    const [timeSpent, setTimeSpent] = useState(0)
     const startTimeRef = useRef<number>(Date.now())
-
-    // ✅ محاسبه زمان صرف شده
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setTimeSpent(Math.floor((Date.now() - startTimeRef.current) / 1000))
-        }, 1000)
-        return () => clearInterval(interval)
-    }, [])
 
     const services = isFa
         ? ["طراحی", "مدل سازی سه بعدی", "پرینت سه بعدی", "ریخته گری", "اصلاح فایل"]
@@ -81,6 +72,9 @@ export function OrderForm({ locale, onSuccess }: Props) {
         try {
             setServerError("")
 
+            // ✅ محاسبه timeSpent در لحظه submit
+            const timeSpent = Math.floor((Date.now() - startTimeRef.current) / 1000)
+
             const payload = {
                 full_name: data.name,
                 email: data.email,
@@ -89,11 +83,9 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 jewelry_type: data.jewelryType || "",
                 details: data.details,
                 created_at: new Date().toISOString(),
-                // ✅ اصلاح ساختار فایل‌ها برای Sanity (نه Directus)
                 files: uploadedFileIds.map(id => ({ _ref: id })),
-                // ✅ ارسال honeypot و timeSpent برای anti-spam
                 honeypot,
-                timeSpent,
+                timeSpent,  // ✅ الان مقدار درست دارد
             }
 
             const response = await fetch("/api/atelier-dashboard/orders", {

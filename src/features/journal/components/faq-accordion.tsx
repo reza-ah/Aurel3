@@ -17,8 +17,12 @@ export default function FAQAccordion({ locale, items }: Props) {
             {items.map((item: any, index: number) => {
                 const isOpen = openIndex === index;
 
+                // ✅ اصلاح: استفاده از question_en/fa و answer_en/fa
+                const question = isFa ? item.question_fa : item.question_en;
+                const answer = isFa ? item.answer_fa : item.answer_en;
+
                 return (
-                    <div key={item.id} className="group border-b border-white/5">
+                    <div key={item._id || item.id} className="group border-b border-white/5">
                         {/* QUESTION */}
                         <button
                             onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -33,7 +37,7 @@ export default function FAQAccordion({ locale, items }: Props) {
                                     className={`text-xl md:text-2xl font-light transition ${isOpen ? "text-[#d4af37]" : "text-white/80"
                                         }`}
                                 >
-                                    {item.question}
+                                    {question}
                                 </h3>
                             </div>
 
@@ -64,7 +68,7 @@ export default function FAQAccordion({ locale, items }: Props) {
                                     <div className="pb-8 pt-2 max-w-3xl">
                                         <div
                                             className="faq-content text-white/60 text-sm md:text-base leading-relaxed"
-                                            dangerouslySetInnerHTML={{ __html: item.answer }}
+                                            dangerouslySetInnerHTML={{ __html: answer }}
                                         />
                                     </div>
                                 </motion.div>
@@ -76,4 +80,3 @@ export default function FAQAccordion({ locale, items }: Props) {
         </div>
     );
 }
-

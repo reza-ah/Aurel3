@@ -33,7 +33,6 @@ export async function GET() {
     }
 }
 
-// ✅ POST - اضافه کردن portfolio جدید
 export async function POST(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -51,7 +50,17 @@ export async function POST(request: NextRequest) {
             description_en: body.description_en || "",
             description_fa: body.description_fa || "",
             cover_image: body.cover_image || null,
-            gallery: body.gallery || [],
+            // ✅ اصلاح: اضافه کردن _key به هر آیتم gallery
+            gallery: Array.isArray(body.gallery)
+                ? body.gallery.map((file: any, index: number) => ({
+                    _key: `gallery-${Date.now()}-${index}`,
+                    _type: 'image',
+                    asset: {
+                        _type: 'reference',
+                        _ref: typeof file === 'string' ? file : file._ref || file,
+                    },
+                }))
+                : [],
             tags: body.tags || [],
             featured: body.featured || false,
             status: body.status || "draft",
@@ -70,7 +79,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// ✅ PATCH - به‌روزرسانی portfolio
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -93,7 +101,17 @@ export async function PATCH(request: NextRequest) {
                 description_en: item.description_en,
                 description_fa: item.description_fa,
                 cover_image: item.cover_image || null,
-                gallery: item.gallery || [],
+                // ✅ اصلاح: اضافه کردن _key به gallery در PATCH هم
+                gallery: Array.isArray(item.gallery)
+                    ? item.gallery.map((file: any, index: number) => ({
+                        _key: file._key || `gallery-${Date.now()}-${index}`,
+                        _type: 'image',
+                        asset: {
+                            _type: 'reference',
+                            _ref: typeof file === 'string' ? file : file.asset?._ref || file._ref || file,
+                        },
+                    }))
+                    : undefined,
                 tags: item.tags || [],
                 featured: item.featured,
                 status: item.status,
@@ -112,7 +130,6 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-// ✅ DELETE - حذف portfolio
 export async function DELETE(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
