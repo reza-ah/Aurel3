@@ -5,6 +5,7 @@ import { getHomepageSections, getProducts, getOptimizedImage } from "@/lib/sanit
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
 
+// Import مستقیم (نه dynamic)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
 import PricingSection from "@/features/pricing/components/pricing-section";
 import { ContactForm } from "@/features/contact/components/contact-form";
@@ -42,7 +43,7 @@ export default async function HomePage({
             {/* Pricing Section */}
             <PricingSection locale={locale} />
 
-            {/* Contact Form */}
+            {/* Contact Form - ✅ فقط locale */}
             <ContactForm locale={locale} />
 
             {/* Products Section */}

@@ -7,7 +7,7 @@ type UploadFile = {
     id: string
     progress: number
     uploaded: boolean
-    directusId?: string
+    assetId?: string  // ✅ تغییر از directusId به assetId
     error?: boolean
 }
 
@@ -62,15 +62,15 @@ export default function UploadZone({
         if (!onUploaded) return
 
         const ids = files
-            .filter(f => f.directusId)
-            .map(f => f.directusId!)
+            .filter(f => f.assetId)  // ✅ تغییر از directusId به assetId
+            .map(f => f.assetId!)    // ✅ تغییر از directusId به assetId
 
         onUploaded(ids)
     }, [files, onUploaded])
 
 
     // ---------------------------------------
-    // Upload a single file to Directus
+    // ✅ Upload a single file to Sanity
     // ---------------------------------------
     const uploadFile = (uploadFile: UploadFile) => {
 
@@ -100,9 +100,10 @@ export default function UploadZone({
                 }
 
                 const res = JSON.parse(xhr.response)
-                const directusId = res?.data?.id
+                // ✅ اصلاح بحرانی: Sanity از _id استفاده می‌کند (نه id)
+                const assetId = res?.data?._id
 
-                if (!directusId) throw new Error("Missing Directus ID")
+                if (!assetId) throw new Error("Missing asset ID")
 
                 setFiles(prev =>
                     prev.map(f =>
@@ -111,7 +112,7 @@ export default function UploadZone({
                                 ...f,
                                 uploaded: true,
                                 progress: 100,
-                                directusId,
+                                assetId,  // ✅ تغییر از directusId به assetId
                                 error: false,
                             }
                             : f
@@ -313,4 +314,3 @@ export default function UploadZone({
         </div>
     )
 }
-

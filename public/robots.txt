@@ -1,4 +1,14 @@
+# robots.txt for Aurel Design
+# https://www.aureldesign.ir
+
 User-agent: *
 Allow: /
 
-Sitemap: https://aureldesign.ir/sitemap.xml
+# ✅ مسیرهای حساس - اجازه نده
+Disallow: /atelier-dashboard/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*?
+
+# ✅ Sitemap - هم‌خوان با sitemap.ts
+Sitemap: https://www.aureldesign.ir/sitemap.xml

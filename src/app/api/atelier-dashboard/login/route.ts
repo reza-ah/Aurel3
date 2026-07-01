@@ -1,18 +1,10 @@
 import { NextResponse } from "next/server";
 import { createAdminToken, createRefreshToken } from "@/lib/auth/verify-session";
-import { timingSafeEqual } from "crypto";
+import bcrypt from "bcryptjs";
 
 const loginAttempts = new Map<string, { count: number; blockedUntil?: number }>();
 const MAX_ATTEMPTS = 5;
 const BLOCK_DURATION = 15 * 60 * 1000;
-
-// ✅ مقایسه امن با timingSafeEqual
-function secureCompare(a: string, b: string): boolean {
-    const bufA = Buffer.from(a);
-    const bufB = Buffer.from(b);
-    if (bufA.length !== bufB.length) return false;
-    return timingSafeEqual(bufA, bufB);
-}
 
 export async function POST(request: Request) {
     try {
@@ -28,15 +20,17 @@ export async function POST(request: Request) {
         }
 
         const { password } = await request.json();
-        const adminPassword = process.env.ADMIN_PASSWORD;
+        const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
 
-        if (!adminPassword) {
-            console.error("ADMIN_PASSWORD environment variable is not set");
+        if (!adminPasswordHash) {
+            console.error("ADMIN_PASSWORD_HASH environment variable is not set");
             return NextResponse.json({ success: false }, { status: 500 });
         }
 
-        // ✅ مقایسه امن
-        if (!secureCompare(password, adminPassword)) {
+        // ✅ مقایسه امن با bcrypt
+        const isValid = await bcrypt.compare(password, adminPasswordHash);
+
+        if (!isValid) {
             const current = loginAttempts.get(ip) ?? { count: 0 };
             current.count += 1;
             if (current.count >= MAX_ATTEMPTS) {
