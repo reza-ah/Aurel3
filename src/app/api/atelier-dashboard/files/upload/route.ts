@@ -82,9 +82,12 @@ export async function POST(request: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // ✅ اصلاح: همیشه file upload کن (نه image)
-        // این باعث می‌شود asset ID با پیشوند "file-" شروع شود
-        const asset = await writeClient.assets.upload("file", buffer, {
+        // ✅ تشخیص نوع asset بر اساس context
+        // اگر در URL ?type=image بود، image upload کن
+        const uploadType = request.nextUrl.searchParams.get("type") || "file";
+        const isImage = uploadType === "image" || [".png", ".jpg", ".jpeg", ".webp"].includes(fileExtension);
+
+        const asset = await writeClient.assets.upload(isImage ? "image" : "file", buffer, {
             filename: (file as File).name,
             contentType: file.type || "application/octet-stream",
         });
@@ -94,6 +97,7 @@ export async function POST(request: NextRequest) {
             data: {
                 _id: asset._id,
                 url: asset.url,
+                type: isImage ? "image" : "file",
             },
         });
     } catch (error) {
