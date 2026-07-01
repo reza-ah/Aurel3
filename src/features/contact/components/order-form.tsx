@@ -83,10 +83,13 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 jewelry_type: data.jewelryType || "",
                 details: data.details,
                 created_at: new Date().toISOString(),
-                files: uploadedFileIds.map(id => ({ _ref: id })),
+                // ✅ اصلاح: فقط _ref را بفرست (string)
+                files: uploadedFileIds,
                 honeypot,
                 timeSpent,
             }
+
+            console.log("Payload to send:", payload);
 
             const response = await fetch("/api/atelier-dashboard/orders", {
                 method: "POST",
@@ -94,7 +97,9 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 body: JSON.stringify(payload),
             })
 
+            console.log("Response status:", response.status);
             const result = await response.json();
+            console.log("Response body:", result);
 
             if (!response.ok) throw new Error(result?.error || result?.message || "Order failed")
 
@@ -107,7 +112,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
             setUploadedFileIds([])
             onSuccess?.()
 
-            // ✅ ارسال ایمیل‌ها با لاگ دقیق
             console.log('📧 Starting email sending...');
             console.log('Env check:', {
                 SERVICE_ID: !!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { client } from "@/lib/sanity";
 import { requireAdminAuth } from "@/lib/api-auth";
-import { urlFor } from "@/lib/sanity";
 
 export async function GET(
     request: NextRequest,

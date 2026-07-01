@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeClient } from "@/lib/sanity";
 
-// ✅ Rate limiter ساده برای آپلود عمومی
 const uploadCounts = new Map<string, { count: number; resetAt: number }>();
 const MAX_UPLOADS_PER_HOUR = 10;
 
-// ✅ لیست پسوندهای مجاز (برای فایل‌های CAD که MIME درست ندارند)
 const ALLOWED_EXTENSIONS = [
-    ".png", ".jpg", ".jpeg", ".webp",  // تصاویر
-    ".pdf",                             // اسناد
-    ".3dm",                             // Rhino CAD
-    ".stl",                             // 3D Printing
-    ".zip",                             // آرشیو
+    ".png", ".jpg", ".jpeg", ".webp",
+    ".pdf",
+    ".3dm",
+    ".stl",
+    ".zip",
 ];
 
-// ✅ MIME types مجاز (برای فایل‌های معمولی)
 const ALLOWED_MIME_TYPES = [
     "image/jpeg",
     "image/png",
@@ -22,16 +19,15 @@ const ALLOWED_MIME_TYPES = [
     "application/pdf",
     "application/zip",
     "application/x-zip-compressed",
-    "application/octet-stream",  // برای فایل‌های CAD
-    "model/stl",                 // STL files
-    "",                          // برخی مرورگرها MIME خالی می‌فرستند
+    "application/octet-stream",
+    "model/stl",
+    "",
 ];
 
 export async function POST(request: NextRequest) {
     try {
         const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
 
-        // ✅ Rate limiting
         const now = Date.now();
         const attempt = uploadCounts.get(ip);
 
@@ -57,7 +53,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ✅ محدودیت حجم: 20MB (برای فایل‌های CAD بزرگ)
         if (file.size > 20 * 1024 * 1024) {
             return NextResponse.json(
                 { error: "File too large. Maximum size is 20MB." },
@@ -65,23 +60,17 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ✅ بررسی پسوند فایل (مهم‌تر از MIME type برای فایل‌های CAD)
         const fileName = (file as File).name.toLowerCase();
         const fileExtension = fileName.slice(fileName.lastIndexOf("."));
 
         if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
             return NextResponse.json(
-                {
-                    error: `Invalid file type. Allowed: ${ALLOWED_EXTENSIONS.join(", ")}`
-                },
+                { error: `Invalid file type. Allowed: ${ALLOWED_EXTENSIONS.join(", ")}` },
                 { status: 400 }
             );
         }
 
-        // ✅ بررسی MIME type (اگر وجود دارد)
         if (file.type && !ALLOWED_MIME_TYPES.includes(file.type)) {
-            // اگر پسوند معتبر است ولی MIME ناشناخته، اجازه بده
-            // (چون مرورگرها برای CAD MIME درست نمی‌فرستند)
             if (!ALLOWED_EXTENSIONS.includes(fileExtension)) {
                 return NextResponse.json(
                     { error: "Invalid file type." },
@@ -90,15 +79,12 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // ✅ آپلود به Sanity
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // ✅ تعیین نوع asset بر اساس پسوند
-        const imageExtensions = [".png", ".jpg", ".jpeg", ".webp"];
-        const assetType = imageExtensions.includes(fileExtension) ? "image" : "file";
-
-        const asset = await writeClient.assets.upload(assetType, buffer, {
+        // ✅ اصلاح: همیشه file upload کن (نه image)
+        // این باعث می‌شود asset ID با پیشوند "file-" شروع شود
+        const asset = await writeClient.assets.upload("file", buffer, {
             filename: (file as File).name,
             contentType: file.type || "application/octet-stream",
         });

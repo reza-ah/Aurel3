@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
 
         console.log("Order payload received:", JSON.stringify(body, null, 2));
 
-        // ✅ Anti-spam: honeypot
         if (body.honeypot) {
             console.error("Spam detected - honeypot filled");
             return NextResponse.json(
@@ -45,7 +44,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ✅ Anti-spam: timeSpent (حداقل ۴ ثانیه)
         const timeSpent = Number.parseInt(String(body.timeSpent), 10);
         console.log("Parsed timeSpent:", timeSpent);
 
@@ -57,7 +55,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validation
         if (!body.full_name || !body.email || !body.details) {
             console.error("Missing fields:", {
                 full_name: !!body.full_name,
@@ -78,8 +75,49 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // ✅ ایجاد سفارش در Sanity
         const tracking_code = `AUR-${Date.now().toString(36).toUpperCase()}`;
+
+        // ✅ اصلاح: ساختار درست فایل‌ها برای Sanity
+        const filesArray = Array.isArray(body.files)
+            ? body.files.map((file: any, index: number) => {
+                // اگر file یک string است (asset _id مثل "file-abc123")
+                if (typeof file === 'string') {
+                    return {
+                        _key: `file-${Date.now()}-${index}`,
+                        _type: 'file',
+                        asset: {
+                            _type: 'reference',
+                            _ref: file,
+                        },
+                    };
+                }
+
+                // اگر file یک object است با _ref
+                if (file._ref) {
+                    return {
+                        _key: file._key || `file-${Date.now()}-${index}`,
+                        _type: 'file',
+                        asset: {
+                            _type: 'reference',
+                            _ref: file._ref,
+                        },
+                    };
+                }
+
+                // اگر file یک object است با asset
+                if (file.asset) {
+                    return {
+                        _key: file._key || `file-${Date.now()}-${index}`,
+                        _type: 'file',
+                        asset: file.asset,
+                    };
+                }
+
+                return null;
+            }).filter(Boolean)
+            : [];
+
+        console.log("Files array:", JSON.stringify(filesArray, null, 2));
 
         const order = await writeClient.create({
             _type: "order",
@@ -89,16 +127,7 @@ export async function POST(request: NextRequest) {
             message: body.details,
             service: body.service || "",
             jewelry_type: body.jewelry_type || "",
-            files: Array.isArray(body.files)
-                ? body.files.map((file: any, index: number) => ({
-                    _key: `file-${Date.now()}-${index}`,
-                    _type: 'file',
-                    asset: {
-                        _type: 'reference',
-                        _ref: typeof file === 'string' ? file : file._ref || file,
-                    },
-                }))
-                : [],
+            files: filesArray,
             status: "new",
             tracking_code: tracking_code,
             date_created: new Date().toISOString(),

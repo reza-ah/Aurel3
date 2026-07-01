@@ -14,12 +14,15 @@ type FAQItem = {
     locale?: string;
 };
 
-// ✅ GET - عمومی (بدون auth) - برای نمایش در صفحه FAQ
+// ✅ GET - عمومی (بدون auth) - فیلتر بر اساس locale
 export async function GET(request: NextRequest) {
     try {
-        const locale = request.nextUrl.searchParams.get("locale");
+        const searchParams = request.nextUrl.searchParams;
+        const locale = searchParams.get("locale") || "en";
 
-        // ✅ حذف فیلتر locale - همه FAQ های enabled را برگردان
+        console.log(`FAQ GET - locale: ${locale}`);
+
+        // ✅ فقط FAQ های enabled را بگیر
         const faqs = await client.fetch(
             `*[_type == "faq" && enabled == true] | order(sort asc) {
                 _id,
@@ -33,10 +36,18 @@ export async function GET(request: NextRequest) {
             }`
         );
 
-        // ✅ اگر locale مشخص شد، فیلتر کن (ولی اگر نبود، همه را برگردان)
-        const filtered = locale
-            ? faqs.filter((f: FAQItem) => !f.locale || f.locale === locale)
-            : faqs;
+        console.log(`FAQ GET - total FAQs: ${faqs.length}`);
+
+        // ✅ فیلتر بر اساس locale
+        const filtered = faqs.filter((f: FAQItem) => {
+            // اگر locale مشخص نشده یا برابر است، برگردان
+            if (!f.locale || f.locale === locale) {
+                return true;
+            }
+            return false;
+        });
+
+        console.log(`FAQ GET - filtered FAQs: ${filtered.length}`);
 
         return NextResponse.json(filtered);
     } catch (error) {

@@ -15,9 +15,9 @@ export default async function Page({
     let faqItems: any[] = [];
 
     try {
-        // ✅ اصلاح: حذف فیلتر locale - همه FAQ ها را نمایش بده
+        // ✅ ارسال locale به API
         const res = await fetch(
-            `${baseUrl}/api/atelier-dashboard/faq`,
+            `${baseUrl}/api/atelier-dashboard/faq?locale=${locale}`,
             {
                 cache: "no-store",
                 headers: {
@@ -28,7 +28,7 @@ export default async function Page({
 
         if (res.ok) {
             faqItems = await res.json();
-            console.log(`FAQ items loaded:`, faqItems.length);
+            console.log(`FAQ page (${locale}) - loaded ${faqItems.length} items`);
         } else {
             console.error(`FAQ API error: ${res.status}`);
         }
