@@ -75,11 +75,6 @@ export function OrderForm({ locale, onSuccess }: Props) {
 
             const timeSpent = Math.max(5, Math.floor((Date.now() - startTimeRef.current) / 1000))
 
-            console.log("=== ORDER FORM DEBUG ===");
-            console.log("timeSpent:", timeSpent);
-            console.log("honeypot:", honeypot);
-            console.log("data:", data);
-
             const payload = {
                 full_name: data.name,
                 email: data.email,
@@ -93,17 +88,13 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 timeSpent,
             }
 
-            console.log("Payload to send:", payload);
-
             const response = await fetch("/api/atelier-dashboard/orders", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
             })
 
-            console.log("Response status:", response.status);
             const result = await response.json();
-            console.log("Response body:", result);
 
             if (!response.ok) throw new Error(result?.error || result?.message || "Order failed")
 
@@ -116,7 +107,16 @@ export function OrderForm({ locale, onSuccess }: Props) {
             setUploadedFileIds([])
             onSuccess?.()
 
-            await Promise.allSettled([
+            // ✅ ارسال ایمیل‌ها با لاگ دقیق
+            console.log('📧 Starting email sending...');
+            console.log('Env check:', {
+                SERVICE_ID: !!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+                TEMPLATE_CUSTOMER: !!process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CUSTOMER,
+                TEMPLATE_ADMIN: !!process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN,
+                PUBLIC_KEY: !!process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+            });
+
+            const emailResults = await Promise.allSettled([
                 sendOrderConfirmationToCustomer({
                     customerName: data.name,
                     customerEmail: data.email,
@@ -130,7 +130,15 @@ export function OrderForm({ locale, onSuccess }: Props) {
                     orderNumber: String(order._id),
                     orderDetails,
                 }),
-            ])
+            ]);
+
+            emailResults.forEach((result, index) => {
+                if (result.status === 'rejected') {
+                    console.error(`❌ Email ${index + 1} failed:`, result.reason);
+                } else {
+                    console.log(`✅ Email ${index + 1} succeeded`);
+                }
+            });
         } catch (error) {
             console.error("Order error:", error)
             setServerError(isFa ? "خطا در ثبت سفارش. دوباره تلاش کنید." : "Failed to submit order.")
