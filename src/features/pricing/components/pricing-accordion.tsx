@@ -90,7 +90,7 @@ export default function PricingAccordion({
                                     className="overflow-hidden"
                                 >
                                     <div className="pb-12 pt-2">
-                                        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                                        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
                                             {categoryItems.map((item: any) => (
                                                 <div
                                                     key={item._id}
@@ -186,11 +186,9 @@ export default function PricingAccordion({
 
                                                             <Link
                                                                 href={`/${locale}/contact`}
-                                                                className="mt-5 inline-flex w-full rounded-full border border-[#D4AF37]/40 px-8 py-4 text-sm uppercase tracking-[0.2em] text-[#D4AF37] transition-all duration-300 hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
+                                                                className="mt-5 inline-flex w-full items-center justify-center rounded-full border border-[#D4AF37]/40 px-8 py-4 text-sm uppercase tracking-[0.2em] text-[#D4AF37] transition-all duration-300 hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
                                                             >
-                                                                {isFa
-                                                                    ? "ثبت سفارش"
-                                                                    : "Submit Order"}
+                                                                {isFa ? "ثبت سفارش" : "Submit Order"}
                                                             </Link>
                                                         </div>
                                                     </div>
