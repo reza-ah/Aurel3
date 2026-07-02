@@ -5,11 +5,11 @@ import Link from "next/link";
 import { urlFor } from "@/lib/sanity";
 
 type SanityImage = {
-    _type: "image";
+    _type?: "image";
     asset?: {
-        _ref: string;
-        _type: "reference";
-    };
+        _ref?: string;
+        _type?: "reference";
+    } | string;
 };
 
 type PortfolioItem = {
@@ -18,8 +18,8 @@ type PortfolioItem = {
     title_fa?: string;
     slug?: { current: string } | string;
     status?: string;
-    cover_image?: SanityImage | string;
-    gallery?: (SanityImage | string)[];
+    cover_image?: SanityImage | string | null;
+    gallery?: (SanityImage | string | null)[];
 };
 
 function renderStatusBadge(status?: string) {
@@ -55,32 +55,58 @@ function renderStatusBadge(status?: string) {
     }
 }
 
-// ✅ تابع کمکی برای ساخت URL تصویر Sanity
-function getImageUrl(image: SanityImage | string | null | undefined): string | null {
+// ✅ بهبود یافته: تابع کمکی برای ساخت URL تصویر Sanity
+function getImageUrl(image: any): string | null {
     if (!image) return null;
 
     try {
+        // اگر string بود (reference ID)
         if (typeof image === "string") {
-            // اگر string باشد (reference ID)
+            if (image.startsWith("http")) return image;
             return urlFor({ _type: "image", asset: { _ref: image } }).width(200).url();
         }
 
-        if (image.asset) {
-            // اگر object با asset باشد
-            return urlFor(image).width(200).url();
+        // اگر object بود
+        if (typeof image === "object") {
+            // اگر asset یک string بود
+            if (typeof image.asset === "string") {
+                return urlFor({ _type: "image", asset: { _ref: image.asset } }).width(200).url();
+            }
+
+            // اگر asset یک object بود
+            if (image.asset && typeof image.asset === "object") {
+                if (image.asset._ref) {
+                    return urlFor({ _type: "image", asset: { _ref: image.asset._ref } }).width(200).url();
+                }
+                if (image.asset.url) {
+                    return image.asset.url;
+                }
+            }
+
+            // اگر خود image URL داشت
+            if (image.url) {
+                return image.url;
+            }
+
+            // اگر خود image _ref داشت
+            if (image._ref) {
+                return urlFor({ _type: "image", asset: { _ref: image._ref } }).width(200).url();
+            }
         }
 
         return null;
-    } catch {
+    } catch (error) {
+        console.error("Error getting image URL:", error, image);
         return null;
     }
 }
 
-// ✅ تابع کمکی برای گرفتن slug
-function getSlug(slug: { current: string } | string | undefined): string {
+// ✅ بهبود یافته: تابع کمکی برای گرفتن slug
+function getSlug(slug: any): string {
     if (!slug) return "";
     if (typeof slug === "string") return slug;
-    return slug.current || "";
+    if (typeof slug === "object" && slug.current) return slug.current;
+    return "";
 }
 
 export default function PortfolioListPage() {
@@ -98,6 +124,7 @@ export default function PortfolioListPage() {
             if (!res.ok) throw new Error("Failed to fetch portfolio items");
             const json = await res.json();
             const data = json.data || json;
+            console.log("Portfolio items:", data); // ✅ اضافه شده برای دیباگ
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(error);
@@ -108,7 +135,7 @@ export default function PortfolioListPage() {
     }
 
     async function deleteItem(id: string) {
-        if (!confirm("آیا مطمئن هستی؟")) return;
+        if (!confirm("آیا مطمئن هستید؟")) return;
 
         try {
             const res = await fetch(`/api/atelier-dashboard/portfolio/${id}`, {
@@ -126,7 +153,7 @@ export default function PortfolioListPage() {
         <main className="pt-28 px-8 text-white">
             <div className="mb-6">
                 <h1 className="text-3xl font-semibold">Portfolio Manager</h1>
-                <p className="text-sm text-zinc-400 mt-1">مدیریت پروژه‌ها و وضعیت انتشار</p>
+                <p className="text-sm text-zinc-400 mt-1">مدیریت نمونه‌کارها و نمایش آنها</p>
             </div>
 
             <div className="flex gap-3 items-center mb-8">
@@ -148,7 +175,7 @@ export default function PortfolioListPage() {
                 <p>در حال بارگذاری...</p>
             ) : items.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-zinc-400 text-xl">هیچ آیتمی وجود ندارد</p>
+                    <p className="text-zinc-400 text-xl">هیچ آیتمی ایجاد نشده</p>
                 </div>
             ) : (
                 <div className="rounded-xl border border-zinc-800 overflow-hidden">
@@ -163,60 +190,64 @@ export default function PortfolioListPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
-                            {items.map((p) => (
-                                <tr key={p._id} className="hover:bg-zinc-900/40 transition">
-                                    <td className="px-4 py-4">
-                                        <Link
-                                            href={`/en/atelier-dashboard/portfolio/${p._id}`}
-                                            className="text-blue-400 hover:text-blue-300 mr-4"
-                                        >
-                                            Edit
-                                        </Link>
-                                        <button
-                                            className="text-red-400 hover:text-red-300"
-                                            onClick={() => deleteItem(p._id)}
-                                        >
-                                            Delete
-                                        </button>
-                                    </td>
+                            {items.map((p) => {
+                                const coverUrl = getImageUrl(p.cover_image);
+                                const slugText = getSlug(p.slug);
 
-                                    <td className="px-4 py-4">
-                                        <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
-                                            {(p.gallery || []).map((img, i) => {
-                                                const imgUrl = getImageUrl(img);
-                                                if (!imgUrl) return null;
-                                                return (
-                                                    <img
-                                                        key={i}
-                                                        src={imgUrl}
-                                                        className="w-16 h-16 object-cover rounded-lg border border-zinc-700 snap-start"
-                                                        alt={`Gallery ${i}`}
-                                                    />
-                                                );
-                                            })}
-                                        </div>
-                                    </td>
+                                return (
+                                    <tr key={p._id} className="hover:bg-zinc-900/40 transition">
+                                        <td className="px-4 py-4">
+                                            <Link
+                                                href={`/en/atelier-dashboard/portfolio/${p._id}`}
+                                                className="text-blue-400 hover:text-blue-300 mr-4"
+                                            >
+                                                Edit
+                                            </Link>
+                                            <button
+                                                className="text-red-400 hover:text-red-300"
+                                                onClick={() => deleteItem(p._id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
 
-                                    <td className="px-4 py-4 font-medium">
-                                        <div>{p.title_en}</div>
-                                        {p.title_fa && (
-                                            <div className="text-xs text-zinc-500 mt-0.5 font-normal">
-                                                {p.title_fa}
+                                        <td className="px-4 py-4">
+                                            <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
+                                                {(p.gallery || []).map((img, i) => {
+                                                    const imgUrl = getImageUrl(img);
+                                                    if (!imgUrl) return null;
+                                                    return (
+                                                        <img
+                                                            key={i}
+                                                            src={imgUrl}
+                                                            className="w-16 h-16 object-cover rounded-lg border border-zinc-700 snap-start"
+                                                            alt={`Gallery ${i}`}
+                                                        />
+                                                    );
+                                                })}
                                             </div>
-                                        )}
-                                        <div className="text-xs text-zinc-600 mt-1 font-mono">
-                                            /portfolio/{getSlug(p.slug)}
-                                        </div>
-                                    </td>
+                                        </td>
 
-                                    <td className="px-4 py-4">
-                                        {renderStatusBadge(p.status)}
-                                    </td>
+                                        <td className="px-4 py-4 font-medium">
+                                            <div>{p.title_en || "Untitled"}</div>
+                                            {p.title_fa && (
+                                                <div className="text-xs text-zinc-500 mt-0.5 font-normal">
+                                                    {p.title_fa}
+                                                </div>
+                                            )}
+                                            {slugText && (
+                                                <div className="text-xs text-zinc-600 mt-1 font-mono">
+                                                    /portfolio/{slugText}
+                                                </div>
+                                            )}
+                                        </td>
 
-                                    <td className="px-4 py-4">
-                                        {(() => {
-                                            const coverUrl = getImageUrl(p.cover_image);
-                                            return coverUrl ? (
+                                        <td className="px-4 py-4">
+                                            {renderStatusBadge(p.status)}
+                                        </td>
+
+                                        <td className="px-4 py-4">
+                                            {coverUrl ? (
                                                 <img
                                                     src={coverUrl}
                                                     className="w-20 h-20 object-cover rounded-lg border border-zinc-700"
@@ -224,11 +255,11 @@ export default function PortfolioListPage() {
                                                 />
                                             ) : (
                                                 <span className="text-zinc-500 text-sm">No cover</span>
-                                            );
-                                        })()}
-                                    </td>
-                                </tr>
-                            ))}
+                                            )}
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

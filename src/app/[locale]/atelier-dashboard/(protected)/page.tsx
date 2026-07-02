@@ -94,7 +94,7 @@ export default function AtelierDashboard() {
                     >
                         <div className="flex items-center justify-between mb-6">
                             <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl">
-                                🖼
+                                🖼️
                             </div>
                             <span className="text-zinc-500 group-hover:text-zinc-300 transition">
                                 Open →
@@ -104,6 +104,26 @@ export default function AtelierDashboard() {
                         <h2 className="text-2xl font-light mb-3">Portfolio</h2>
                         <p className="text-zinc-500 leading-7">
                             Manage portfolio projects, cover images and featured works.
+                        </p>
+                    </Link>
+
+                    {/* ✅ PORTFOLIO TAGS (NEW) */}
+                    <Link
+                        href={`/${locale}/atelier-dashboard/portfolio-tags`}
+                        className="group border border-zinc-800 bg-zinc-950 rounded-3xl p-8 hover:border-zinc-600 hover:bg-zinc-900 transition-all duration-300"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl">
+                                🏷️
+                            </div>
+                            <span className="text-zinc-500 group-hover:text-zinc-300 transition">
+                                Open →
+                            </span>
+                        </div>
+
+                        <h2 className="text-2xl font-light mb-3">Portfolio Tags</h2>
+                        <p className="text-zinc-500 leading-7">
+                            Manage tags for organizing and filtering portfolio items.
                         </p>
                     </Link>
 
@@ -130,6 +150,7 @@ export default function AtelierDashboard() {
                             Manage frequently asked questions shown on the website.
                         </p>
                     </Link>
+
                     {/* PRICING MANAGER */}
                     <Link
                         href={`/${locale}/atelier-dashboard/pricing`}
@@ -154,7 +175,31 @@ export default function AtelierDashboard() {
                         </p>
                     </Link>
 
-                    {/* JOURNAL MANAGER (NEW) */}
+                    {/* ✅ PRICING CATEGORIES (NEW) */}
+                    <Link
+                        href={`/${locale}/atelier-dashboard/pricing-categories`}
+                        className="group border border-zinc-800 bg-zinc-950 rounded-3xl p-8 hover:border-zinc-600 hover:bg-zinc-900 transition-all duration-300"
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="w-12 h-12 rounded-2xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-xl">
+
+                            </div>
+
+                            <span className="text-zinc-500 group-hover:text-zinc-300 transition">
+                                Open →
+                            </span>
+                        </div>
+
+                        <h2 className="text-2xl font-light mb-3">
+                            Pricing Categories
+                        </h2>
+
+                        <p className="text-zinc-500 leading-7">
+                            Manage pricing categories and organization structure.
+                        </p>
+                    </Link>
+
+                    {/* JOURNAL MANAGER */}
                     <Link
                         href={`/${locale}/atelier-dashboard/journal`}
                         className="group border border-zinc-800 bg-zinc-950 rounded-3xl p-8 hover:border-zinc-600 hover:bg-zinc-900 transition-all duration-300"
