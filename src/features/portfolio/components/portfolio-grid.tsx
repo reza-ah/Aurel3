@@ -185,7 +185,7 @@ export default function PortfolioGrid({ locale, items }: Props) {
                                             <p className="text-zinc-300 text-sm mb-2">{category}</p>
                                             <h2 className="text-2xl font-light mb-4">{title}</h2>
 
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-3">
                                                 {(item.tags || []).map((relation: any, i: number) => {
                                                     const tag = normalizeTag(relation);
                                                     if (!tag) return null;
@@ -193,7 +193,7 @@ export default function PortfolioGrid({ locale, items }: Props) {
                                                     return (
                                                         <span
                                                             key={i}
-                                                            className="text-[10px] uppercase tracking-[0.2em] border border-white/20 px-3 py-1 rounded-full text-zinc-300"
+                                                            className="text-xs font-medium uppercase tracking-wider border border-[#D4AF37]/40 bg-[#D4AF37]/10 px-4 py-1.5 rounded-full text-[#D4AF37] hover:bg-[#D4AF37]/20 transition-colors"
                                                         >
                                                             {tag.title}
                                                         </span>

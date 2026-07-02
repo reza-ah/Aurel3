@@ -61,7 +61,14 @@ export async function POST(request: NextRequest) {
                     },
                 }))
                 : [],
-            tags: body.tags || [],
+            // ✅ اصلاح: اضافه کردن _key به tags
+            tags: Array.isArray(body.tags)
+                ? body.tags.map((tag: any, index: number) => ({
+                    _key: `tag-${Date.now()}-${index}`,
+                    _type: 'reference',
+                    _ref: typeof tag === 'string' ? tag : tag._ref || tag,
+                }))
+                : [],
             featured: body.featured || false,
             status: body.status || "draft",
             date_created: new Date().toISOString(),
@@ -112,7 +119,14 @@ export async function PATCH(request: NextRequest) {
                         },
                     }))
                     : undefined,
-                tags: item.tags || [],
+                // ✅ اصلاح: اضافه کردن _key به tags در PATCH
+                tags: Array.isArray(item.tags)
+                    ? item.tags.map((tag: any, index: number) => ({
+                        _key: tag._key || `tag-${Date.now()}-${index}`,
+                        _type: 'reference',
+                        _ref: typeof tag === 'string' ? tag : tag._ref || tag,
+                    }))
+                    : undefined,
                 featured: item.featured,
                 status: item.status,
             })
