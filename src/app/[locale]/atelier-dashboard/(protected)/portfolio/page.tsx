@@ -4,22 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { urlFor } from "@/lib/sanity";
 
-type SanityImage = {
-    _type?: "image";
-    asset?: {
-        _ref?: string;
-        _type?: "reference";
-    } | string;
-};
-
 type PortfolioItem = {
     _id: string;
     title_en?: string;
     title_fa?: string;
-    slug?: { current: string } | string;
+    slug?: { current: string } | string | null;
     status?: string;
-    cover_image?: SanityImage | string | null;
-    gallery?: (SanityImage | string | null)[];
+    cover_image?: any;
+    gallery?: any[];
 };
 
 function renderStatusBadge(status?: string) {
@@ -39,74 +31,54 @@ function renderStatusBadge(status?: string) {
                     Draft
                 </span>
             );
-        case "archived":
-            return (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-zinc-500/10 text-zinc-400 border border-zinc-500/20">
-                    <span className="w-1 h-1 rounded-full bg-zinc-400"></span>
-                    Archived
-                </span>
-            );
         default:
             return (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-zinc-800 text-zinc-400">
-                    {currentStatus}
+                    {String(currentStatus)}
                 </span>
             );
     }
 }
 
-// ✅ بهبود یافته: تابع کمکی برای ساخت URL تصویر Sanity
+// ✅ تبدیل قطعی به string
+function safeString(value: any): string {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "string") return value;
+    if (typeof value === "number") return String(value);
+    if (typeof value === "object") {
+        if (value.current) return String(value.current);
+        if (value._ref) return String(value._ref);
+        if (value.url) return String(value.url);
+        if (value.asset) {
+            if (typeof value.asset === "string") return value.asset;
+            if (value.asset._ref) return String(value.asset._ref);
+            if (value.asset.url) return String(value.asset.url);
+        }
+    }
+    return "";
+}
+
+// ✅ ساخت URL تصویر
 function getImageUrl(image: any): string | null {
     if (!image) return null;
 
     try {
-        // اگر string بود (reference ID)
-        if (typeof image === "string") {
-            if (image.startsWith("http")) return image;
-            return urlFor({ _type: "image", asset: { _ref: image } }).width(200).url();
-        }
+        const ref = safeString(image);
+        if (!ref) return null;
 
-        // اگر object بود
-        if (typeof image === "object") {
-            // اگر asset یک string بود
-            if (typeof image.asset === "string") {
-                return urlFor({ _type: "image", asset: { _ref: image.asset } }).width(200).url();
-            }
+        // اگر URL کامل است
+        if (ref.startsWith("http")) return ref;
 
-            // اگر asset یک object بود
-            if (image.asset && typeof image.asset === "object") {
-                if (image.asset._ref) {
-                    return urlFor({ _type: "image", asset: { _ref: image.asset._ref } }).width(200).url();
-                }
-                if (image.asset.url) {
-                    return image.asset.url;
-                }
-            }
-
-            // اگر خود image URL داشت
-            if (image.url) {
-                return image.url;
-            }
-
-            // اگر خود image _ref داشت
-            if (image._ref) {
-                return urlFor({ _type: "image", asset: { _ref: image._ref } }).width(200).url();
-            }
+        // اگر reference ID است
+        if (ref.startsWith("image-") || ref.includes("-")) {
+            return urlFor({ _type: "image", asset: { _ref: ref } }).width(200).url();
         }
 
         return null;
     } catch (error) {
-        console.error("Error getting image URL:", error, image);
+        console.error("Error getting image URL:", error);
         return null;
     }
-}
-
-// ✅ بهبود یافته: تابع کمکی برای گرفتن slug
-function getSlug(slug: any): string {
-    if (!slug) return "";
-    if (typeof slug === "string") return slug;
-    if (typeof slug === "object" && slug.current) return slug.current;
-    return "";
 }
 
 export default function PortfolioListPage() {
@@ -124,7 +96,7 @@ export default function PortfolioListPage() {
             if (!res.ok) throw new Error("Failed to fetch portfolio items");
             const json = await res.json();
             const data = json.data || json;
-            console.log("Portfolio items:", data); // ✅ اضافه شده برای دیباگ
+            console.log("Portfolio items:", data);
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(error);
@@ -191,8 +163,12 @@ export default function PortfolioListPage() {
                         </thead>
                         <tbody className="divide-y divide-zinc-800">
                             {items.map((p) => {
+                                // ✅ تبدیل قطعی همه مقادیر به string
+                                const titleEn = safeString(p.title_en) || "Untitled";
+                                const titleFa = safeString(p.title_fa);
+                                const slugStr = safeString(p.slug);
                                 const coverUrl = getImageUrl(p.cover_image);
-                                const slugText = getSlug(p.slug);
+                                const status = safeString(p.status) || "published";
 
                                 return (
                                     <tr key={p._id} className="hover:bg-zinc-900/40 transition">
@@ -213,7 +189,7 @@ export default function PortfolioListPage() {
 
                                         <td className="px-4 py-4">
                                             <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory">
-                                                {(p.gallery || []).map((img, i) => {
+                                                {(p.gallery || []).map((img: any, i: number) => {
                                                     const imgUrl = getImageUrl(img);
                                                     if (!imgUrl) return null;
                                                     return (
@@ -229,21 +205,22 @@ export default function PortfolioListPage() {
                                         </td>
 
                                         <td className="px-4 py-4 font-medium">
-                                            <div>{p.title_en || "Untitled"}</div>
-                                            {p.title_fa && (
+                                            {/* ✅ همه مقادیر string هستند */}
+                                            <div>{titleEn}</div>
+                                            {titleFa && (
                                                 <div className="text-xs text-zinc-500 mt-0.5 font-normal">
-                                                    {p.title_fa}
+                                                    {titleFa}
                                                 </div>
                                             )}
-                                            {slugText && (
+                                            {slugStr && (
                                                 <div className="text-xs text-zinc-600 mt-1 font-mono">
-                                                    /portfolio/{slugText}
+                                                    /portfolio/{slugStr}
                                                 </div>
                                             )}
                                         </td>
 
                                         <td className="px-4 py-4">
-                                            {renderStatusBadge(p.status)}
+                                            {renderStatusBadge(status)}
                                         </td>
 
                                         <td className="px-4 py-4">
