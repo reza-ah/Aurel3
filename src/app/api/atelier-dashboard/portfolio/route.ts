@@ -9,21 +9,21 @@ export async function GET() {
     try {
         const items = await client.fetch(
             `*[_type == "portfolio"] | order(date_created desc) {
-                _id,
-                slug,
-                title_en,
-                title_fa,
-                category_en,
-                category_fa,
-                description_en,
-                description_fa,
-                cover_image,
-                gallery,
-                tags,
-                featured,
-                status,
-                date_created
-            }`
+        _id,
+        slug,
+        title_en,
+        title_fa,
+        category_en,
+        category_fa,
+        description_en,
+        description_fa,
+        cover_image,
+        gallery,
+        tags[]->{ _id, name_en, name_fa },
+        featured,
+        status,
+        date_created
+    }`
         );
 
         return NextResponse.json(items);

@@ -98,19 +98,61 @@ export async function getProductBySlug(slug: string) {
 ========================= */
 export async function getPortfolioItems() {
     return client.fetch(
-        `*[_type == "portfolio" && status == "published"] | order(date_created desc) { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`
+        `*[_type == "portfolio" && status == "published"] | order(date_created desc) { 
+            _id, 
+            slug, 
+            title_en, 
+            title_fa, 
+            category_en, 
+            category_fa, 
+            description_en, 
+            description_fa, 
+            cover_image, 
+            gallery, 
+            tags[]->{ _id, name_en, name_fa },
+            featured, 
+            date_created 
+        }`
     );
 }
 
 export async function getFeaturedPortfolioItems() {
     return client.fetch(
-        `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc) { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`
+        `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc) { 
+            _id, 
+            slug, 
+            title_en, 
+            title_fa, 
+            category_en, 
+            category_fa, 
+            description_en, 
+            description_fa, 
+            cover_image, 
+            gallery, 
+            tags[]->{ _id, name_en, name_fa },
+            featured, 
+            date_created 
+        }`
     );
 }
 
 export async function getPortfolioBySlug(slug: string) {
     const data = await client.fetch(
-        `*[_type == "portfolio" && slug.current == $slug][0] { _id, slug, title_en, title_fa, category_en, category_fa, description_en, description_fa, cover_image, gallery, tags, featured, date_created }`,
+        `*[_type == "portfolio" && slug.current == $slug][0] { 
+            _id, 
+            slug, 
+            title_en, 
+            title_fa, 
+            category_en, 
+            category_fa, 
+            description_en, 
+            description_fa, 
+            cover_image, 
+            gallery, 
+            tags[]->{ _id, name_en, name_fa },
+            featured, 
+            date_created 
+        }`,
         { slug }
     );
     return data ?? null;

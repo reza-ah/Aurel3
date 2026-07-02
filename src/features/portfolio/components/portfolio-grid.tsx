@@ -38,19 +38,18 @@ export default function PortfolioGrid({ locale, items }: Props) {
         );
     };
 
-    const normalizeTag = (relation: any) => {
-        if (!relation) return null;
-
-        const tag = relation.portfolio_tags_id || relation;
+    const normalizeTag = (tag: any) => {
         if (!tag) return null;
 
-        const title_fa = tag.title_fa ?? tag.name_fa ?? tag.title ?? tag.name ?? "";
-        const title_en = tag.title_en ?? tag.name_en ?? tag.title ?? tag.name ?? "";
+        const title_fa = tag.name_fa || "";
+        const title_en = tag.name_en || "";
 
-        const slug = tag.slug ?? slugify(title_en || title_fa || String(tag.id ?? ""));
+        if (!title_fa && !title_en) return null;
+
+        const slug = tag._id || slugify(title_en || title_fa);
 
         return {
-            id: tag.id,
+            id: tag._id,
             slug,
             title: isFa ? title_fa || title_en : title_en || title_fa,
         };
