@@ -138,9 +138,11 @@ export default function AboutBrand({ locale }: Props) {
 
                             <Image
                                 src="/images/jewel-2.jpg"
-                                alt="Luxury Jewelry CAD Design"
+                                alt="Professional jewelry CAD design and 3D modeling at Aurel Studio"
                                 width={900}
                                 height={1200}
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                loading="lazy"
                                 className="h-[650px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
 

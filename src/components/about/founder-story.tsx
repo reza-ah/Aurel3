@@ -16,9 +16,11 @@ export default function FounderStory({ locale }: Props) {
                     <div className="relative overflow-hidden rounded-xl">
                         <Image
                             src="/images/founder.jpg"
-                            alt="Founder"
+                            alt="Aurel Design Studio Founder - Professional jewelry designer with 15+ years experience"
                             width={900}
                             height={1100}
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                            loading="lazy"
                             className="h-full w-full object-cover"
                         />
                     </div>
