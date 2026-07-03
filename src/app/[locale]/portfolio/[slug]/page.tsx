@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getOptimizedImage } from "@/lib/sanity";
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
 import { getPortfolioItems } from "@/lib/sanity";
+import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
 
 type PortfolioItem = {
     _id: string;
@@ -80,8 +81,27 @@ export default async function ProjectPage({ params }: Props) {
         })
         .slice(0, 3);
 
+    // ✅ Breadcrumb items
+    const breadcrumbItems = [
+        {
+            name: isFa ? "خانه" : "Home",
+            url: `/${locale}`,
+        },
+        {
+            name: isFa ? "نمونه‌کارها" : "Portfolio",
+            url: `/${locale}/portfolio`,
+        },
+        {
+            name: title,
+            url: `/${locale}/portfolio/${slug}`,
+        },
+    ];
+
     return (
         <main className="min-h-screen bg-transparent text-white">
+
+            {/* ✅ Breadcrumb Schema */}
+            <BreadcrumbSchema items={breadcrumbItems} />
 
             {/* HERO */}
             <section className="pt-32 pb-24">
@@ -156,7 +176,7 @@ export default async function ProjectPage({ params }: Props) {
 
                             <p className="text-zinc-400 max-w-2xl leading-8">
                                 {isFa
-                                    ? "مجموعه کامل پروژه‌های طراحی و اجرا شده را مشاهده کنید."
+                                    ? "مجموعه کامل پروژه‌های طراحی شده را مشاهده کنید."
                                     : "Discover the complete collection of crafted luxury projects."}
                             </p>
                         </div>
@@ -165,7 +185,7 @@ export default async function ProjectPage({ params }: Props) {
                             href={`/${locale}/portfolio`}
                             className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-[#d4af37] text-[#d4af37] uppercase tracking-[0.2em] text-sm hover:bg-[#d4af37] hover:text-black transition-all duration-300 shrink-0"
                         >
-                            {isFa ? "همه پروژه‌ها" : "View Portfolio"}
+                            {isFa ? "همه نمونه‌کارها" : "View Portfolio"}
                         </Link>
                     </div>
                 </div>
