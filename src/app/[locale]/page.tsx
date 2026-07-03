@@ -4,9 +4,8 @@ import PageBase from "@/components/page-base";
 import { getHomepageSections, getProducts, getOptimizedImage } from "@/lib/sanity";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import Image from "next/image";
-
-// Import مستقیم (نه dynamic)
 import PortfolioSection from "@/features/portfolio/components/portfolio-section";
+import OrganizationSchema from "@/components/seo/organization-schema";
 
 export default async function HomePage({
     params,
@@ -19,10 +18,8 @@ export default async function HomePage({
     const dict = await getDictionary(locale);
     const sections = await getHomepageSections(locale);
 
-    // ✅ جلوگیری از duplicate - فقط اولین hero را نگه دار
     const uniqueSections = sections.reduce((acc: any[], section: any) => {
         if (section.type === "hero") {
-            // فقط اگر هنوز hero اضافه نشده، اضافه کن
             if (!acc.some(s => s.type === "hero")) {
                 acc.push(section);
             }
@@ -38,7 +35,6 @@ export default async function HomePage({
     return (
         // @ts-expect-error PageBase accepts showGrid at runtime
         <PageBase showGrid={true}>
-            {/* Dynamic Homepage Sections - ✅ بدون duplicate */}
             {uniqueSections.map((section: any) => (
                 <HomepageSectionRenderer
                     key={section._id || section.id}
@@ -48,13 +44,8 @@ export default async function HomePage({
                 />
             ))}
 
-            {/* Portfolio Section */}
             <PortfolioSection locale={locale} />
 
-            {/* ✅ حذف شد - Pricing Section */}
-            {/* ✅ حذف شد - Contact Form */}
-
-            {/* Products Section */}
             {productsEnabled && products.length > 0 && (
                 <section className="px-6 py-24">
                     <div className="container-lux">
@@ -70,7 +61,6 @@ export default async function HomePage({
 
                         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                             {products.map((product: any) => {
-                                // ✅ استفاده از getOptimizedImage به جای getAssetUrl
                                 const imageUrl = getOptimizedImage(product.image, {
                                     width: 800,
                                     quality: 75,
@@ -135,6 +125,9 @@ export default async function HomePage({
                     </div>
                 </section>
             )}
+
+            {/* ✅ Organization Schema - فقط در صفحه اصلی */}
+            <OrganizationSchema />
         </PageBase>
     );
 }

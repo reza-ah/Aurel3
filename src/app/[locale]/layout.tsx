@@ -5,7 +5,6 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import AmbientLights from "@/components/ambient-lights";
 import { getDictionary } from "@/lib/utils/get-dictionary";
-import OrganizationSchema from "@/components/seo/organization-schema";
 import "../globals.css";
 
 // ✅ فونت اصلی با preload
@@ -141,16 +140,11 @@ export default async function LocaleLayout({
             suppressHydrationWarning
         >
             <head>
-                {/* ✅ Preconnect برای منابع خارجی */}
                 <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://cdn.sanity.io" />
-
-                {/* ✅ Favicon */}
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-                {/* ✅ Manifest */}
                 <link rel="manifest" href="/manifest.json" />
             </head>
             <body
@@ -165,7 +159,6 @@ export default async function LocaleLayout({
                 `}
                 suppressHydrationWarning
             >
-                {/* ✅ Skip to main content (Accessibility) */}
                 <a
                     href="#main-content"
                     className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#d4af37] focus:text-black focus:px-4 focus:py-2 focus:rounded"
@@ -173,7 +166,6 @@ export default async function LocaleLayout({
                     {isFa ? "رفتن به محتوای اصلی" : "Skip to main content"}
                 </a>
 
-                {/* لایه پس‌زمینه */}
                 <div
                     className="absolute inset-0 z-0 h-full w-full pointer-events-none select-none"
                     aria-hidden="true"
@@ -182,7 +174,6 @@ export default async function LocaleLayout({
                     <AmbientLights />
                 </div>
 
-                {/* کانتینر اصلی محتوا */}
                 <div className="relative z-10">
                     <SmoothScrollProvider>
                         <SiteHeader dict={dict} />
@@ -192,9 +183,6 @@ export default async function LocaleLayout({
                         <SiteFooter locale={locale} />
                     </SmoothScrollProvider>
                 </div>
-
-                {/* ✅ اضافه شد: Organization Schema */}
-                <OrganizationSchema />
             </body>
         </html>
     );
