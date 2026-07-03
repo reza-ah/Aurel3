@@ -1,6 +1,7 @@
 import FAQAccordion from "@/features/journal/components/faq-accordion";
 import Reveal from "@/components/reveal";
 import Link from "next/link";
+import FAQSchema from "@/components/seo/faq-schema";
 
 export default async function Page({
     params,
@@ -15,7 +16,6 @@ export default async function Page({
     let faqItems: any[] = [];
 
     try {
-        // ✅ ارسال locale به API
         const res = await fetch(
             `${baseUrl}/api/atelier-dashboard/faq?locale=${locale}`,
             {
@@ -74,7 +74,7 @@ export default async function Page({
 
                             <p className="text-white/70 leading-relaxed mb-10">
                                 {isFa
-                                    ? "اگر پاسخ سوال مورد نظر خود را پیدا نکردید، می‌توانید از طریق صفحه تماس با ما در ارتباط باشید. ما با کمال میل به سوالات شما پاسخ می‌دهیم."
+                                    ? "اگر پاسخ سوال مورد نظر خود را پیدا نکردید، می‌توانید از طریق صفحه تماس با ما در ارتباط باشید. ما به سرعت به سوالات شما پاسخ می‌دهیم."
                                     : "If you couldn't find the answer you're looking for, feel free to reach out through our contact page. Our team will be happy to assist you."}
                             </p>
 
@@ -88,6 +88,11 @@ export default async function Page({
                         </div>
                     </div>
                 </Reveal>
+
+                {/* ✅ اضافه شد: FAQ Schema برای SEO */}
+                {faqItems.length > 0 && (
+                    <FAQSchema items={faqItems} locale={locale} />
+                )}
 
             </div>
         </section>
