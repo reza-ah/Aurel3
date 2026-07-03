@@ -1,7 +1,6 @@
 import { getJournalPost, getJournalPosts, getOptimizedImage } from "@/lib/sanity";
 import { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import Image from "next/image";
 import ShareButtons from "@/components/share-buttons";
 
@@ -13,6 +12,8 @@ type Params = {
 type Props = {
     params: Promise<Params>;
 };
+
+const BASE_URL = "https://www.aureldesign.ir";
 
 const toFaNumber = (n: number) =>
     n.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
@@ -130,65 +131,71 @@ export default async function JournalArticlePage({ params }: Props) {
         );
     });
 
-    const articleUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/journal/${slug}`;
+    const articleUrl = `${BASE_URL}/${locale}/journal/${slug}`;
 
+    // ✅ BlogPosting Schema - اصلاح شده
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
-        headline: title,
-        description: description,
-        image: imageUrl,
-        mainEntityOfPage: {
+        "headline": title,
+        "description": description,
+        "image": imageUrl || `${BASE_URL}/og-image.jpg`,
+        "url": articleUrl,
+        "mainEntityOfPage": {
             "@type": "WebPage",
             "@id": articleUrl,
         },
-        author: {
+        "author": {
             "@type": "Organization",
-            "@name": "Atelier",
+            "name": "Aurel Design Studio",
+            "url": BASE_URL,
         },
-        publisher: {
+        "publisher": {
             "@type": "Organization",
-            "name": "Atelier",
+            "name": "Aurel Design Studio",
             "logo": {
                 "@type": "ImageObject",
-                "url": `${process.env.NEXT_PUBLIC_SITE_URL}/logo.png`,
+                "url": `${BASE_URL}/icon.svg`,
             },
         },
-        datePublished: post.date_created,
-        dateModified: post.date_created,
-        inLanguage: locale,
-        wordCount: words,
-        timeRequired: `PT${readingTime}M`,
-        articleSection: "Jewelry",
-        keywords: [
+        "datePublished": post.date_created,
+        "dateModified": post.date_created,
+        "inLanguage": isFa ? "fa" : "en",
+        "wordCount": words,
+        "timeRequired": `PT${readingTime}M`,
+        "articleSection": isFa ? "طراحی جواهر" : "Jewelry Design",
+        "keywords": [
             "luxury jewelry",
             "custom jewelry design",
-            "engagement ring",
+            "jewelry CAD",
+            "3D jewelry modeling",
             "atelier jewelry",
+            "jewelry design studio",
         ],
     };
 
+    // ✅ Breadcrumb Schema - اصلاح شده
     const breadcrumbSchema = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
-        itemListElement: [
+        "itemListElement": [
             {
                 "@type": "ListItem",
-                position: 1,
-                name: isFa ? "خانه" : "Home",
-                item: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}`,
+                "position": 1,
+                "name": isFa ? "خانه" : "Home",
+                "item": `${BASE_URL}/${locale}`,
             },
             {
                 "@type": "ListItem",
-                position: 2,
-                name: isFa ? "مقالات" : "Journal",
-                item: `${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/journal`,
+                "position": 2,
+                "name": isFa ? "مقالات" : "Journal",
+                "item": `${BASE_URL}/${locale}/journal`,
             },
             {
                 "@type": "ListItem",
-                position: 3,
-                name: title,
-                item: articleUrl,
+                "position": 3,
+                "name": title,
+                "item": articleUrl,
             },
         ],
     };
@@ -196,14 +203,13 @@ export default async function JournalArticlePage({ params }: Props) {
     return (
         <main className="min-h-screen bg-black text-white">
 
-            <Script
-                id="article-jsonld"
+            {/* ✅ استفاده از script ساده به جای Script */}
+            <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
             />
 
-            <Script
-                id="breadcrumb-schema"
+            <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
             />
@@ -217,23 +223,22 @@ export default async function JournalArticlePage({ params }: Props) {
                 }
             `}</style>
 
-            <Script id="toc-highlight" strategy="afterInteractive">
-                {`
-                    document.addEventListener("click",function(e){
-                        const link = e.target.closest('a[data-toc]');
-                        if(!link) return;
-                        e.preventDefault();
-                        const id = link.getAttribute("href").replace("#","");
-                        const el = document.getElementById(id);
-                        if(!el) return;
-                        el.scrollIntoView({behavior:"smooth",block:"center"});
-                        el.classList.add("highlight-active");
-                        setTimeout(()=>{
-                            el.classList.remove("highlight-active");
-                        },2000);
-                    });
-                `}
-            </Script>
+            <script id="toc-highlight" dangerouslySetInnerHTML={{
+                __html: `
+                document.addEventListener("click",function(e){
+                    const link = e.target.closest('a[data-toc]');
+                    if(!link) return;
+                    e.preventDefault();
+                    const id = link.getAttribute("href").replace("#","");
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    el.scrollIntoView({behavior:"smooth",block:"center"});
+                    el.classList.add("highlight-active");
+                    setTimeout(()=>{
+                        el.classList.remove("highlight-active");
+                    },2000);
+                });
+            `}} />
 
             <article className="max-w-3xl mx-auto px-6 py-24">
 
@@ -313,7 +318,7 @@ export default async function JournalArticlePage({ params }: Props) {
 
                 <ShareButtons
                     isFa={isFa}
-                    shareUrl={`${process.env.NEXT_PUBLIC_SITE_URL}/${locale}/journal/${slug}`}
+                    shareUrl={`${BASE_URL}/${locale}/journal/${slug}`}
                 />
 
                 <div className="grid grid-cols-2 gap-6 border-t border-neutral-800 pt-12 mb-24">
