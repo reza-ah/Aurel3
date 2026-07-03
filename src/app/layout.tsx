@@ -24,15 +24,6 @@ export const metadata: Metadata = {
     authors: [{ name: "Aurel Design Studio", url: BASE_URL }],
     creator: "Aurel Design Studio",
     publisher: "Aurel Design Studio",
-    icons: {
-        icon: [
-            { url: "/icon.svg", type: "image/svg+xml" },
-            { url: "/favicon.ico", sizes: "any" },
-        ],
-        apple: [
-            { url: "/icon.svg", type: "image/svg+xml" },
-        ],
-    },
     manifest: "/manifest.json",
     openGraph: {
         type: "website",
@@ -75,9 +66,5 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return (
-        <html lang="en">
-            <body>{children}</body>
-        </html>
-    );
+    return children;
 }

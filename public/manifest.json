@@ -1,16 +1,30 @@
 {
-    "name": "Aurel Design",
-    "short_name": "Aurel",
-    "description": "Luxury Jewelry Design Studio",
+    "name": "Aurel Jewelry Design Studio",
+    "short_name": "Aurel Design",
+    "description": "Professional jewelry CAD design, 3D modeling with MatrixGold, 3D printing, and casting services.",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#070707",
     "theme_color": "#D4AF37",
+    "orientation": "any",
     "icons": [
         {
             "src": "/icon.svg",
+            "type": "image/svg+xml",
             "sizes": "any",
-            "type": "image/svg+xml"
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
         }
-    ]
+    ],
+    "categories": [
+        "business",
+        "design",
+        "luxury"
+    ],
+    "lang": "en",
+    "dir": "ltr"
 }
