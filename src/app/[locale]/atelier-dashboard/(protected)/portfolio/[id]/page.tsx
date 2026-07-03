@@ -257,6 +257,7 @@ export default function PortfolioEditPage() {
             const res = await fetch(apiUrl, {
                 method: apiMethod,
                 headers: { "Content-Type": "application/json" },
+                credentials: "include",  // ✅ اضافه شد
                 body: JSON.stringify(payload),
             });
 
