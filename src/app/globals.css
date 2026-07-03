@@ -15,10 +15,12 @@
     --container-max: 1400px;
   }
 
+  /* ✅ فونت پیش‌فرض برای همه */
   body {
     background-color: var(--color-bg-studio);
     color: var(--color-text-secondary);
-    text-rendering: auto;
+    text-rendering: optimizeLegibility;
+    /* ✅ بهینه برای موبایل */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga" 1, "calt" 1;
@@ -26,9 +28,12 @@
     font-kerning: normal;
     /* ✅ فونت پیش‌فرض انگلیسی */
     font-family: var(--font-cormorant), serif;
+    /* ✅ جلوگیری از تغییر سایز فونت در موبایل */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
-  /* ✅ فونت فارسی برای RTL */
+  /* ✅ فونت فارسی برای RTL - با !important */
   body[dir="rtl"],
   [dir="rtl"],
   [lang="fa"],
@@ -130,4 +135,26 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(212, 175, 55, 0.7);
+}
+
+/* ==================== Mobile Fixes ==================== */
+@media (max-width: 768px) {
+  body {
+    /* ✅ جلوگیری از زوم شدن در iOS */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  /* ✅ فونت‌ها در موبایل */
+  body[dir="rtl"],
+  [dir="rtl"],
+  [lang="fa"] {
+    font-family: var(--font-vazir), sans-serif !important;
+  }
+
+  body[dir="ltr"],
+  [dir="ltr"],
+  [lang="en"] {
+    font-family: var(--font-cormorant), serif !important;
+  }
 }

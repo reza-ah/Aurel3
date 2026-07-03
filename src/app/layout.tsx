@@ -10,14 +10,18 @@ const vazirmatn = Vazirmatn({
     variable: "--font-vazir",
     display: "swap",
     weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+    preload: false, // ✅ جلوگیری از preload خودکار
+    fallback: ["system-ui", "sans-serif"], // ✅ فونت جایگزین هنگام لود
 });
 
-// ✅ فونت انگلیسی - Cormorant Garamond (لوکس و زیبا)
+// ✅ فونت انگلیسی - Cormorant Garamond
 const cormorant = Cormorant_Garamond({
     subsets: ["latin"],
     variable: "--font-cormorant",
     display: "swap",
     weight: ["300", "400", "500", "600", "700"],
+    preload: false, // ✅ جلوگیری از preload خودکار
+    fallback: ["system-ui", "serif"], // ✅ فونت جایگزین
 });
 
 export const metadata: Metadata = {
@@ -75,15 +79,6 @@ export const metadata: Metadata = {
             "max-image-preview": "large",
             "max-snippet": -1,
         },
-    },
-    icons: {
-        icon: [
-            { url: "/icon.svg", type: "image/svg+xml" },
-            { url: "/favicon.ico", sizes: "any" },
-        ],
-        apple: [
-            { url: "/icon.svg", type: "image/svg+xml" },
-        ],
     },
 };
 
