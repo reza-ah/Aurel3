@@ -1,7 +1,24 @@
 import type { Metadata } from "next";
+import { Vazirmatn, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 
 const BASE_URL = "https://www.aureldesign.ir";
+
+// ✅ فونت فارسی - Vazirmatn
+const vazirmatn = Vazirmatn({
+    subsets: ["arabic", "latin"],
+    variable: "--font-vazir",
+    display: "swap",
+    weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
+
+// ✅ فونت انگلیسی - Cormorant Garamond (لوکس و زیبا)
+const cormorant = Cormorant_Garamond({
+    subsets: ["latin"],
+    variable: "--font-cormorant",
+    display: "swap",
+    weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
     metadataBase: new URL(BASE_URL),
@@ -59,6 +76,15 @@ export const metadata: Metadata = {
             "max-snippet": -1,
         },
     },
+    icons: {
+        icon: [
+            { url: "/icon.svg", type: "image/svg+xml" },
+            { url: "/favicon.ico", sizes: "any" },
+        ],
+        apple: [
+            { url: "/icon.svg", type: "image/svg+xml" },
+        ],
+    },
 };
 
 export default function RootLayout({
@@ -66,5 +92,11 @@ export default function RootLayout({
 }: {
     children: React.ReactNode;
 }) {
-    return children;
+    return (
+        <html lang="en" className={`${vazirmatn.variable} ${cormorant.variable}`}>
+            <body className={`${vazirmatn.className} ${cormorant.className}`}>
+                {children}
+            </body>
+        </html>
+    );
 }

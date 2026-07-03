@@ -8,7 +8,6 @@
     --color-gold-muted: #c6a86a;
     --color-text-primary: #f5f1e8;
     --color-text-secondary: #ffffff;
-    /* ✅ اصلاح نام */
     --color-link: #e2b932;
     --color-link-hover: #ffd700;
     --radius-card: 28px;
@@ -19,24 +18,32 @@
   body {
     background-color: var(--color-bg-studio);
     color: var(--color-text-secondary);
-    /* ✅ اصلاح نام */
     text-rendering: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga" 1, "calt" 1;
     font-variant-ligatures: common-ligatures;
     font-kerning: normal;
-  }
-
-  body[dir="rtl"] {
-    font-family: var(--font-vazir), sans-serif;
-  }
-
-  body[dir="ltr"] {
+    /* ✅ فونت پیش‌فرض انگلیسی */
     font-family: var(--font-cormorant), serif;
   }
 
-  /* Link styles (standardized) */
+  /* ✅ فونت فارسی برای RTL */
+  body[dir="rtl"],
+  [dir="rtl"],
+  [lang="fa"],
+  .persian-smooth {
+    font-family: var(--font-vazir), sans-serif !important;
+  }
+
+  /* ✅ فونت انگلیسی برای LTR */
+  body[dir="ltr"],
+  [dir="ltr"],
+  [lang="en"] {
+    font-family: var(--font-cormorant), serif !important;
+  }
+
+  /* Link styles */
   a {
     color: inherit;
   }
@@ -69,14 +76,11 @@
 
 /* ==================== Components ==================== */
 @layer components {
-
-  /* Card */
   .lux-card {
     border: 1px solid rgb(255 255 255 / 0.1);
     backdrop-filter: blur(12px);
     transform: translateZ(0);
     backface-visibility: hidden;
-    /* ✅ حذف contain: paint - ممکن است باعث clipping شود */
     will-change: transform;
   }
 
@@ -86,10 +90,8 @@
     pointer-events: none;
   }
 
-  /* Input */
   .lux-input {
     @apply w-full border border-white/10 bg-white/[0.03] px-4 py-3.5 text-[var(--color-text-primary)] rounded-[var(--radius-input)] transition-all;
-    /* ✅ اصلاح syntax */
   }
 
   .lux-input:focus {
@@ -98,17 +100,14 @@
     --tw-ring-color: rgba(212, 175, 55, 0.35);
   }
 
-  /* Button */
   .lux-button {
     @apply rounded-full bg-[var(--color-gold-studio)] px-7 py-3.5 font-medium text-black transition-all duration-200 hover:-translate-y-0.5;
   }
 
-  /* استفاده از CSS مستقیم برای shadow */
   .lux-button:hover {
     box-shadow: 0 10px 30px rgba(212, 175, 55, 0.35);
   }
 
-  /* Container */
   .container-lux {
     @apply mx-auto w-full px-6;
     max-width: var(--container-max);
