@@ -5,30 +5,30 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import AmbientLights from "@/components/ambient-lights";
 import { getDictionary } from "@/lib/utils/get-dictionary";
-
+import OrganizationSchema from "@/components/seo/organization-schema";
 import "../globals.css";
 
 // ✅ فونت اصلی با preload
 const vazir = localFont({
     src: "../../fonts/Vazirmatn[wght].woff2",
     variable: "--font-vazir",
-    display: "swap", // ✅ مهم: جلوگیری از FOIT
+    display: "swap",
     preload: true,
     fallback: ["system-ui", "sans-serif"],
     weight: "100 900",
 });
 
-// ✅ فونت دوم بدون preload (برای کاهش critical path)
+// ✅ فونت دوم بدون preload
 const cormorant = localFont({
     src: "../../fonts/CormorantGaramond[wght].woff2",
     variable: "--font-cormorant",
     display: "swap",
-    preload: false, // ✅ مهم: فقط یک فونت preload شود
+    preload: false,
     fallback: ["Georgia", "serif"],
     weight: "300 700",
 });
 
-// ✅ Viewport metadata (Next.js 14+)
+// ✅ Viewport metadata
 export const viewport: Viewport = {
     themeColor: "#070707",
     width: "device-width",
@@ -108,7 +108,6 @@ export async function generateMetadata({
             ],
         },
 
-        // ✅ اضافه شد - Twitter Card
         twitter: {
             card: "summary_large_image",
             title: isFa ? "استودیو طراحی جواهرات اورل" : "Aurel Jewelry Design Studio",
@@ -119,13 +118,6 @@ export async function generateMetadata({
             creator: "@AurelDesign",
         },
 
-        // ✅ اضافه شد - Verification tags (اگر نیاز دارید)
-        // verification: {
-        //     google: "your-google-verification-code",
-        //     yandex: "your-yandex-verification-code",
-        // },
-
-        // ✅ اضافه شد - Category
         category: "Jewelry Design",
     };
 }
@@ -173,7 +165,7 @@ export default async function LocaleLayout({
                 `}
                 suppressHydrationWarning
             >
-                {/* ✅ Skip to main content (Accessibility) - اولین element در body */}
+                {/* ✅ Skip to main content (Accessibility) */}
                 <a
                     href="#main-content"
                     className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#d4af37] focus:text-black focus:px-4 focus:py-2 focus:rounded"
@@ -181,15 +173,12 @@ export default async function LocaleLayout({
                     {isFa ? "رفتن به محتوای اصلی" : "Skip to main content"}
                 </a>
 
-                {/* لایه پس‌زمینه که همراه اسکرول حرکت می‌کند */}
+                {/* لایه پس‌زمینه */}
                 <div
                     className="absolute inset-0 z-0 h-full w-full pointer-events-none select-none"
                     aria-hidden="true"
                 >
-                    {/* گرید */}
                     <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.015)_3px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.015)_3px,transparent_1px)] bg-[size:10rem_10rem]" />
-
-                    {/* نورهای محیطی */}
                     <AmbientLights />
                 </div>
 
@@ -203,6 +192,9 @@ export default async function LocaleLayout({
                         <SiteFooter locale={locale} />
                     </SmoothScrollProvider>
                 </div>
+
+                {/* ✅ اضافه شد: Organization Schema */}
+                <OrganizationSchema />
             </body>
         </html>
     );
