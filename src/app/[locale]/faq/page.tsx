@@ -2,6 +2,7 @@ import FAQAccordion from "@/features/journal/components/faq-accordion";
 import Reveal from "@/components/reveal";
 import Link from "next/link";
 import FAQSchema from "@/components/seo/faq-schema";
+import { client } from "@/lib/sanity";
 
 export default async function Page({
     params,
@@ -11,27 +12,30 @@ export default async function Page({
     const { locale } = await params;
     const isFa = locale === "fa";
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.aureldesign.ir";
-
+    // ✅ استفاده مستقیم از Sanity client (سریع‌تر و قابل اعتمادتر)
     let faqItems: any[] = [];
 
     try {
-        const res = await fetch(
-            `${baseUrl}/api/atelier-dashboard/faq?locale=${locale}`,
-            {
-                cache: "no-store",
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            }
+        const faqs = await client.fetch(
+            `*[_type == "faq" && enabled == true] | order(sort asc) {
+                _id,
+                question_en,
+                question_fa,
+                answer_en,
+                answer_fa,
+                sort,
+                enabled,
+                locale
+            }`
         );
 
-        if (res.ok) {
-            faqItems = await res.json();
-            console.log(`FAQ page (${locale}) - loaded ${faqItems.length} items`);
-        } else {
-            console.error(`FAQ API error: ${res.status}`);
-        }
+        // ✅ فیلتر بر اساس locale
+        faqItems = faqs.filter((f: any) => {
+            if (!f.locale || f.locale === locale) return true;
+            return false;
+        });
+
+        console.log(`FAQ page (${locale}) - loaded ${faqItems.length} items`);
     } catch (error) {
         console.error("FAQ fetch error:", error);
         faqItems = [];
@@ -89,7 +93,7 @@ export default async function Page({
                     </div>
                 </Reveal>
 
-                {/* ✅ اضافه شد: FAQ Schema برای SEO */}
+                {/* ✅ FAQ Schema - مستقیم در HTML رندر می‌شود */}
                 {faqItems.length > 0 && (
                     <FAQSchema items={faqItems} locale={locale} />
                 )}
