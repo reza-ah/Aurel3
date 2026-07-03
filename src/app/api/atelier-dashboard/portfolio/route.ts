@@ -9,21 +9,21 @@ export async function GET() {
     try {
         const items = await client.fetch(
             `*[_type == "portfolio"] | order(date_created desc) {
-        _id,
-        slug,
-        title_en,
-        title_fa,
-        category_en,
-        category_fa,
-        description_en,
-        description_fa,
-        cover_image,
-        gallery,
-        tags[]->{ _id, name_en, name_fa },
-        featured,
-        status,
-        date_created
-    }`
+                _id,
+                slug,
+                title_en,
+                title_fa,
+                category_en,
+                category_fa,
+                description_en,
+                description_fa,
+                cover_image,
+                gallery,
+                tags[]->{ _id, name_en, name_fa },
+                featured,
+                status,
+                date_created
+            }`
         );
 
         return NextResponse.json(items);
@@ -42,10 +42,8 @@ export async function POST(request: NextRequest) {
 
         console.log("Portfolio POST payload:", JSON.stringify(body, null, 2));
 
-        // ✅ اصلاح: تبدیل tags به ساختار درست reference
         const tagsArray = Array.isArray(body.tags)
             ? body.tags.map((tag: any, index: number) => {
-                // اگر tag یک string است (ID)
                 if (typeof tag === 'string') {
                     return {
                         _key: `tag-${Date.now()}-${index}`,
@@ -53,7 +51,6 @@ export async function POST(request: NextRequest) {
                         _ref: tag,
                     };
                 }
-                // اگر tag یک object با _ref است
                 if (tag._ref) {
                     return {
                         _key: tag._key || `tag-${Date.now()}-${index}`,
@@ -61,7 +58,6 @@ export async function POST(request: NextRequest) {
                         _ref: tag._ref,
                     };
                 }
-                // اگر tag یک object با _type: reference است
                 if (tag._type === 'reference') {
                     return {
                         _key: tag._key || `tag-${Date.now()}-${index}`,
@@ -71,8 +67,6 @@ export async function POST(request: NextRequest) {
                 return null;
             }).filter(Boolean)
             : [];
-
-        console.log("Tags array:", JSON.stringify(tagsArray, null, 2));
 
         const result = await writeClient.create({
             _type: "portfolio",
@@ -96,21 +90,18 @@ export async function POST(request: NextRequest) {
                 : [],
             tags: tagsArray,
             featured: body.featured || false,
-            status: body.status || "draft",
+            status: body.status || "published",
             date_created: new Date().toISOString(),
         });
 
         console.log("Portfolio created:", result._id);
 
-        revalidatePath("/[locale]/portfolio", "page");
-        revalidatePath("/[locale]/portfolio/[slug]", "page");
-        revalidatePath("/en/portfolio", "page");
-        revalidatePath("/fa/portfolio", "page");
+        // ✅ برگشت به revalidatePath (سازگار با Next.js 16)
+        revalidatePath("/", "layout");
 
         return NextResponse.json(result);
     } catch (error) {
         console.error("Portfolio POST error:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
         return NextResponse.json(
             { error: "Failed to create portfolio", details: String(error) },
             { status: 500 }
@@ -129,9 +120,6 @@ export async function PATCH(request: NextRequest) {
             return NextResponse.json({ error: "Invalid item" }, { status: 400 });
         }
 
-        console.log("Portfolio PATCH payload:", JSON.stringify(item, null, 2));
-
-        // ✅ اصلاح: تبدیل tags به ساختار درست reference
         const tagsArray = Array.isArray(item.tags)
             ? item.tags.map((tag: any, index: number) => {
                 if (typeof tag === 'string') {
@@ -157,8 +145,6 @@ export async function PATCH(request: NextRequest) {
                 return null;
             }).filter(Boolean)
             : undefined;
-
-        console.log("Tags array:", JSON.stringify(tagsArray, null, 2));
 
         await writeClient
             .patch(item._id)
@@ -187,15 +173,12 @@ export async function PATCH(request: NextRequest) {
             })
             .commit();
 
-        revalidatePath("/[locale]/portfolio", "page");
-        revalidatePath("/[locale]/portfolio/[slug]", "page");
-        revalidatePath("/en/portfolio", "page");
-        revalidatePath("/fa/portfolio", "page");
+        // ✅ برگشت به revalidatePath
+        revalidatePath("/", "layout");
 
         return NextResponse.json({ success: true });
     } catch (error) {
         console.error("Update portfolio error:", error);
-        console.error("Error details:", JSON.stringify(error, null, 2));
         return NextResponse.json(
             { error: "Failed to update portfolio", details: String(error) },
             { status: 500 }
@@ -215,10 +198,8 @@ export async function DELETE(request: NextRequest) {
 
         await writeClient.delete(id);
 
-        revalidatePath("/[locale]/portfolio", "page");
-        revalidatePath("/[locale]/portfolio/[slug]", "page");
-        revalidatePath("/en/portfolio", "page");
-        revalidatePath("/fa/portfolio", "page");
+        // ✅ برگشت به revalidatePath
+        revalidatePath("/", "layout");
 
         return NextResponse.json({ success: true });
     } catch (error) {

@@ -1,11 +1,20 @@
 import { createClient } from 'next-sanity';
 import { createImageUrlBuilder } from '@sanity/image-url';
 
+// ✅ Client با CDN (برای داده‌های عمومی که تغییر نمی‌کنند)
 export const client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
     apiVersion: '2024-01-01',
     useCdn: true,
+});
+
+// ✅ Client بدون CDN (برای داده‌هایی که باید سریع به‌روز شوند)
+export const freshClient = createClient({
+    projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+    dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
+    apiVersion: '2024-01-01',
+    useCdn: false,
 });
 
 const builder = createImageUrlBuilder(client);
@@ -47,9 +56,6 @@ export function getAssetUrl(image: any): string | null {
     return null;
 }
 
-/**
- * تبدیل تصویر Sanity به URL بهینه‌شده
- */
 export function getOptimizedImage(
     image: any,
     options: { width?: number; height?: number; quality?: number; format?: "webp" | "jpg" | "png" } = {}
@@ -61,7 +67,6 @@ export function getOptimizedImage(
     try {
         let url = builder.image(image).width(width).quality(quality);
 
-        // ✅ Sanity فقط از webp, jpg, png پشتیبانی می‌کند
         if (format && ["webp", "jpg", "png"].includes(format)) {
             url = url.format(format as "webp" | "jpg" | "png");
         }
@@ -96,8 +101,9 @@ export async function getProductBySlug(slug: string) {
 /* =========================
    PORTFOLIO
 ========================= */
+// ✅ استفاده از freshClient برای نمایش فوری تغییرات
 export async function getPortfolioItems() {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "portfolio" && status == "published"] | order(date_created desc) { 
             _id, 
             slug, 
@@ -117,7 +123,7 @@ export async function getPortfolioItems() {
 }
 
 export async function getFeaturedPortfolioItems() {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc) { 
             _id, 
             slug, 
@@ -137,7 +143,7 @@ export async function getFeaturedPortfolioItems() {
 }
 
 export async function getPortfolioBySlug(slug: string) {
-    const data = await client.fetch(
+    const data = await freshClient.fetch(
         `*[_type == "portfolio" && slug.current == $slug][0] { 
             _id, 
             slug, 
@@ -163,13 +169,13 @@ export async function getPortfolioBySlug(slug: string) {
 ========================= */
 export async function getJournalPosts(limit?: number) {
     const limitQuery = limit ? `[0...${limit}]` : '';
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "journal" && status == "published"] | order(date_created desc) ${limitQuery} { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`
     );
 }
 
 export async function getJournalPost(slug: string) {
-    const data = await client.fetch(
+    const data = await freshClient.fetch(
         `*[_type == "journal" && slug.current == $slug][0] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`,
         { slug }
     );
@@ -177,7 +183,7 @@ export async function getJournalPost(slug: string) {
 }
 
 export async function getRelatedJournalPosts(slug: string, limit = 3) {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "journal" && slug.current != $slug && status == "published"] | order(date_created desc) [0...${limit}] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, cover_image, date_created }`,
         { slug }
     );
@@ -187,13 +193,13 @@ export async function getRelatedJournalPosts(slug: string, limit = 3) {
    PRICING
 ========================= */
 export async function getPricingCategories() {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "pricingCategory"] | order(sort asc) { _id, title_en, title_fa, image, sort }`
     );
 }
 
 export async function getPricingItems() {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "pricingItem" && is_active == true] | order(sort asc) { _id, title_en, title_fa, description_en, description_fa, price_en, price_fa, delivery_time_en, delivery_time_fa, img, sort, category->{ _id, title_en, title_fa }, suitable_en, suitable_fa, features_en, features_fa }`
     );
 }
@@ -202,7 +208,7 @@ export async function getPricingItems() {
    HOMEPAGE SECTIONS
 ========================= */
 export async function getHomepageSections(locale: string) {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "homepageSection" && enabled == true && locale == $locale] | order(sort asc) { _id, type, enabled, locale, sort }`,
         { locale }
     );
@@ -212,7 +218,7 @@ export async function getHomepageSections(locale: string) {
    FAQ
 ========================= */
 export async function getFaqs() {
-    return client.fetch(
+    return freshClient.fetch(
         `*[_type == "faq"] | order(sort asc) { _id, question_en, question_fa, answer_en, answer_fa, sort }`
     );
 }
