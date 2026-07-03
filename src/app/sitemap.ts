@@ -1,6 +1,13 @@
 import { MetadataRoute } from 'next';
 import { client } from '@/lib/sanity';
 
+// ✅ تابع کمکی برای جلوگیری از crash در صورت null بودن date_created
+function safeDate(dateString: string | null | undefined): Date {
+    if (!dateString) return new Date();
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? new Date() : date;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const baseUrl = 'https://www.aureldesign.ir';
 
@@ -34,13 +41,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const portfolioPages = portfolioItems.flatMap((item: any) => [
         {
             url: `${baseUrl}/en/portfolio/${item.slug?.current || item._id}`,
-            lastModified: new Date(item.date_created),
+            lastModified: safeDate(item.date_created),  // ✅ اصلاح
             changeFrequency: "monthly" as const,
             priority: 0.6,
         },
         {
             url: `${baseUrl}/fa/portfolio/${item.slug?.current || item._id}`,
-            lastModified: new Date(item.date_created),
+            lastModified: safeDate(item.date_created),  // ✅ اصلاح
             changeFrequency: "monthly" as const,
             priority: 0.6,
         },
@@ -49,13 +56,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const journalPages = journalPosts.flatMap((item: any) => [
         {
             url: `${baseUrl}/en/journal/${item.slug?.current || item._id}`,
-            lastModified: new Date(item.date_created),
+            lastModified: safeDate(item.date_created),  // ✅ اصلاح
             changeFrequency: "yearly" as const,
             priority: 0.5,
         },
         {
             url: `${baseUrl}/fa/journal/${item.slug?.current || item._id}`,
-            lastModified: new Date(item.date_created),
+            lastModified: safeDate(item.date_created),  // ✅ اصلاح
             changeFrequency: "yearly" as const,
             priority: 0.5,
         },

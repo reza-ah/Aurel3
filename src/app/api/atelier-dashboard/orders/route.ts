@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        console.log("Order payload received:", JSON.stringify(body, null, 2));
+        // ❌ حذف: console.log اطلاعات مشتری
 
         if (body.honeypot) {
             console.error("Spam detected - honeypot filled");
@@ -45,22 +45,18 @@ export async function POST(request: NextRequest) {
         }
 
         const timeSpent = Number.parseInt(String(body.timeSpent), 10);
-        console.log("Parsed timeSpent:", timeSpent);
+        // ❌ حذف: console.log timeSpent
 
         if (isNaN(timeSpent) || timeSpent < 4) {
-            console.error("Too fast - timeSpent:", timeSpent);
+            console.error("Too fast submission detected");
             return NextResponse.json(
-                { success: false, error: "Too fast", receivedTimeSpent: body.timeSpent, parsedTimeSpent: timeSpent },
+                { success: false, error: "Too fast" },
                 { status: 400 }
             );
         }
 
         if (!body.full_name || !body.email || !body.details) {
-            console.error("Missing fields:", {
-                full_name: !!body.full_name,
-                email: !!body.email,
-                details: !!body.details,
-            });
+            console.error("Missing required fields in order submission");
             return NextResponse.json(
                 {
                     success: false,
@@ -77,10 +73,8 @@ export async function POST(request: NextRequest) {
 
         const tracking_code = `AUR-${Date.now().toString(36).toUpperCase()}`;
 
-        // ✅ اصلاح: ساختار درست فایل‌ها برای Sanity
         const filesArray = Array.isArray(body.files)
             ? body.files.map((file: any, index: number) => {
-                // اگر file یک string است (asset _id مثل "file-abc123")
                 if (typeof file === 'string') {
                     return {
                         _key: `file-${Date.now()}-${index}`,
@@ -92,7 +86,6 @@ export async function POST(request: NextRequest) {
                     };
                 }
 
-                // اگر file یک object است با _ref
                 if (file._ref) {
                     return {
                         _key: file._key || `file-${Date.now()}-${index}`,
@@ -104,7 +97,6 @@ export async function POST(request: NextRequest) {
                     };
                 }
 
-                // اگر file یک object است با asset
                 if (file.asset) {
                     return {
                         _key: file._key || `file-${Date.now()}-${index}`,
@@ -117,7 +109,7 @@ export async function POST(request: NextRequest) {
             }).filter(Boolean)
             : [];
 
-        console.log("Files array:", JSON.stringify(filesArray, null, 2));
+        // ❌ حذف: console.log files array
 
         const order = await writeClient.create({
             _type: "order",
@@ -133,7 +125,7 @@ export async function POST(request: NextRequest) {
             date_created: new Date().toISOString(),
         });
 
-        console.log("Order created successfully:", order._id);
+        // ❌ حذف: console.log order created
 
         return NextResponse.json({
             success: true,

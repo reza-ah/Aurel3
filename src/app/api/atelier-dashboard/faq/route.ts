@@ -14,15 +14,13 @@ type FAQItem = {
     locale?: string;
 };
 
-// ✅ GET - عمومی (بدون auth) - فیلتر بر اساس locale
 export async function GET(request: NextRequest) {
     try {
         const searchParams = request.nextUrl.searchParams;
         const locale = searchParams.get("locale") || "en";
 
-        console.log(`FAQ GET - locale: ${locale}`);
+        // ❌ حذف: console.log locale
 
-        // ✅ فقط FAQ های enabled را بگیر
         const faqs = await client.fetch(
             `*[_type == "faq" && enabled == true] | order(sort asc) {
                 _id,
@@ -36,18 +34,16 @@ export async function GET(request: NextRequest) {
             }`
         );
 
-        console.log(`FAQ GET - total FAQs: ${faqs.length}`);
+        // ❌ حذف: console.log total FAQs
 
-        // ✅ فیلتر بر اساس locale
         const filtered = faqs.filter((f: FAQItem) => {
-            // اگر locale مشخص نشده یا برابر است، برگردان
             if (!f.locale || f.locale === locale) {
                 return true;
             }
             return false;
         });
 
-        console.log(`FAQ GET - filtered FAQs: ${filtered.length}`);
+        // ❌ حذف: console.log filtered FAQs
 
         return NextResponse.json(filtered);
     } catch (error) {
@@ -56,7 +52,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// ✅ POST - فقط ادمین
 export async function POST(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -87,7 +82,6 @@ export async function POST(request: NextRequest) {
     }
 }
 
-// ✅ PATCH - فقط ادمین
 export async function PATCH(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;
@@ -136,7 +130,6 @@ export async function PATCH(request: NextRequest) {
     }
 }
 
-// ✅ DELETE - فقط ادمین
 export async function DELETE(request: NextRequest) {
     const authError = await requireAdminAuth();
     if (authError) return authError;

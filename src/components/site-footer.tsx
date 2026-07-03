@@ -153,7 +153,7 @@ export default function SiteFooter({ locale }: Props) {
         },
         {
             icon: FaLinkedinIn,
-            href: "https://linkedin.com/company/yourpage",
+            href: "https://www.linkedin.com/company/aurel-design-studio",
             label: "LinkedIn",
         },
     ];

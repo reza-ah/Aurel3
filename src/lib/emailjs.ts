@@ -5,14 +5,9 @@ const PUBLIC_KEY = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 const TEMPLATE_CUSTOMER = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CUSTOMER;
 const TEMPLATE_ADMIN = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN;
 
-// ✅ بررسی وجود env vars
+// ✅ نگه‌داشتن warn - این فقط در build time اجرا می‌شود و اطلاعات حساس ندارد
 if (!SERVICE_ID || !PUBLIC_KEY || !TEMPLATE_CUSTOMER || !TEMPLATE_ADMIN) {
-    console.warn('⚠️ EmailJS env vars not configured:', {
-        SERVICE_ID: !!SERVICE_ID,
-        PUBLIC_KEY: !!PUBLIC_KEY,
-        TEMPLATE_CUSTOMER: !!TEMPLATE_CUSTOMER,
-        TEMPLATE_ADMIN: !!TEMPLATE_ADMIN,
-    });
+    console.warn('⚠️ EmailJS env vars not configured');
 }
 
 export async function sendOrderConfirmationToCustomer(orderData: {
@@ -26,7 +21,7 @@ export async function sendOrderConfirmationToCustomer(orderData: {
         return;
     }
 
-    console.log('📧 Sending confirmation to customer:', orderData.customerEmail);
+    // ❌ حذف: console.log اطلاعات ایمیل مشتری
 
     try {
         const result = await emailjs.send(
@@ -40,7 +35,7 @@ export async function sendOrderConfirmationToCustomer(orderData: {
             },
             PUBLIC_KEY
         );
-        console.log('✅ Customer email sent:', result.status);
+        // ❌ حذف: console.log result
         return result;
     } catch (error) {
         console.error('❌ Failed to send customer email:', error);
@@ -60,7 +55,7 @@ export async function sendOrderNotificationToAdmin(orderData: {
         return;
     }
 
-    console.log('📧 Sending notification to admin for order:', orderData.orderNumber);
+    // ❌ حذف: console.log اطلاعات سفارش
 
     try {
         const result = await emailjs.send(
@@ -76,7 +71,7 @@ export async function sendOrderNotificationToAdmin(orderData: {
             },
             PUBLIC_KEY
         );
-        console.log('✅ Admin email sent:', result.status);
+        // ❌ حذف: console.log result
         return result;
     } catch (error) {
         console.error('❌ Failed to send admin email:', error);

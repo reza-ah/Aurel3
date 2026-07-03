@@ -3,6 +3,45 @@ import Reveal from "@/components/reveal";
 import Link from "next/link";
 import FAQSchema from "@/components/seo/faq-schema";
 import { client } from "@/lib/sanity";
+import type { Metadata } from "next";
+
+const BASE_URL = "https://www.aureldesign.ir";
+
+// ✅ اضافه شد: generateMetadata برای canonical و title اختصاصی
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: "en" | "fa" }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const isFa = locale === "fa";
+    const currentUrl = `${BASE_URL}/${locale}/faq`;
+
+    return {
+        title: isFa
+            ? "سوالات متداول | استودیو طراحی جواهرات اورل"
+            : "FAQ | Aurel Jewelry Design Studio",
+        description: isFa
+            ? "پاسخ به سوالات متداول درباره خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری"
+            : "Answers to frequently asked questions about jewelry design services, 3D modeling, printing, and casting",
+        alternates: {
+            canonical: currentUrl,
+            languages: {
+                fa: `${BASE_URL}/fa/faq`,
+                en: `${BASE_URL}/en/faq`,
+                "x-default": `${BASE_URL}/en/faq`,
+            },
+        },
+        openGraph: {
+            title: isFa ? "سوالات متداول | استودیو اورل" : "FAQ | Aurel Design Studio",
+            description: isFa
+                ? "پاسخ به سوالات متداول درباره خدمات طراحی جواهرات"
+                : "Answers to frequently asked questions about jewelry design services",
+            url: currentUrl,
+            type: "website",
+        },
+    };
+}
 
 export default async function Page({
     params,
@@ -32,8 +71,6 @@ export default async function Page({
             if (!f.locale || f.locale === locale) return true;
             return false;
         });
-
-        console.log(`FAQ page (${locale}) - loaded ${faqItems.length} items`);
     } catch (error) {
         console.error("FAQ fetch error:", error);
         faqItems = [];
@@ -41,7 +78,6 @@ export default async function Page({
 
     return (
         <>
-            {/* ✅ FAQ Schema در ابتدای صفحه - قبل از هر محتوای دیگر */}
             {faqItems.length > 0 && (
                 <FAQSchema items={faqItems} locale={locale} />
             )}

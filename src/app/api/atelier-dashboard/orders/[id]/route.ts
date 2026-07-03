@@ -52,6 +52,7 @@ export async function GET(
             email: order.email,
             phone: order.phone,
             service: order.service,
+            jewelry_type: order.jewelry_type,  // ✅ اضافه شد
             details: order.message,
             status: order.status,
             created_at: order.date_created,

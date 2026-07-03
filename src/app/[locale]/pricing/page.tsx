@@ -2,11 +2,50 @@ import { getPricingCategories, getPricingItems } from "@/lib/sanity";
 import PricingAccordion from "@/features/pricing/components/pricing-accordion";
 import Reveal from "@/components/reveal";
 import ServiceSchema from "@/components/seo/service-schema";
+import type { Metadata } from "next";
+
+const BASE_URL = "https://www.aureldesign.ir";
+
+// ✅ اضافه شد: generateMetadata برای canonical و title اختصاصی
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: "en" | "fa" }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const isFa = locale === "fa";
+    const currentUrl = `${BASE_URL}/${locale}/pricing`;
+
+    return {
+        title: isFa
+            ? "خدمات و تعرفه‌ها | استودیو طراحی جواهرات اورل"
+            : "Services & Pricing | Aurel Jewelry Design Studio",
+        description: isFa
+            ? "مشاهده تعرفه خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری حرفه‌ای"
+            : "Explore pricing for professional jewelry design, 3D modeling, printing, and casting services",
+        alternates: {
+            canonical: currentUrl,
+            languages: {
+                fa: `${BASE_URL}/fa/pricing`,
+                en: `${BASE_URL}/en/pricing`,
+                "x-default": `${BASE_URL}/en/pricing`,
+            },
+        },
+        openGraph: {
+            title: isFa ? "خدمات و تعرفه‌ها | استودیو اورل" : "Services & Pricing | Aurel Design Studio",
+            description: isFa
+                ? "مشاهده تعرفه خدمات طراحی جواهرات"
+                : "Explore pricing for professional jewelry design services",
+            url: currentUrl,
+            type: "website",
+        },
+    };
+}
 
 export default async function PricingPage({
     params,
 }: {
-    params: { locale: "en" | "fa" };
+    params: Promise<{ locale: "en" | "fa" }>;
 }) {
     const { locale } = await params;
     const isFa = locale === "fa";
@@ -14,7 +53,6 @@ export default async function PricingPage({
     const categories = await getPricingCategories();
     const items = await getPricingItems();
 
-    // ✅ خدمات اصلی Aurel برای Schema
     const services = isFa
         ? [
             {
@@ -27,7 +65,7 @@ export default async function PricingPage({
             },
             {
                 name: "پرینت سه‌بعدی جواهر",
-                description: "پرینت سه‌بعدی حرفه‌ای با استفاده از رزین‌های قابل ریخته‌گری تخصصی و موم Projet، با استفاده از سیستم‌های صنعتی با دقت بالا برای دستیابی به جزئیات استثنایی.",
+                description: "پرینت سه‌بعدی حرفه‌ای با استفاده از رزین‌های قابل ریخته‌گری تخصصی و موم Projet، با استفاده از سیستم‌های صنعتی با دقت بالا.",
             },
             {
                 name: "ریخته‌گری و تولید",
@@ -56,10 +94,8 @@ export default async function PricingPage({
     return (
         <main className="min-h-screen bg-transparent text-white">
 
-            {/* ✅ Service Schema */}
             <ServiceSchema services={services} locale={locale} />
 
-            {/* LUXURY HERO SECTION */}
             <section className="relative overflow-hidden pt-32 pb-20">
 
                 <div className="container mx-auto max-w-7xl px-6 relative z-10">
@@ -78,7 +114,7 @@ export default async function PricingPage({
 
                         <p className="max-w-4xl text-white/80 text-sm md:text-base leading-relaxed">
                             {isFa
-                                ? "در این بخش می‌توانید تعرفه تقریبی خدمات طراحی، مدل‌سازی و تولید جواهرات را مشاهده کنید. خدمات ما از ایده‌پردازی و طراحی اولیه تا مدل‌سازی سه‌بعدی , پرینت و  تولید نهایی را در بر می‌گیرد. هزینه نهایی هر پروژه با توجه به پیچیدگی طراحی، میزان جزئیات و زمان موردنیاز تعیین می‌شود."
+                                ? "در این بخش می‌توانید تعرفه تقریبی خدمات طراحی، مدل‌سازی و تولید جواهرات را مشاهده کنید. خدمات ما از ایده‌پردازی و طراحی اولیه تا مدل‌سازی سه‌بعدی، پرینت و تولید نهایی را در بر می‌گیرد. هزینه نهایی هر پروژه با توجه به پیچیدگی طراحی، میزان جزئیات و زمان موردنیاز تعیین می‌شود."
                                 : "In this section you can see the approximate pricing for jewelry design, modeling, and production services. Our services range from initial ideation and design to 3D modeling, printing, and final production. The final cost of each project is determined by the complexity of the design, the amount of detail, and the time required."}
                         </p>
 
@@ -86,7 +122,6 @@ export default async function PricingPage({
                 </div>
             </section>
 
-            {/* MAIN CONTENT */}
             <section className="container mx-auto max-w-7xl px-6 pb-32">
                 <PricingAccordion
                     locale={locale}

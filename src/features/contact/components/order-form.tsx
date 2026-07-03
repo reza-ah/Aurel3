@@ -83,13 +83,12 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 jewelry_type: data.jewelryType || "",
                 details: data.details,
                 created_at: new Date().toISOString(),
-                // ✅ اصلاح: فقط _ref را بفرست (string)
                 files: uploadedFileIds,
                 honeypot,
                 timeSpent,
             }
 
-            console.log("Payload to send:", payload);
+            // ❌ حذف: console.log payload اطلاعات مشتری
 
             const response = await fetch("/api/atelier-dashboard/orders", {
                 method: "POST",
@@ -97,9 +96,9 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 body: JSON.stringify(payload),
             })
 
-            console.log("Response status:", response.status);
+            // ❌ حذف: console.log response status
             const result = await response.json();
-            console.log("Response body:", result);
+            // ❌ حذف: console.log response body
 
             if (!response.ok) throw new Error(result?.error || result?.message || "Order failed")
 
@@ -112,13 +111,8 @@ export function OrderForm({ locale, onSuccess }: Props) {
             setUploadedFileIds([])
             onSuccess?.()
 
-            console.log('📧 Starting email sending...');
-            console.log('Env check:', {
-                SERVICE_ID: !!process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-                TEMPLATE_CUSTOMER: !!process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CUSTOMER,
-                TEMPLATE_ADMIN: !!process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ADMIN,
-                PUBLIC_KEY: !!process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-            });
+            // ❌ حذف: console.log email sending
+            // ❌ حذف: console.log env check
 
             const emailResults = await Promise.allSettled([
                 sendOrderConfirmationToCustomer({
@@ -139,9 +133,8 @@ export function OrderForm({ locale, onSuccess }: Props) {
             emailResults.forEach((result, index) => {
                 if (result.status === 'rejected') {
                     console.error(`❌ Email ${index + 1} failed:`, result.reason);
-                } else {
-                    console.log(`✅ Email ${index + 1} succeeded`);
                 }
+                // ❌ حذف: console.log success - فقط error را نگه می‌داریم
             });
         } catch (error) {
             console.error("Order error:", error)
