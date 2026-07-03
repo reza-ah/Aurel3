@@ -60,7 +60,7 @@ export async function generateMetadata({
             : "Aurel is a professional jewelry design studio offering CAD design, 3D modeling, resin printing and casting services for jewelry brands and workshops worldwide",
 
         keywords: isFa
-            ? ["طراحی جواهر", "طراحی سه بعدی جواهرات", "مدلسازی جواهر", "ساخت جواهر", "استودیو جواهرسازی", "طلا و جواهر", "CAD جواهر", "پرینت سه بعدی"]
+            ? ["طراحی جواهر", "طراحی سه بعدی جواهرات", "مدل سازی جواهر", "ساخت جواهر", "استودیو جواهرسازی", "طلا و جواهر", "CAD جواهر", "پرینت سه بعدی"]
             : ["jewelry design", "custom jewelry", "CAD jewelry design", "3D jewelry modeling", "jewelry studio", "gold jewelry design", "jewelry CAD", "3D printing jewelry"],
 
         authors: [{ name: "Aurel Design Studio" }],
@@ -140,30 +140,22 @@ export default async function LocaleLayout({
             suppressHydrationWarning
         >
             <head>
-                <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-                <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+                {/* ✅ حذف preconnect به Sanity.io - فقط در صفحاتی که Sanity استفاده می‌کنند اضافه می‌شود */}
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                 <link rel="manifest" href="/manifest.json" />
             </head>
             <body
-                className={`
-                    bg-[#070707]
-                    text-white
-                    antialiased
-                    overflow-x-hidden
-                    relative
-                    min-h-screen
-                    ${isFa ? "font-vazir" : "font-cormorant"}
-                `}
+                className="bg-[#070707] text-white antialiased overflow-x-hidden relative min-h-screen"
+                style={{ fontFamily: isFa ? 'var(--font-vazir), system-ui, sans-serif' : 'var(--font-cormorant), Georgia, serif' }}
                 suppressHydrationWarning
             >
                 <a
                     href="#main-content"
                     className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-[#d4af37] focus:text-black focus:px-4 focus:py-2 focus:rounded"
                 >
-                    {isFa ? "رفتن به محتوای اصلی" : "Skip to main content"}
+                    {isFa ? "رفت به محتوای اصلی" : "Skip to main content"}
                 </a>
 
                 <div
