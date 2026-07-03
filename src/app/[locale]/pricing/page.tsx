@@ -1,8 +1,7 @@
 import { getPricingCategories, getPricingItems } from "@/lib/sanity";
-
 import PricingAccordion from "@/features/pricing/components/pricing-accordion";
-
 import Reveal from "@/components/reveal";
+import ServiceSchema from "@/components/seo/service-schema";
 
 export default async function PricingPage({
     params,
@@ -15,8 +14,50 @@ export default async function PricingPage({
     const categories = await getPricingCategories();
     const items = await getPricingItems();
 
+    // ✅ خدمات اصلی Aurel برای Schema
+    const services = isFa
+        ? [
+            {
+                name: "طراحی جواهر",
+                description: "تبدیل ایده‌ها، رفرنس‌ها یا اسکچ‌های دستی به طراحی‌های جواهر آماده تولید با تمرکز بر زیبایی‌شناسی، تعادل و دقت فنی.",
+            },
+            {
+                name: "مدل‌سازی سه‌بعدی جواهر",
+                description: "مدل‌سازی CAD با دقت بالا با استفاده از Rhino و MatrixGold برای ساختارهای مهندسی شده، همراه با ZBrush برای فرم‌های ارگانیک و مجسمه‌سازی پیشرفته.",
+            },
+            {
+                name: "پرینت سه‌بعدی جواهر",
+                description: "پرینت سه‌بعدی حرفه‌ای با استفاده از رزین‌های قابل ریخته‌گری تخصصی و موم Projet، با استفاده از سیستم‌های صنعتی با دقت بالا برای دستیابی به جزئیات استثنایی.",
+            },
+            {
+                name: "ریخته‌گری و تولید",
+                description: "آماده‌سازی آماده تولید و ریخته‌گری در طلا یا نقره مطابق با استانداردهای حرفه‌ای تولید جواهرات.",
+            },
+        ]
+        : [
+            {
+                name: "Jewelry Design",
+                description: "Transforming concepts, references, or hand sketches into production-ready jewelry designs with a focus on aesthetics, balance, and technical precision.",
+            },
+            {
+                name: "3D Jewelry Modeling",
+                description: "High-precision CAD modeling using Rhino and MatrixGold for engineered structures, combined with ZBrush for organic forms and advanced sculpting.",
+            },
+            {
+                name: "3D Printing for Jewelry",
+                description: "Professional 3D printing using Projet wax and specialized castable resins, powered by high-precision industrial systems to achieve exceptional detail.",
+            },
+            {
+                name: "Casting & Production",
+                description: "Production-ready preparation and casting in gold or silver according to professional jewelry manufacturing standards.",
+            },
+        ];
+
     return (
         <main className="min-h-screen bg-transparent text-white">
+
+            {/* ✅ Service Schema */}
+            <ServiceSchema services={services} locale={locale} />
 
             {/* LUXURY HERO SECTION */}
             <section className="relative overflow-hidden pt-32 pb-20">
