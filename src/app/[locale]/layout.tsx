@@ -140,15 +140,24 @@ export default async function LocaleLayout({
             suppressHydrationWarning
         >
             <head>
-                {/* ✅ حذف preconnect به Sanity.io - فقط در صفحاتی که Sanity استفاده می‌کنند اضافه می‌شود */}
+                {/* ✅ برگرداندن preconnect به Sanity.io */}
+                <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+                <link rel="dns-prefetch" href="https://cdn.sanity.io" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
                 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
                 <link rel="manifest" href="/manifest.json" />
             </head>
             <body
-                className="bg-[#070707] text-white antialiased overflow-x-hidden relative min-h-screen"
-                style={{ fontFamily: isFa ? 'var(--font-vazir), system-ui, sans-serif' : 'var(--font-cormorant), Georgia, serif' }}
+                className={`
+                    bg-[#070707]
+                    text-white
+                    antialiased
+                    overflow-x-hidden
+                    relative
+                    min-h-screen
+                    ${isFa ? "font-vazir" : "font-cormorant"}
+                `}
                 suppressHydrationWarning
             >
                 <a
