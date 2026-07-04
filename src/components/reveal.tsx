@@ -6,27 +6,31 @@ type RevealProps = {
     children: ReactNode;
     className?: string;
     delay?: number;
+    disableAnimation?: boolean;
 };
 
 export default function Reveal({
     children,
     className = "",
     delay = 0,
+    disableAnimation = false,
 }: RevealProps) {
     const ref = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(false);
+    const [isVisible, setIsVisible] = useState(disableAnimation);
 
     useEffect(() => {
+        if (disableAnimation) return;
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
                     setIsVisible(true);
-                    observer.unobserve(entry.target); // ✅ فقط یک بار اجرا شود
+                    observer.unobserve(entry.target);
                 }
             },
             {
-                threshold: 0.2, // ✅ وقتی ۲۰٪ عنصر دیده شود
-                rootMargin: "0px 0px -100px 0px", // ✅ کمی قبل از دیدن کامل
+                threshold: 0.2,
+                rootMargin: "0px 0px -100px 0px",
             }
         );
 
@@ -39,7 +43,7 @@ export default function Reveal({
                 observer.unobserve(ref.current);
             }
         };
-    }, []);
+    }, [disableAnimation]);
 
     return (
         <div
@@ -48,7 +52,7 @@ export default function Reveal({
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? "translateY(0)" : "translateY(24px)",
-                transition: `opacity 0.8s ease-out ${delay}s, transform 0.8s ease-out ${delay}s`,
+                transition: disableAnimation ? "none" : `opacity 0.8s ease-out ${delay}s, transform 0.8s ease-out ${delay}s`,
             }}
         >
             {children}

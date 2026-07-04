@@ -100,8 +100,7 @@ export default async function PricingPage({
 
                 <div className="container mx-auto max-w-7xl px-6 relative z-10">
 
-                    <Reveal className="flex flex-col items-center text-center">
-
+                    <Reveal className="flex flex-col items-center text-center" disableAnimation>
                         <span className="text-4xl md:text-4xl uppercase tracking-[0.2em] text-[#d4af37] mb-6 font-light">
                             {isFa ? "خدمات و تعرفه ها" : "Services & Pricing"}
                         </span>

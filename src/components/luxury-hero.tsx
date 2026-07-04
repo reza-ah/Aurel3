@@ -51,8 +51,8 @@ export default function LuxuryHero({ dict }: Props) {
             {/* Content */}
             <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
 
-                {/* Title */}
-                <Reveal>
+                {/* ✅ Title - disableAnimation برای LCP */}
+                <Reveal disableAnimation>
                     <h1
                         className="
                             text-5xl
@@ -78,22 +78,24 @@ export default function LuxuryHero({ dict }: Props) {
                     </h1>
                 </Reveal>
 
-                {/* Description */}
-                <p
-                    className="
-                        mx-auto
-                        max-w-3xl
-                        text-base
-                        sm:text-lg
-                        md:text-xl
-                        leading-8
-                        text-white/75
-                    "
-                >
-                    {dict.heroDescription}
-                </p>
+                {/* ✅ Description - disableAnimation برای LCP */}
+                <Reveal disableAnimation delay={0.1}>
+                    <p
+                        className="
+                            mx-auto
+                            max-w-3xl
+                            text-base
+                            sm:text-lg
+                            md:text-xl
+                            leading-8
+                            text-white/75
+                        "
+                    >
+                        {dict.heroDescription}
+                    </p>
+                </Reveal>
 
-                {/* CTA */}
+                {/* CTA - انیمیشن عادی */}
                 <Reveal delay={0.2}>
                     <div className="mt-12">
                         <button

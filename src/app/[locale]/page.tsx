@@ -348,6 +348,7 @@ export default async function HomePage({
             {productsEnabled && products.length > 0 && (
                 <section className="px-6 py-24">
                     <div className="container-lux">
+                        {/* Products Section - h2 با disableAnimation */}
                         <div className="mb-16 text-center">
                             <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/60">
                                 {isFa ? "محصولات" : "Products"}
