@@ -1,7 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ReactNode } from "react";
+import { useEffect, useRef, useState, ReactNode } from "react";
 
 type RevealProps = {
     children: ReactNode;
@@ -14,20 +13,45 @@ export default function Reveal({
     className = "",
     delay = 0,
 }: RevealProps) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(entry.target); // ✅ فقط یک بار اجرا شود
+                }
+            },
+            {
+                threshold: 0.2, // ✅ وقتی ۲۰٪ عنصر دیده شود
+                rootMargin: "0px 0px -100px 0px", // ✅ کمی قبل از دیدن کامل
+            }
+        );
+
+        if (ref.current) {
+            observer.observe(ref.current);
+        }
+
+        return () => {
+            if (ref.current) {
+                observer.unobserve(ref.current);
+            }
+        };
+    }, []);
+
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{
-                duration: 0.8,
-                delay,
-                ease: "easeOut",
-            }}
-            viewport={{ once: true, amount: 0.2 }}
+        <div
+            ref={ref}
             className={`overflow-visible pt-2 pb-2 ${className}`}
+            style={{
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(24px)",
+                transition: `opacity 0.8s ease-out ${delay}s, transform 0.8s ease-out ${delay}s`,
+            }}
         >
             {children}
-        </motion.div>
+        </div>
     );
 }
-
