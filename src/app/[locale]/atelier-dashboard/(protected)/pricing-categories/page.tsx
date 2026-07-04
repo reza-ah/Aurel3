@@ -173,7 +173,7 @@ export default function PricingCategoriesPage() {
                                         <span className="text-sm text-zinc-500">{category.title_fa}</span>
                                     </div>
                                     {category.description_en && (
-                                        <p className="text-sm text-zinc-400 mt-1">{category.description_en}</p>
+                                        <p className="text-sm text-[#a3a3a3] mt-1">{category.description_en}</p>
                                     )}
                                     <div className="flex items-center gap-4 text-sm text-zinc-500 mt-2">
                                         <span>Sort: {category.sort}</span>
@@ -253,7 +253,7 @@ function CategoryForm({
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Title (English)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Title (English)</label>
                         <input
                             type="text"
                             value={title_en}
@@ -264,7 +264,7 @@ function CategoryForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Title (Persian)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Title (Persian)</label>
                         <input
                             type="text"
                             value={title_fa}
@@ -276,7 +276,7 @@ function CategoryForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Description (English)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Description (English)</label>
                         <textarea
                             value={description_en}
                             onChange={(e) => setDescription_en(e.target.value)}
@@ -286,7 +286,7 @@ function CategoryForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Description (Persian)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Description (Persian)</label>
                         <textarea
                             value={description_fa}
                             onChange={(e) => setDescription_fa(e.target.value)}
@@ -297,7 +297,7 @@ function CategoryForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Sort Order</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Sort Order</label>
                         <input
                             type="number"
                             value={sort}

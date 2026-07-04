@@ -29,7 +29,7 @@ export default function AboutCTA({
                         : "Your Concept,\nDeveloped With Precision"}
                 </h2>
 
-                <p className="mx-auto mb-14 max-w-2xl text-lg leading-8 text-white/60">
+                <p className="mx-auto mb-14 max-w-2xl text-lg leading-8 text-[#e5e5e5]">
                     {isFa
                         ? "از طراحی مفهومی و مدلسازی سه‌بعدی تا پرینت تخصصی و آماده‌سازی برای تولید، AUREL در تمام مراحل کنار شماست."
                         : "From conceptual jewelry design and precision 3D modeling to professional printing and production preparation, AUREL supports every stage of the process."}

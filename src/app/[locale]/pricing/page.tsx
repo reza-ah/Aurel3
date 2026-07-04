@@ -111,7 +111,7 @@ export default async function PricingPage({
 
                         <div className="h-px w-24 bg-[#d4af37]/30 my-8" />
 
-                        <p className="max-w-4xl text-white/80 text-sm md:text-base leading-relaxed">
+                        <p className="max-w-4xl text-text-secondary text-base md:text-lg leading-relaxed">
                             {isFa
                                 ? "در این بخش می‌توانید تعرفه تقریبی خدمات طراحی، مدل‌سازی و تولید جواهرات را مشاهده کنید. خدمات ما از ایده‌پردازی و طراحی اولیه تا مدل‌سازی سه‌بعدی، پرینت و تولید نهایی را در بر می‌گیرد. هزینه نهایی هر پروژه با توجه به پیچیدگی طراحی، میزان جزئیات و زمان موردنیاز تعیین می‌شود."
                                 : "In this section you can see the approximate pricing for jewelry design, modeling, and production services. Our services range from initial ideation and design to 3D modeling, printing, and final production. The final cost of each project is determined by the complexity of the design, the level of detail, and the time required. For a detailed quote, please contact us directly."}

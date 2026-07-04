@@ -181,8 +181,8 @@ export default function SiteFooter({ locale }: Props) {
 
                         <div className="mt-4 h-px w-24 bg-gradient-to-r from-[#D4AF37] to-transparent" />
 
-                        {/* ✅ اصلاح: text-gray-400 → text-white/75 */}
-                        <p className="persian-smooth mt-7 max-w-xl text-[15px] leading-8 text-white/75">
+                        {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
+                        <p className="persian-smooth mt-7 max-w-xl text-base leading-8 text-[#e5e5e5]">
                             {content.description}
                         </p>
 
@@ -208,7 +208,7 @@ export default function SiteFooter({ locale }: Props) {
                                             border
                                             border-white/10
                                             bg-white/[0.03]
-                                            text-white/70
+                                            text-[#e5e5e5]
                                             backdrop-blur-xl
                                             transition-all
                                             duration-500
@@ -240,8 +240,8 @@ export default function SiteFooter({ locale }: Props) {
                                             group
                                             inline-flex
                                             items-center
-                                            text-[15px]
-                                            text-white/70
+                                            text-base
+                                            text-[#e5e5e5]
                                             transition-all
                                             duration-300
                                             hover:text-white
@@ -262,15 +262,15 @@ export default function SiteFooter({ locale }: Props) {
                             {content.newsletter}
                         </h3>
 
-                        {/* ✅ اصلاح: text-gray-400 → text-white/70 */}
-                        <p className="persian-smooth mt-6 text-sm leading-7 text-white/70">
+                        {/* ✅ اصلاح: text-sm → text-base و text-[#e5e5e5] */}
+                        <p className="persian-smooth mt-6 text-base leading-7 text-[#e5e5e5]">
                             {content.newsletterText}
                         </p>
 
                         {/* EMAIL INPUT */}
                         <div className="mt-6">
                             {footerStatus === "ok" ? (
-                                <p className="text-sm text-[#D4AF37]">
+                                <p className="text-base text-[#D4AF37]">
                                     {isFa ? "با موفقیت عضو شدید!" : "Subscribed successfully!"}
                                 </p>
                             ) : (
@@ -287,10 +287,10 @@ export default function SiteFooter({ locale }: Props) {
                                                 bg-transparent
                                                 px-5
                                                 py-3.5
-                                                text-sm
+                                                text-base
                                                 text-white
                                                 outline-none
-                                                placeholder:text-white/50
+                                                placeholder:text-[#a3a3a3]
                                             "
                                         />
 
@@ -322,7 +322,7 @@ export default function SiteFooter({ locale }: Props) {
                                         </button>
                                     </div>
                                     {footerStatus === "error" && (
-                                        <p className="mt-2 text-xs text-red-400">
+                                        <p className="mt-2 text-sm text-red-400">
                                             {isFa ? "خطا، دوباره تلاش کنید" : "Error, please try again"}
                                         </p>
                                     )}
@@ -330,16 +330,17 @@ export default function SiteFooter({ locale }: Props) {
                             )}
                         </div>
 
-                        {/* CONTACT INFO */}
-                        <div className="mt-7 space-y-4 text-sm">
+                        {/* ✅ اصلاح: text-sm → text-base */}
+                        <div className="mt-7 space-y-4 text-base">
                             <div>
                                 <p className="mb-1 text-[#C6A86A]">
                                     {isFa ? "ایمیل" : "Email"}
                                 </p>
 
+                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                                 <a
                                     href="mailto:info@aurelstudio.com"
-                                    className="text-white/75 transition-colors duration-300 hover:text-[#D4AF37]"
+                                    className="text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
                                     info@aurelstudio.com
                                 </a>
@@ -350,10 +351,11 @@ export default function SiteFooter({ locale }: Props) {
                                     {isFa ? "تلفن" : "Phone"}
                                 </p>
 
+                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                                 <a
                                     href="tel:+989122987123"
                                     dir="ltr"
-                                    className={`block text-white/75 transition-colors duration-300 hover:text-[#D4AF37] ${isFa ? "text-right" : "text-left"
+                                    className={`block text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37] ${isFa ? "text-right" : "text-left"
                                         }`}
                                 >
                                     +98 912 2 987 123
@@ -365,11 +367,12 @@ export default function SiteFooter({ locale }: Props) {
                                     {isFa ? "آدرس" : "Address"}
                                 </p>
 
+                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                                 <a
                                     href="https://www.google.com/maps/search/?api=1&query=35.67639440068573,51.4127901957651"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="leading-7 text-white/75 transition-colors duration-300 hover:text-[#D4AF37]"
+                                    className="leading-7 text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
                                     {isFa
                                         ? "تهران، خیابان ۱۵ خرداد"
@@ -392,8 +395,8 @@ export default function SiteFooter({ locale }: Props) {
                         border-t
                         border-white/10
                         pt-7
-                        text-sm
-                        text-white/60
+                        text-base
+                        text-[#e5e5e5]
                         md:flex-row
                     "
                 >
@@ -401,7 +404,8 @@ export default function SiteFooter({ locale }: Props) {
                         © 2026 AUREL — {content.rights}
                     </p>
 
-                    <p className="tracking-[0.15em] text-white/50">
+                    {/* ✅ اصلاح: text-white/50 → text-[#a3a3a3] */}
+                    <p className="tracking-[0.15em] text-[#a3a3a3]">
                         LUXURY JEWELRY EXPERIENCE
                     </p>
                 </div>

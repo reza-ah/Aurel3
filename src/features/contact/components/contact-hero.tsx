@@ -22,7 +22,7 @@ export function ContactHero({ locale }: Props) {
                         : "Get in Touch for Orders & Professional Collaboration"}
                 </h1>
 
-                <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/60 md:text-base">
+                <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-[#e5e5e5] md:text-base">
                     {isFa
                         ? "برای ثبت سفارش طراحی، مدلسازی و پرینت از فرم سفارش استفاده کنید. برای اطلاعات بیشتر و مشاوره از فرم تماس با ما استفاده کنید."
                         : "For submitting design, modeling, and printing orders, please use the order form. For more information and consultation, please use the contact form."}

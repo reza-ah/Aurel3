@@ -107,7 +107,7 @@ export default async function JournalPage({
                                     <div className="flex flex-1 flex-col p-8">
                                         <h2 className="text-2xl font-light text-white">{title}</h2>
                                         {excerpt && (
-                                            <p className="mt-4 text-sm leading-7 text-white/70 line-clamp-3">{excerpt}</p>
+                                            <p className="mt-4 text-sm leading-7 text-[#e5e5e5] line-clamp-3">{excerpt}</p>
                                         )}
                                         <span className="mt-auto pt-8 inline-flex items-center text-sm uppercase tracking-[0.2em] text-[#D4AF37] transition-all duration-300 group-hover:translate-x-1">
                                             {isFa ? "مشاهده مقاله" : "Read Article"}

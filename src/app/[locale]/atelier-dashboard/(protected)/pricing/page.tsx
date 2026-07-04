@@ -167,7 +167,7 @@ export default function PricingManager() {
     return (
         <main className="p-8 text-white min-h-screen max-w-5xl mx-auto mt-12">
             {/* دکمه بازگشت به داشبورد */}
-            <Link href="/atelier-dashboard" className="flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors">
+            <Link href="/atelier-dashboard" className="flex items-center gap-2 text-[#a3a3a3] hover:text-white mb-8 transition-colors">
                 <ArrowLeft size={18} /> Back to Dashboard
             </Link>
 
@@ -182,7 +182,7 @@ export default function PricingManager() {
                     <div className="grid grid-cols-2 gap-4">
                         {activeTab === 'items' && (
                             <div className="flex flex-col gap-1 col-span-2">
-                                <label className="text-xs text-zinc-400">Category</label>
+                                <label className="text-xs text-[#a3a3a3]">Category</label>
                                 <select
                                     className="bg-zinc-800 p-2 rounded text-white"
                                     value={editingItem.category?._ref || editingItem.category || ""}
@@ -196,61 +196,61 @@ export default function PricingManager() {
                             </div>
                         )}
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs text-zinc-400">Title EN</label>
+                            <label className="text-xs text-[#a3a3a3]">Title EN</label>
                             <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.title_en || ""} onChange={(e) => setEditingItem({ ...editingItem, title_en: e.target.value })} />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <label className="text-xs text-zinc-400">Title FA</label>
+                            <label className="text-xs text-[#a3a3a3]">Title FA</label>
                             <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.title_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, title_fa: e.target.value })} />
                         </div>
                         {activeTab === 'items' && (
                             <>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-zinc-400">Price EN</label>
+                                    <label className="text-xs text-[#a3a3a3]">Price EN</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.price_en || ""} onChange={(e) => setEditingItem({ ...editingItem, price_en: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-xs text-zinc-400">Price FA</label>
+                                    <label className="text-xs text-[#a3a3a3]">Price FA</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.price_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, price_fa: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Delivery Time EN</label>
+                                    <label className="text-xs text-[#a3a3a3]">Delivery Time EN</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.delivery_time_en || ""} onChange={(e) => setEditingItem({ ...editingItem, delivery_time_en: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Delivery Time FA</label>
+                                    <label className="text-xs text-[#a3a3a3]">Delivery Time FA</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.delivery_time_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, delivery_time_fa: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Suitable For EN</label>
+                                    <label className="text-xs text-[#a3a3a3]">Suitable For EN</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.suitable_en || ""} onChange={(e) => setEditingItem({ ...editingItem, suitable_en: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Suitable For FA</label>
+                                    <label className="text-xs text-[#a3a3a3]">Suitable For FA</label>
                                     <input className="bg-zinc-800 p-2 rounded text-white" value={editingItem.suitable_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, suitable_fa: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Features EN (one per line)</label>
+                                    <label className="text-xs text-[#a3a3a3]">Features EN (one per line)</label>
                                     <textarea className="bg-zinc-800 p-2 rounded text-white" rows={3} value={editingItem.features_en || ""} onChange={(e) => setEditingItem({ ...editingItem, features_en: e.target.value })} />
                                 </div>
                                 <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-xs text-zinc-400">Features FA (one per line)</label>
+                                    <label className="text-xs text-[#a3a3a3]">Features FA (one per line)</label>
                                     <textarea className="bg-zinc-800 p-2 rounded text-white" rows={3} value={editingItem.features_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, features_fa: e.target.value })} />
                                 </div>
                             </>
                         )}
                         <div className="flex flex-col gap-1 col-span-2">
-                            <label className="text-xs text-zinc-400">Description EN</label>
+                            <label className="text-xs text-[#a3a3a3]">Description EN</label>
                             <textarea className="bg-zinc-800 p-2 rounded text-white" rows={3} value={editingItem.description_en || ""} onChange={(e) => setEditingItem({ ...editingItem, description_en: e.target.value })} />
                         </div>
                         <div className="flex flex-col gap-1 col-span-2">
-                            <label className="text-xs text-zinc-400">Description FA</label>
+                            <label className="text-xs text-[#a3a3a3]">Description FA</label>
                             <textarea className="bg-zinc-800 p-2 rounded text-white" rows={3} value={editingItem.description_fa || ""} onChange={(e) => setEditingItem({ ...editingItem, description_fa: e.target.value })} />
                         </div>
 
                         {/* Image Upload */}
                         <div className="flex flex-col gap-2 col-span-2 my-4">
-                            <label className="text-xs text-zinc-400">Image</label>
+                            <label className="text-xs text-[#a3a3a3]">Image</label>
                             {(() => {
                                 const imgUrl = getImageUrl(activeTab === 'items' ? editingItem.img : editingItem.image);
                                 return imgUrl ? (
@@ -275,12 +275,12 @@ export default function PricingManager() {
                                     onChange={(e) => setEditingItem({ ...editingItem, is_active: e.target.checked })}
                                     className="w-4 h-4"
                                 />
-                                <label className="text-sm text-zinc-400">Active</label>
+                                <label className="text-sm text-[#a3a3a3]">Active</label>
                             </div>
                         )}
 
                         <div className="flex flex-col gap-1 col-span-2">
-                            <label className="text-xs text-zinc-400">Sort Order</label>
+                            <label className="text-xs text-[#a3a3a3]">Sort Order</label>
                             <input type="number" className="bg-zinc-800 p-2 rounded text-white" value={editingItem.sort || 999} onChange={(e) => setEditingItem({ ...editingItem, sort: parseInt(e.target.value) || 999 })} />
                         </div>
                     </div>

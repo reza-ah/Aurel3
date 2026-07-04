@@ -109,7 +109,7 @@ export default async function ProjectPage({ params }: Props) {
 
                     <Link
                         href={`/${locale}/portfolio`}
-                        className="inline-flex items-center gap-2 text-sm tracking-[0.2em] uppercase text-zinc-400 hover:text-white transition mb-12"
+                        className="inline-flex items-center gap-2 text-sm tracking-[0.2em] uppercase text-[#a3a3a3] hover:text-white transition mb-12"
                     >
                         ← {isFa ? "بازگشت" : "Back"}
                     </Link>
@@ -128,7 +128,7 @@ export default async function ProjectPage({ params }: Props) {
 
                             <div className="w-24 h-px bg-[#d4af37] mb-8" />
 
-                            <p className="text-zinc-400 leading-9 text-lg max-w-xl">
+                            <p className="text-[#a3a3a3] leading-9 text-lg max-w-xl">
                                 {description}
                             </p>
                         </div>
@@ -174,7 +174,7 @@ export default async function ProjectPage({ params }: Props) {
                                 {isFa ? "مشاهده همه پروژه‌ها" : "Explore All Projects"}
                             </h2>
 
-                            <p className="text-zinc-400 max-w-2xl leading-8">
+                            <p className="text-[#a3a3a3] max-w-2xl leading-8">
                                 {isFa
                                     ? "مجموعه کامل پروژه‌های طراحی شده را مشاهده کنید."
                                     : "Discover the complete collection of crafted luxury projects."}

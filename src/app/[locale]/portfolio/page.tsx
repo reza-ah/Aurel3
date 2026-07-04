@@ -38,7 +38,7 @@ export async function generateMetadata({
                 ? "نمونه‌کارهای طراحی و ساخت جواهرات "
                 : "Professional jewelry design portfolio",
             url: currentUrl,
-            siteName: "Aurel Jewelry Design Studio", // ✅ اضافه شد
+            siteName: "Aurel Jewelry Design Studio",
             type: "website",
         },
     };
@@ -107,11 +107,12 @@ export default async function PortfolioPage({
 
                 <div className="mb-20">
 
+                    {/* ✅ اصلاح شد: text-zinc-400 → text-[#a3a3a3] و text-sm → text-base */}
                     <p className="
-                        text-zinc-400
+                        text-[#a3a3a3]
                         uppercase
-                        tracking-[0.3em]
-                        text-sm
+                        tracking-[0.35em]
+                        text-base
                         mb-4
                     ">
                         {isFa
@@ -124,6 +125,7 @@ export default async function PortfolioPage({
                         md:text-7xl
                         font-light
                         leading-tight
+                        text-white
                     ">
                         {isFa
                             ? "مجموعه پروژه‌ها"

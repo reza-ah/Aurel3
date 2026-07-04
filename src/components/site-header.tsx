@@ -59,7 +59,7 @@ export default function SiteHeader({ dict }: Props) { // <-- locale رو برد�
 
                 <nav className="hidden items-center gap-8 md:flex">
                     {navItems.map((item) => (
-                        <Link key={item.href} href={item.href} className="text-sm uppercase tracking-[0.22em] text-white/80 hover:text-[#D4AF37]">
+                        <Link key={item.href} href={item.href} className="text-sm uppercase tracking-[0.22em] ttext-[#f5f5f5] hover:text-[#D4AF37]">
                             {item.label}
                         </Link>
                     ))}
@@ -77,7 +77,7 @@ export default function SiteHeader({ dict }: Props) { // <-- locale رو برد�
                 <div className="border-t border-white/10 bg-black/95 backdrop-blur-xl md:hidden">
                     <div className="flex flex-col gap-6 px-6 py-8">
                         {navItems.map((item) => (
-                            <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="text-base uppercase tracking-[0.18em] text-white/80">
+                            <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="text-base uppercase tracking-[0.18em] ttext-[#f5f5f5]">
                                 {item.label}
                             </Link>
                         ))}

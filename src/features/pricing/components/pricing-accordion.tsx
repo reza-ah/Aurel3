@@ -57,7 +57,7 @@ export default function PricingAccordion({
                                 <h2
                                     className={`text-2xl md:text-4xl font-light transition ${isOpen
                                         ? "text-[#d4af37]"
-                                        : "text-white/95"
+                                        : "text-white"
                                         }`}
                                 >
                                     {isFa
@@ -131,7 +131,8 @@ export default function PricingAccordion({
                                                                     : item.title_en}
                                                             </h3>
 
-                                                            <p className="text-sm leading-7 text-white/80 md:text-base">
+                                                            {/* ✅ اصلاح شد: text-white/80 → text-[#e5e5e5] و text-sm → text-base */}
+                                                            <p className="text-base leading-7 text-[#e5e5e5]">
                                                                 {isFa
                                                                     ? item.description_fa
                                                                     : item.description_en}
@@ -146,7 +147,8 @@ export default function PricingAccordion({
                                                                             ? "مناسب برای"
                                                                             : "Suitable For"}
                                                                     </span>
-                                                                    <p className="text-sm leading-7 text-white/85">
+                                                                    {/* ✅ اصلاح شد: text-white/85 → text-[#e5e5e5] و text-sm → text-base */}
+                                                                    <p className="text-base leading-7 text-[#e5e5e5]">
                                                                         {isFa
                                                                             ? item.suitable_fa ?? ""
                                                                             : item.suitable_en ?? ""}
@@ -158,7 +160,8 @@ export default function PricingAccordion({
                                                         <div className="mt-auto rounded-[24px] border border-white/10 bg-[#090909]/70 p-5 backdrop-blur-xl">
                                                             <div className="grid gap-4 sm:grid-cols-2 sm:items-end sm:gap-6">
                                                                 <div>
-                                                                    <span className="mb-3 block text-[15px] uppercase tracking-[0.3em] text-white/80">
+                                                                    {/* ✅ اصلاح شد: text-white/80 → text-[#a3a3a3] */}
+                                                                    <span className="mb-3 block text-[15px] uppercase tracking-[0.3em] text-[#a3a3a3]">
                                                                         {isFa
                                                                             ? "شروع قیمت"
                                                                             : "Starting From"}
@@ -171,12 +174,14 @@ export default function PricingAccordion({
                                                                 </div>
 
                                                                 <div className={`${isFa ? "text-left" : "text-right"}`}>
-                                                                    <span className="mb-3 block text-[15px] uppercase tracking-[0.3em] text-white/70">
+                                                                    {/* ✅ اصلاح شد: text-white/70 → text-[#a3a3a3] */}
+                                                                    <span className="mb-3 block text-[15px] uppercase tracking-[0.3em] text-[#a3a3a3]">
                                                                         {isFa
                                                                             ? "زمان تحویل"
                                                                             : "Timeframe"}
                                                                     </span>
-                                                                    <div className="text-sm text-white/100">
+                                                                    {/* ✅ اصلاح شد: text-white/100 → text-white */}
+                                                                    <div className="text-base text-white">
                                                                         {isFa
                                                                             ? item.delivery_time_fa
                                                                             : item.delivery_time_en}
@@ -213,7 +218,8 @@ export default function PricingAccordion({
                             : "From concept to production-ready files, we support custom jewelry projects."}
                     </h3>
 
-                    <p className="mx-auto mb-10 max-w-xl text-sm leading-7 text-white/90">
+                    {/* ✅ اصلاح شد: text-white/90 → text-[#f5f5f5] و text-sm → text-base */}
+                    <p className="mx-auto mb-10 max-w-xl text-base leading-7 text-[#f5f5f5]">
                         {locale === "fa"
                             ? "برای ثبت سفارش روی دکمه زیر کلیک کنید."
                             : "Click the button below to place your order."}

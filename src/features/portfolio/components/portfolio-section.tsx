@@ -38,7 +38,7 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
         <section className="bg-transparent py-20 relative overflow-hidden">
             <div className="mx-auto max-w-7xl px-6 lg:px-10 relative z-10">
                 <div className="mb-16 text-center">
-                    <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/60">
+                    <p className="mb-4 text-sm uppercase tracking-[0.3em] text-[#e5e5e5]">
                         {isFa ? "نمونه‌کارها" : "Portfolio"}
                     </p>
                     <h2 className="text-4xl font-light md:text-5xl text-[#F5F1E8]">

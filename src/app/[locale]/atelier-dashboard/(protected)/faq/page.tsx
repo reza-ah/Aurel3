@@ -102,7 +102,7 @@ function SortableItem({
                         }}
                         className="w-4 h-4"
                     />
-                    <span className="text-sm text-zinc-400">
+                    <span className="text-sm text-[#a3a3a3]">
                         {enabled ? "✓ Enabled" : "✗ Disabled"}
                     </span>
                 </label>

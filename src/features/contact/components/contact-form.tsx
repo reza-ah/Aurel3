@@ -91,7 +91,7 @@ export function ContactForm({ locale }: Props) {
                 <h3 className="text-2xl font-light text-[rgb(var(--gold))]">
                     {isFa ? "پیام شما دریافت شد" : "Message received"}
                 </h3>
-                <p className="mt-4 text-white/60 text-sm">
+                <p className="mt-4 text-[#e5e5e5] text-sm">
                     {isFa ? "به زودی پاسخ شما را خواهیم داد." : "We will get back to you shortly."}
                 </p>
             </div>

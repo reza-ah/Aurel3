@@ -68,7 +68,7 @@ export default async function ProductPage({
                                 {title}
                             </h1>
 
-                            <p className="mb-8 text-lg leading-8 text-white/80">
+                            <p className="mb-8 text-lg leading-8 ttext-[#f5f5f5]">
                                 {description}
                             </p>
 

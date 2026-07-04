@@ -6,8 +6,19 @@
     --color-bg-studio: #070707;
     --color-gold-studio: #d4af37;
     --color-gold-muted: #c6a86a;
-    --color-text-primary: #f5f1e8;
-    --color-text-secondary: #ffffff;
+    --color-gold-light: #ffe8a3;
+    /* ✅ اضافه شد - برای کنتراست بهتر */
+
+    /* ✅ رنگ‌های متن اصلاح‌شده */
+    --color-text-primary: #ffffff;
+    /* سفید کامل - کنتراست حداکثر */
+    --color-text-secondary: #e5e5e5;
+    /* خاکستری روشن - کنتراست 9.1:1 */
+    --color-text-tertiary: #a3a3a3;
+    /* خاکستری متوسط - کنتراست 5.5:1 */
+    --color-text-muted: #737373;
+    /* برای متن‌های کم‌اهمیت */
+
     --color-link: #e2b932;
     --color-link-hover: #ffd700;
     --radius-card: 28px;
@@ -18,22 +29,20 @@
   /* ✅ فونت پیش‌فرض برای همه */
   body {
     background-color: var(--color-bg-studio);
-    color: var(--color-text-secondary);
+    color: var(--color-text-primary);
+    /* ✅ تغییر از secondary به primary */
     text-rendering: optimizeLegibility;
-    /* ✅ بهینه برای موبایل */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga" 1, "calt" 1;
     font-variant-ligatures: common-ligatures;
     font-kerning: normal;
-    /* ✅ فونت پیش‌فرض انگلیسی */
     font-family: var(--font-cormorant), serif;
-    /* ✅ جلوگیری از تغییر سایز فونت در موبایل */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 
-  /* ✅ فونت فارسی برای RTL - با !important */
+  /* ✅ فونت فارسی برای RTL */
   body[dir="rtl"],
   [dir="rtl"],
   [lang="fa"],
@@ -140,12 +149,10 @@
 /* ==================== Mobile Fixes ==================== */
 @media (max-width: 768px) {
   body {
-    /* ✅ جلوگیری از زوم شدن در iOS */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 
-  /* ✅ فونت‌ها در موبایل */
   body[dir="rtl"],
   [dir="rtl"],
   [lang="fa"] {

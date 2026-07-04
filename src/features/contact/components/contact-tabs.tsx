@@ -25,7 +25,7 @@ export function ContactTabs({ locale }: Props) {
                     onClick={() => setActiveTab("contact")}
                     className={`text-sm font-medium tracking-wide transition-all duration-300 outline-none ${activeTab === "contact"
                         ? "text-[#d4af37]"
-                        : "text-white/70 hover:text-white/90"
+                        : "text-[#e5e5e5] hover:text-white/90"
                         }`}
                 >
                     {isFa ? "ارتباط با ما" : "Contact Us"}
@@ -37,7 +37,7 @@ export function ContactTabs({ locale }: Props) {
                     onClick={() => setActiveTab("order")}
                     className={`text-sm font-medium tracking-wide transition-all duration-300 outline-none ${activeTab === "order"
                         ? "text-[#d4af37]"
-                        : "text-white/70 hover:text-white/90"
+                        : "text-[#e5e5e5] hover:text-white/90"
                         }`}
                 >
                     {isFa ? "سفارش طراحی و ساخت" : "Custom Jewelry Order"}

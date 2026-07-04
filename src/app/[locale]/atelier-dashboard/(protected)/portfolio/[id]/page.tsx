@@ -291,7 +291,7 @@ export default function PortfolioEditPage() {
                     <h1 className="text-3xl font-semibold">
                         {isNew ? "Add New Portfolio" : "Edit Portfolio"}
                     </h1>
-                    <p className="text-sm text-zinc-400 mt-1">
+                    <p className="text-sm text-[#a3a3a3] mt-1">
                         {isNew ? "ایجاد آیتم جدید" : "ویرایش آیتم"}
                     </p>
                 </div>
@@ -306,7 +306,7 @@ export default function PortfolioEditPage() {
 
             <div className="max-w-2xl space-y-4 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
                 <div className="grid gap-3">
-                    <label className="text-sm text-zinc-400">Title (English)</label>
+                    <label className="text-sm text-[#a3a3a3]">Title (English)</label>
                     <input
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         value={form.title_en}
@@ -319,35 +319,35 @@ export default function PortfolioEditPage() {
                         }
                     />
 
-                    <label className="text-sm text-zinc-400">عنوان (فارسی)</label>
+                    <label className="text-sm text-[#a3a3a3]">عنوان (فارسی)</label>
                     <input
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         value={form.title_fa}
                         onChange={(e) => setForm((prev) => ({ ...prev, title_fa: e.target.value }))}
                     />
 
-                    <label className="text-sm text-zinc-400">Slug</label>
+                    <label className="text-sm text-[#a3a3a3]">Slug</label>
                     <input
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         value={form.slug}
                         onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
                     />
 
-                    <label className="text-sm text-zinc-400">Category (فارسی)</label>
+                    <label className="text-sm text-[#a3a3a3]">Category (فارسی)</label>
                     <input
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         value={form.category_fa}
                         onChange={(e) => setForm((prev) => ({ ...prev, category_fa: e.target.value }))}
                     />
 
-                    <label className="text-sm text-zinc-400">Category (English)</label>
+                    <label className="text-sm text-[#a3a3a3]">Category (English)</label>
                     <input
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         value={form.category_en}
                         onChange={(e) => setForm((prev) => ({ ...prev, category_en: e.target.value }))}
                     />
 
-                    <label className="text-sm text-zinc-400">Description (فارسی)</label>
+                    <label className="text-sm text-[#a3a3a3]">Description (فارسی)</label>
                     <textarea
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         rows={4}
@@ -355,7 +355,7 @@ export default function PortfolioEditPage() {
                         onChange={(e) => setForm((prev) => ({ ...prev, description_fa: e.target.value }))}
                     />
 
-                    <label className="text-sm text-zinc-400">Description (English)</label>
+                    <label className="text-sm text-[#a3a3a3]">Description (English)</label>
                     <textarea
                         className="w-full p-2 rounded-lg bg-zinc-800"
                         rows={4}
@@ -364,7 +364,7 @@ export default function PortfolioEditPage() {
                     />
 
                     <div className="grid gap-1.5">
-                        <label className="text-sm text-zinc-400">Status (وضعیت انتشار)</label>
+                        <label className="text-sm text-[#a3a3a3]">Status (وضعیت انتشار)</label>
                         <select
                             className="w-full p-2.5 rounded-lg bg-zinc-800 text-sm text-white border border-transparent focus:border-zinc-700 outline-none"
                             value={form.status}
@@ -384,14 +384,14 @@ export default function PortfolioEditPage() {
                             checked={form.featured}
                             onChange={(e) => setForm((prev) => ({ ...prev, featured: e.target.checked }))}
                         />
-                        <label htmlFor="edit-featured" className="text-sm text-zinc-400">
+                        <label htmlFor="edit-featured" className="text-sm text-[#a3a3a3]">
                             Featured
                         </label>
                     </div>
                 </div>
 
                 <div>
-                    <label className="text-sm text-zinc-400 block mb-2">Tags</label>
+                    <label className="text-sm text-[#a3a3a3] block mb-2">Tags</label>
                     <select
                         multiple
                         className="w-full p-2 rounded-lg bg-zinc-800 text-sm"
@@ -409,7 +409,7 @@ export default function PortfolioEditPage() {
                 </div>
 
                 <div>
-                    <label className="text-sm text-zinc-400 block mb-2">Gallery</label>
+                    <label className="text-sm text-[#a3a3a3] block mb-2">Gallery</label>
                     <div className="grid grid-cols-4 gap-2">
                         {editGallery.map((img, i) => {
                             let srcUrl: string | null = null;
@@ -454,7 +454,7 @@ export default function PortfolioEditPage() {
                 </div>
 
                 <div>
-                    <label className="text-sm text-zinc-400 block mb-2">Cover Image</label>
+                    <label className="text-sm text-[#a3a3a3] block mb-2">Cover Image</label>
                     {!editCover && form.cover_image && (() => {
                         const coverUrl = getImageUrl(form.cover_image);
                         return coverUrl ? (
@@ -488,7 +488,7 @@ export default function PortfolioEditPage() {
                 <div className="flex justify-end gap-3 pt-4">
                     <Link
                         href="/en/atelier-dashboard/portfolio"
-                        className="px-4 py-2 rounded-lg text-zinc-400 hover:text-white"
+                        className="px-4 py-2 rounded-lg text-[#a3a3a3] hover:text-white"
                     >
                         Cancel
                     </Link>

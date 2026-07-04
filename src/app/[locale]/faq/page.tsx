@@ -99,7 +99,7 @@ export default async function Page({
                     {faqItems.length > 0 ? (
                         <FAQAccordion locale={locale} items={faqItems} />
                     ) : (
-                        <div className="text-center text-white/60 py-12">
+                        <div className="text-center text-[#e5e5e5] py-12">
                             {isFa ? "هیچ سوالی یافت نشد" : "No FAQs found"}
                         </div>
                     )}
@@ -117,7 +117,7 @@ export default async function Page({
                                         : "Didn't Find Your Answer?"}
                                 </h2>
 
-                                <p className="text-white/70 leading-relaxed mb-10">
+                                <p className="text-[#e5e5e5] leading-relaxed mb-10">
                                     {isFa
                                         ? "اگر پاسخ سوال مورد نظر خود را پیدا نکردید، می‌توانید از طریق صفحه تماس با ما در ارتباط باشید. ما به سرعت به سوالات شما پاسخ می‌دهیم."
                                         : "If you couldn't find the answer you're looking for, feel free to reach out through our contact page. Our team will be happy to assist you."}

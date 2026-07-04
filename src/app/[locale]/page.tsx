@@ -244,7 +244,7 @@ export default async function HomePage({
                 <section className="px-6 py-24">
                     <div className="container-lux">
                         <div className="mb-16 text-center">
-                            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-white/60">
+                            <p className="mb-4 text-sm uppercase tracking-[0.3em] text-[#e5e5e5]">
                                 {isFa ? "محصولات" : "Products"}
                             </p>
 
@@ -297,7 +297,7 @@ export default async function HomePage({
                                             <h3 className="mb-3 text-2xl font-light text-white">
                                                 {title}
                                             </h3>
-                                            <p className="mb-5 line-clamp-3 text-white/60">
+                                            <p className="mb-5 line-clamp-3 text-[#e5e5e5]">
                                                 {description}
                                             </p>
                                             <div className="mt-auto flex items-center justify-between">

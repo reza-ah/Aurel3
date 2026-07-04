@@ -146,8 +146,8 @@ export default function LuxuryCollections({ locale }: Props) {
                                         {item.title}
                                     </h3>
 
-                                    {/* ✅ اصلاح: text-gray-400 → text-white/70 */}
-                                    <p className="mt-4 text-sm leading-7 text-white/70">
+                                    {/* ✅ اصلاح: text-gray-400 → text-[#e5e5e5] */}
+                                    <p className="mt-4 text-sm leading-7 text-[#e5e5e5]">
                                         {item.description}
                                     </p>
 

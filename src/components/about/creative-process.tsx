@@ -79,7 +79,7 @@ export default function CreativeProcess({ locale }: Props) {
                                             </h3>
                                             <div className={`h-[1px] mt-5 transition-all duration-700 ${active === step.id ? "w-32 bg-[#C6A66A]" : "w-12 bg-white/10"}`} />
                                             <div className={`overflow-hidden transition-all duration-700 ${active === step.id ? "max-h-40 opacity-100 mt-6" : "max-h-0 opacity-0"}`}>
-                                                <p className="text-white/60 leading-relaxed max-w-md text-lg">
+                                                <p className="text-[#e5e5e5] leading-relaxed max-w-md text-lg">
                                                     {isFa ? step.desc_fa : step.desc_en}
                                                 </p>
                                             </div>

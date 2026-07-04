@@ -21,7 +21,7 @@ export function ContactSection({ locale }: Props) {
                 </h2>
             </div>
 
-            <p className="max-w-xl leading-8 text-white/60">
+            <p className="max-w-xl leading-8 text-[#e5e5e5]">
                 {isFa
                     ? "برای طراحی جواهرات، مدلسازی سه‌بعدی، پرینت تخصصی و آماده‌سازی تولید یا همکاری‌های حرفه‌ای، با استودیو AUREL در ارتباط باشید."
                     : "Contact AUREL for jewelry design, precision 3D modeling, professional printing, production preparation, or professional collaborations."}
@@ -33,7 +33,7 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "ایمیل" : "Email"}
                     </p>
-                    <a href="mailto:info@aurelstudio.com" className="text-white/80 transition-colors duration-300 hover:text-[#D4AF37]">
+                    <a href="mailto:info@aurelstudio.com" className="ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37]">
                         info@aurelstudio.com
                     </a>
                 </div>
@@ -43,7 +43,7 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "تلفن" : "Phone"}
                     </p>
-                    <a href="tel:+989122987123" dir="ltr" className={`block text-white/80 transition-colors duration-300 hover:text-[#D4AF37] ${isFa ? "text-right" : "text-left"}`}>
+                    <a href="tel:+989122987123" dir="ltr" className={`block ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37] ${isFa ? "text-right" : "text-left"}`}>
                         +98 912 2 987 123
                     </a>
                 </div>
@@ -53,7 +53,7 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "آدرس" : "Address"}
                     </p>
-                    <a href="https://www.google.com/maps/search/?api=1&query=35.67639440068573,51.4127901957651" target="_blank" rel="noopener noreferrer" className="leading-7 text-white/80 transition-colors duration-300 hover:text-[#D4AF37]">
+                    <a href="https://www.google.com/maps/search/?api=1&query=35.67639440068573,51.4127901957651" target="_blank" rel="noopener noreferrer" className="leading-7 ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37]">
                         {isFa ? "تهران، خیابان 15 خرداد" : "Tehran, Iran"}
                     </a>
                 </div>
@@ -63,7 +63,7 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "ساعات کاری" : "Working Hours"}
                     </p>
-                    <p className="text-white/80">
+                    <p className="ttext-[#f5f5f5]">
                         {isFa ? "شنبه تا پنجشنبه — ۹ صبح تا ۷ عصر" : "Saturday — Thursday | 9 AM — 7 PM"}
                     </p>
                 </div>

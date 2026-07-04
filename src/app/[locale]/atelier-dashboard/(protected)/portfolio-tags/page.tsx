@@ -230,7 +230,7 @@ function TagForm({
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Name (English)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Name (English)</label>
                         <input
                             type="text"
                             value={name_en}
@@ -241,7 +241,7 @@ function TagForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Name (Persian)</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Name (Persian)</label>
                         <input
                             type="text"
                             value={name_fa}
@@ -253,7 +253,7 @@ function TagForm({
                     </div>
 
                     <div>
-                        <label className="block text-sm text-zinc-400 mb-2">Sort Order</label>
+                        <label className="block text-sm text-[#a3a3a3] mb-2">Sort Order</label>
                         <input
                             type="number"
                             value={sort}
@@ -270,7 +270,7 @@ function TagForm({
                             onChange={(e) => setIs_active(e.target.checked)}
                             className="w-5 h-5 rounded border-zinc-700 bg-black text-[#D4AF37] focus:ring-[#D4AF37]"
                         />
-                        <label htmlFor="is_active" className="text-sm text-zinc-400">
+                        <label htmlFor="is_active" className="text-sm text-[#a3a3a3]">
                             Active
                         </label>
                     </div>

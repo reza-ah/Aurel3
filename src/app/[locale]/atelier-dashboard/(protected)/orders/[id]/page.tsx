@@ -153,12 +153,12 @@ export default function OrderDetailPage() {
                 >
                     <div className="relative bg-zinc-950 border border-zinc-800 rounded-3xl w-full max-w-3xl flex flex-col overflow-hidden shadow-2xl">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800">
-                            <p className="text-sm text-zinc-400 truncate max-w-[70%]">
+                            <p className="text-sm text-[#a3a3a3] truncate max-w-[70%]">
                                 {selectedFile.filename_download}
                             </p>
                             <button
                                 onClick={() => setSelectedFile(null)}
-                                className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-white transition text-lg leading-none"
+                                className="w-8 h-8 flex items-center justify-center rounded-full border border-zinc-700 hover:border-zinc-500 text-[#a3a3a3] hover:text-white transition text-lg leading-none"
                             >
                                 ×
                             </button>
@@ -201,7 +201,7 @@ export default function OrderDetailPage() {
                     {/* Back Button */}
                     <Link
                         href={`/${locale}/atelier-dashboard/orders`}
-                        className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-8 transition-colors"
+                        className="inline-flex items-center gap-2 text-[#a3a3a3] hover:text-white mb-8 transition-colors"
                     >
                         ← Back to Orders
                     </Link>
@@ -335,7 +335,7 @@ export default function OrderDetailPage() {
                                     disabled={updating || order.status === "new"}
                                     className={`px-4 py-2 rounded-lg transition ${order.status === "new"
                                         ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
-                                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                                        : "bg-zinc-800 text-[#a3a3a3] hover:bg-zinc-700"
                                         } disabled:opacity-50`}
                                 >
                                     New
@@ -345,7 +345,7 @@ export default function OrderDetailPage() {
                                     disabled={updating || order.status === "in_progress"}
                                     className={`px-4 py-2 rounded-lg transition ${order.status === "in_progress"
                                         ? "bg-yellow-500/20 text-yellow-400 border border-yellow-500/40"
-                                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                                        : "bg-zinc-800 text-[#a3a3a3] hover:bg-zinc-700"
                                         } disabled:opacity-50`}
                                 >
                                     In Progress
@@ -355,7 +355,7 @@ export default function OrderDetailPage() {
                                     disabled={updating || order.status === "completed"}
                                     className={`px-4 py-2 rounded-lg transition ${order.status === "completed"
                                         ? "bg-blue-500/20 text-blue-400 border border-blue-500/40"
-                                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700"
+                                        : "bg-zinc-800 text-[#a3a3a3] hover:bg-zinc-700"
                                         } disabled:opacity-50`}
                                 >
                                     Completed

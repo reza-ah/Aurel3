@@ -151,7 +151,7 @@ export default function JournalManager() {
 
                 <div className="flex gap-5">
                     <div className="flex-1">
-                        <label className="text-xs text-zinc-400 mb-1 block">Title (EN) *</label>
+                        <label className="text-xs text-[#a3a3a3] mb-1 block">Title (EN) *</label>
                         <input
                             className="w-full p-2 bg-zinc-800 rounded"
                             placeholder="Article title in English"
@@ -160,7 +160,7 @@ export default function JournalManager() {
                         />
                     </div>
                     <div className="flex-1">
-                        <label className="text-xs text-zinc-400 mb-1 block">Title (FA) *</label>
+                        <label className="text-xs text-[#a3a3a3] mb-1 block">Title (FA) *</label>
                         <input
                             className="w-full p-2 bg-zinc-800 rounded"
                             placeholder="عنوان مقاله به فارسی"
@@ -172,7 +172,7 @@ export default function JournalManager() {
                 </div>
 
                 <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">
+                    <label className="text-xs text-[#a3a3a3] mb-1 block">
                         Slug * (no spaces, English only)
                     </label>
                     <input
@@ -187,7 +187,7 @@ export default function JournalManager() {
 
                 <div className="flex gap-5">
                     <div className="flex-1">
-                        <label className="text-xs text-zinc-400 mb-1 block">Excerpt (EN)</label>
+                        <label className="text-xs text-[#a3a3a3] mb-1 block">Excerpt (EN)</label>
                         <textarea
                             className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
                             placeholder="Short description in English"
@@ -196,7 +196,7 @@ export default function JournalManager() {
                         />
                     </div>
                     <div className="flex-1">
-                        <label className="text-xs text-zinc-400 mb-1 block">Excerpt (FA)</label>
+                        <label className="text-xs text-[#a3a3a3] mb-1 block">Excerpt (FA)</label>
                         <textarea
                             className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
                             placeholder="توضیح کوتاه به فارسی"
@@ -208,7 +208,7 @@ export default function JournalManager() {
                 </div>
 
                 <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">Content (EN) — HTML allowed</label>
+                    <label className="text-xs text-[#a3a3a3] mb-1 block">Content (EN) — HTML allowed</label>
                     <textarea
                         className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
                         placeholder="<p>Article content in English...</p>"
@@ -218,7 +218,7 @@ export default function JournalManager() {
                 </div>
 
                 <div>
-                    <label className="text-xs text-zinc-400 mb-1 block">Content (FA) — HTML allowed</label>
+                    <label className="text-xs text-[#a3a3a3] mb-1 block">Content (FA) — HTML allowed</label>
                     <textarea
                         className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
                         placeholder="<p>محتوای مقاله به فارسی...</p>"
@@ -229,7 +229,7 @@ export default function JournalManager() {
                 </div>
 
                 <div className="space-y-2">
-                    <label className="text-xs text-zinc-400 block">Cover Image</label>
+                    <label className="text-xs text-[#a3a3a3] block">Cover Image</label>
                     <input
                         type="file"
                         accept="image/*"
@@ -290,7 +290,7 @@ export default function JournalManager() {
                                 )}
                                 <div>
                                     <div className="font-medium">{item.title_en}</div>
-                                    <div className="text-sm text-zinc-400" dir="rtl">
+                                    <div className="text-sm text-[#a3a3a3]" dir="rtl">
                                         {item.title_fa}
                                     </div>
                                     <div className="text-xs text-zinc-600 mt-1 font-mono">

@@ -73,7 +73,7 @@ function SortableItem({
                         onClick={() => onToggle(section.id)}
                         className={`px-5 py-3 rounded-full transition ${section.enabled
                             ? "bg-green-600 text-white"
-                            : "bg-zinc-800 text-zinc-400"
+                            : "bg-zinc-800 text-[#a3a3a3]"
                             }`}
                     >
                         {section.enabled ? "Enabled" : "Disabled"}

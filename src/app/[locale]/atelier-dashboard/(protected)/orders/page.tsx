@@ -94,13 +94,13 @@ export default function OrdersPage() {
                         <div className="flex gap-8">
                             <button
                                 onClick={() => setActiveTab("orders")}
-                                className={`text-4xl md:text-5xl font-light transition ${activeTab === 'orders' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                                className={`text-4xl md:text-5xl font-light transition ${activeTab === 'orders' ? 'text-white' : 'text-zinc-600 hover:text-[#a3a3a3]'}`}
                             >
                                 Orders
                             </button>
                             <button
                                 onClick={() => setActiveTab("messages")}
-                                className={`text-4xl md:text-5xl font-light transition ${activeTab === 'messages' ? 'text-white' : 'text-zinc-600 hover:text-zinc-400'}`}
+                                className={`text-4xl md:text-5xl font-light transition ${activeTab === 'messages' ? 'text-white' : 'text-zinc-600 hover:text-[#a3a3a3]'}`}
                             >
                                 Messages
                             </button>
@@ -139,7 +139,7 @@ export default function OrdersPage() {
                                             {order.name}
                                         </h2>
 
-                                        <div className="space-y-1 text-sm text-zinc-400 truncate">
+                                        <div className="space-y-1 text-sm text-[#a3a3a3] truncate">
                                             <p>{order.email}</p>
                                             <p dir="ltr" className="text-left">{order.phone}</p>
                                         </div>
@@ -149,7 +149,7 @@ export default function OrdersPage() {
                                         </div>
 
                                         {order.jewelry_type && (
-                                            <div className="mt-2 inline-flex items-center rounded-full border border-zinc-800 px-4 py-2 text-sm text-zinc-400 ml-2">
+                                            <div className="mt-2 inline-flex items-center rounded-full border border-zinc-800 px-4 py-2 text-sm text-[#a3a3a3] ml-2">
                                                 {order.jewelry_type}
                                             </div>
                                         )}
@@ -185,7 +185,7 @@ export default function OrdersPage() {
                                         {new Date(msg.date_created).toLocaleString("fa-IR")}
                                     </span>
                                 </div>
-                                <p className="text-sm text-zinc-400 mt-1 truncate">{msg.email} | {msg.phone}</p>
+                                <p className="text-sm text-[#a3a3a3] mt-1 truncate">{msg.email} | {msg.phone}</p>
                                 <p
                                     className="text-zinc-300 mt-4 italic break-words"
                                     style={{ overflowWrap: 'break-word', wordBreak: 'break-word' }}

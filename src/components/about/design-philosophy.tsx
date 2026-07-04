@@ -27,7 +27,7 @@ export default function DesignPhilosophy({ locale }: Props) {
                                 : "Jewelry should be\nbeautiful, precise, and manufacturable"}
                         </h2>
 
-                        <p className="mt-10 text-xl text-white/60 leading-relaxed">
+                        <p className="mt-10 text-xl text-[#e5e5e5] leading-relaxed">
                             {isFa
                                 ? "طراحی، فراتر از زیبایی است."
                                 : "Design Beyond Aesthetics."}
@@ -35,7 +35,7 @@ export default function DesignPhilosophy({ locale }: Props) {
                     </div>
 
                     {/* RIGHT — Philosophy Text */}
-                    <div className="max-w-xl text-white/60 space-y-10 text-lg leading-relaxed">
+                    <div className="max-w-xl text-[#e5e5e5] space-y-10 text-lg leading-relaxed">
 
                         <p>
                             {isFa

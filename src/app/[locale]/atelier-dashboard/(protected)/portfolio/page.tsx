@@ -33,7 +33,7 @@ function renderStatusBadge(status?: string) {
             );
         default:
             return (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-zinc-800 text-zinc-400">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-zinc-800 text-[#a3a3a3]">
                     {String(currentStatus)}
                 </span>
             );
@@ -125,7 +125,7 @@ export default function PortfolioListPage() {
         <main className="pt-28 px-8 text-white">
             <div className="mb-6">
                 <h1 className="text-3xl font-semibold">Portfolio Manager</h1>
-                <p className="text-sm text-zinc-400 mt-1">مدیریت نمونه‌کارها و نمایش آنها</p>
+                <p className="text-sm text-[#a3a3a3] mt-1">مدیریت نمونه‌کارها و نمایش آنها</p>
             </div>
 
             <div className="flex gap-3 items-center mb-8">
@@ -147,7 +147,7 @@ export default function PortfolioListPage() {
                 <p>در حال بارگذاری...</p>
             ) : items.length === 0 ? (
                 <div className="text-center py-12">
-                    <p className="text-zinc-400 text-xl">هیچ آیتمی ایجاد نشده</p>
+                    <p className="text-[#a3a3a3] text-xl">هیچ آیتمی ایجاد نشده</p>
                 </div>
             ) : (
                 <div className="rounded-xl border border-zinc-800 overflow-hidden">

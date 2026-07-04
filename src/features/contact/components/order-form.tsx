@@ -148,7 +148,7 @@ export function OrderForm({ locale, onSuccess }: Props) {
                 <h3 className="text-2xl font-light text-[rgb(var(--gold))]">
                     {isFa ? "سفارش شما ثبت شد" : "Order received"}
                 </h3>
-                <p className="mt-4 text-white/60 text-sm">
+                <p className="mt-4 text-[#e5e5e5] text-sm">
                     {isFa
                         ? "همکاران ما به زودی با شما تماس می‌گیرند. لطفا کد پیگیری زیر را ذخیره کنید."
                         : "Our team will contact you shortly. Please save your tracking code."}
@@ -260,7 +260,7 @@ export function OrderForm({ locale, onSuccess }: Props) {
             </div>
 
             <div className="flex flex-col gap-1.5 w-full">
-                <label className="text-sm uppercase tracking-[0.15em] text-white/70 font-medium block">
+                <label className="text-sm uppercase tracking-[0.15em] text-[#e5e5e5] font-medium block">
                     {isFa ? "خدمات مورد نیاز را انتخاب کنید:" : "Select Required Services:"}
                 </label>
                 <div className="grid gap-2 grid-cols-2 w-full">
@@ -271,7 +271,7 @@ export function OrderForm({ locale, onSuccess }: Props) {
                                 key={service}
                                 className={`flex items-center justify-between w-full rounded-xl border px-4 py-3 cursor-pointer select-none transition-all duration-300 ${isChecked
                                     ? "border-[rgba(var(--gold),0.4)] bg-[rgba(var(--gold),0.04)] text-white"
-                                    : "border-white/10 bg-white/[0.02] text-white/70 hover:border-white/20 hover:bg-white/[0.03]"
+                                    : "border-white/10 bg-white/[0.02] text-[#e5e5e5] hover:border-white/20 hover:bg-white/[0.03]"
                                     }`}
                             >
                                 <span className="text-sm font-light tracking-wide">{service}</span>

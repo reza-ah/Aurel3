@@ -34,7 +34,7 @@ export default function FAQAccordion({ locale, items }: Props) {
                                 </span>
 
                                 <h3
-                                    className={`text-xl md:text-2xl font-light transition ${isOpen ? "text-[#d4af37]" : "text-white/80"
+                                    className={`text-xl md:text-2xl font-light transition ${isOpen ? "text-[#d4af37]" : "ttext-[#f5f5f5]"
                                         }`}
                                 >
                                     {question}
@@ -67,7 +67,7 @@ export default function FAQAccordion({ locale, items }: Props) {
                                 >
                                     <div className="pb-8 pt-2 max-w-3xl">
                                         <div
-                                            className="faq-content text-white/60 text-sm md:text-base leading-relaxed"
+                                            className="faq-content text-[#e5e5e5] text-sm md:text-base leading-relaxed"
                                             dangerouslySetInnerHTML={{ __html: answer }}
                                         />
                                     </div>

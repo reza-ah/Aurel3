@@ -126,7 +126,7 @@ export default function PortfolioSectionClient({ items, locale = "en" }: Props) 
                                         <h3 className="mb-2 text-3xl font-light tracking-[0.15em] text-white">
                                             {isFa ? item.title_fa : item.title_en}
                                         </h3>
-                                        <p className="text-sm uppercase tracking-[0.2em] text-white/70">
+                                        <p className="text-sm uppercase tracking-[0.2em] text-[#e5e5e5]">
                                             {isFa ? "کالکشن لوکس" : "Luxury Collection"}
                                         </p>
                                     </div>
