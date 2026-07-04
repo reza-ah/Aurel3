@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 
 const BASE_URL = "https://www.aureldesign.ir";
 
-// ✅ اضافه شد: generateMetadata برای canonical و title اختصاصی
 export async function generateMetadata({
     params,
 }: {
@@ -18,7 +17,7 @@ export async function generateMetadata({
 
     return {
         title: isFa
-            ? "خدمات و تعرفه‌ها | استودیو طراحی جواهرات اورل"
+            ? "خدمات و تعرفه‌ها | استودیو طراحی جواهرات آرل"
             : "Services & Pricing | Aurel Jewelry Design Studio",
         description: isFa
             ? "مشاهده تعرفه خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری حرفه‌ای"
@@ -32,11 +31,12 @@ export async function generateMetadata({
             },
         },
         openGraph: {
-            title: isFa ? "خدمات و تعرفه‌ها | استودیو اورل" : "Services & Pricing | Aurel Design Studio",
+            title: isFa ? "خدمات و تعرفه‌ها | استودیو آرل" : "Services & Pricing | Aurel Design Studio",
             description: isFa
                 ? "مشاهده تعرفه خدمات طراحی جواهرات"
                 : "Explore pricing for professional jewelry design services",
             url: currentUrl,
+            siteName: "Aurel Jewelry Design Studio",
             type: "website",
         },
     };
@@ -114,7 +114,7 @@ export default async function PricingPage({
                         <p className="max-w-4xl text-white/80 text-sm md:text-base leading-relaxed">
                             {isFa
                                 ? "در این بخش می‌توانید تعرفه تقریبی خدمات طراحی، مدل‌سازی و تولید جواهرات را مشاهده کنید. خدمات ما از ایده‌پردازی و طراحی اولیه تا مدل‌سازی سه‌بعدی، پرینت و تولید نهایی را در بر می‌گیرد. هزینه نهایی هر پروژه با توجه به پیچیدگی طراحی، میزان جزئیات و زمان موردنیاز تعیین می‌شود."
-                                : "In this section you can see the approximate pricing for jewelry design, modeling, and production services. Our services range from initial ideation and design to 3D modeling, printing, and final production. The final cost of each project is determined by the complexity of the design, the amount of detail, and the time required."}
+                                : "In this section you can see the approximate pricing for jewelry design, modeling, and production services. Our services range from initial ideation and design to 3D modeling, printing, and final production. The final cost of each project is determined by the complexity of the design, the level of detail, and the time required. For a detailed quote, please contact us directly."}
                         </p>
 
                     </Reveal>

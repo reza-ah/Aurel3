@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 
 const BASE_URL = "https://www.aureldesign.ir";
 
-// ✅ اضافه شد: generateMetadata برای canonical و title اختصاصی
 export async function generateMetadata({
     params,
 }: {
@@ -18,7 +17,7 @@ export async function generateMetadata({
 
     return {
         title: isFa
-            ? "مقالات و مجله | استودیو طراحی جواهرات اورل"
+            ? "مقالات و مجله | استودیو طراحی جواهرات آرل"
             : "Journal | Aurel Jewelry Design Studio",
         description: isFa
             ? "مقالات تخصصی درباره طراحی جواهرات، الهام‌بخشی در طراحی و داستان پشت هر قطعه"
@@ -32,11 +31,12 @@ export async function generateMetadata({
             },
         },
         openGraph: {
-            title: isFa ? "مقالات و مجله | استودیو اورل" : "Journal | Aurel Design Studio",
+            title: isFa ? "مقالات و مجله | استودیو آرل" : "Journal | Aurel Design Studio",
             description: isFa
                 ? "مقالات تخصصی درباره طراحی جواهرات"
                 : "Insights into jewelry craftsmanship and design",
             url: currentUrl,
+            siteName: "Aurel Jewelry Design Studio", // ✅ اضافه شد
             type: "website",
         },
     };

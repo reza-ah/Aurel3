@@ -6,24 +6,43 @@ import { getPortfolioItems } from "@/lib/sanity";
 
 import PortfolioGrid from "@/features/portfolio/components/portfolio-grid";
 
+const BASE_URL = "https://www.aureldesign.ir";
+
 export async function generateMetadata({
     params,
 }: {
-    params: { locale: "en" | "fa" };
+    params: Promise<{ locale: "en" | "fa" }>;
 }): Promise<Metadata> {
-    const isFa = params.locale === "fa";
+    const { locale } = await params;
+    const isFa = locale === "fa";
+    const currentUrl = `${BASE_URL}/${locale}/portfolio`;
+
     return {
         title: isFa
-            ? "نمونه‌کارها | استودیو طراحی جواهرات اورل"
+            ? "نمونه‌کارها | استودیو طراحی جواهرات آرل"
             : "Portfolio | Aurel Jewelry Design Studio",
         description: isFa
-            ? "نمونه‌کارهای طراحی و ساخت جواهرات اورل. مدل‌های سه‌بعدی، طلا و جواهر دست‌ساز"
+            ? "نمونه‌کارهای طراحی و ساخت جواهرات آرل. مدل‌های سه‌بعدی طلا و جواهر دست‌ساز"
             : "Aurel jewelry design portfolio. CAD models, 3D printed and cast jewelry pieces",
+        alternates: {
+            canonical: currentUrl,
+            languages: {
+                fa: `${BASE_URL}/fa/portfolio`,
+                en: `${BASE_URL}/en/portfolio`,
+                "x-default": `${BASE_URL}/en/portfolio`,
+            },
+        },
+        openGraph: {
+            title: isFa ? "نمونه‌کارها | استودیو آرل" : "Portfolio | Aurel Design Studio",
+            description: isFa
+                ? "نمونه‌کارهای طراحی و ساخت جواهرات "
+                : "Professional jewelry design portfolio",
+            url: currentUrl,
+            siteName: "Aurel Jewelry Design Studio", // ✅ اضافه شد
+            type: "website",
+        },
     };
 }
-
-
-
 
 type PortfolioItem = {
     id: number;
@@ -96,7 +115,7 @@ export default async function PortfolioPage({
                         mb-4
                     ">
                         {isFa
-                            ? "نمونه کارها"
+                            ? "نمونه‌کارها"
                             : "Portfolio"}
                     </p>
 

@@ -19,7 +19,7 @@ export async function generateMetadata({
 
     return {
         title: isFa
-            ? "سوالات متداول | استودیو طراحی جواهرات اورل"
+            ? "سوالات متداول | استودیو طراحی جواهرات آرل"
             : "FAQ | Aurel Jewelry Design Studio",
         description: isFa
             ? "پاسخ به سوالات متداول درباره خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری"
@@ -33,11 +33,12 @@ export async function generateMetadata({
             },
         },
         openGraph: {
-            title: isFa ? "سوالات متداول | استودیو اورل" : "FAQ | Aurel Design Studio",
+            title: isFa ? "سوالات متداول | استودیو آرل" : "FAQ | Aurel Design Studio",
             description: isFa
                 ? "پاسخ به سوالات متداول درباره خدمات طراحی جواهرات"
                 : "Answers to frequently asked questions about jewelry design services",
             url: currentUrl,
+            siteName: "Aurel Jewelry Design Studio", // ✅ اضافه شد
             type: "website",
         },
     };

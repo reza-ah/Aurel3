@@ -96,7 +96,7 @@ export default function PortfolioListPage() {
             if (!res.ok) throw new Error("Failed to fetch portfolio items");
             const json = await res.json();
             const data = json.data || json;
-            console.log("Portfolio items:", data);
+
             setItems(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error(error);

@@ -40,8 +40,6 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
 
-        console.log("Portfolio POST payload:", JSON.stringify(body, null, 2));
-
         const tagsArray = Array.isArray(body.tags)
             ? body.tags.map((tag: any, index: number) => {
                 if (typeof tag === 'string') {
@@ -94,7 +92,7 @@ export async function POST(request: NextRequest) {
             date_created: new Date().toISOString(),
         });
 
-        console.log("Portfolio created:", result._id);
+
 
         // ✅ برگشت به revalidatePath (سازگار با Next.js 16)
         revalidatePath("/", "layout");

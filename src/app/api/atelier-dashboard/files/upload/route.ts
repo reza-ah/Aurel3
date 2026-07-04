@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { writeClient } from "@/lib/sanity";
 
-const uploadCounts = new Map<string, { count: number; resetAt: number }>();
-const MAX_UPLOADS_PER_HOUR = 10;
+// ⚠️ TODO: Rate limiter با new Map در Vercel Serverless کار نمی‌کند
+// برای production، از Upstash Redis یا Vercel KV استفاده شود
+// const uploadCounts = new Map<string, { count: number; resetAt: number }>();
 
 const ALLOWED_EXTENSIONS = [
     ".png", ".jpg", ".jpeg", ".webp",
@@ -26,23 +27,6 @@ const ALLOWED_MIME_TYPES = [
 
 export async function POST(request: NextRequest) {
     try {
-        const ip = request.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-
-        const now = Date.now();
-        const attempt = uploadCounts.get(ip);
-
-        if (attempt && attempt.resetAt > now) {
-            if (attempt.count >= MAX_UPLOADS_PER_HOUR) {
-                return NextResponse.json(
-                    { error: "Too many uploads. Please try again later." },
-                    { status: 429 }
-                );
-            }
-            attempt.count += 1;
-        } else {
-            uploadCounts.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
-        }
-
         const formData = await request.formData();
         const file = formData.get("file");
 
@@ -82,8 +66,6 @@ export async function POST(request: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // ✅ تشخیص نوع asset بر اساس context
-        // اگر در URL ?type=image بود، image upload کن
         const uploadType = request.nextUrl.searchParams.get("type") || "file";
         const isImage = uploadType === "image" || [".png", ".jpg", ".jpeg", ".webp"].includes(fileExtension);
 

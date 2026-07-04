@@ -3,7 +3,7 @@ export default function OrganizationSchema() {
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Aurel Design Studio",
-        "alternateName": "آرل دیزاین",
+        "alternateName": "ارل دیزاین",
         "url": "https://www.aureldesign.ir",
         "logo": "https://www.aureldesign.ir/icon.svg",
         "description": "Professional jewelry design studio offering CAD design, 3D modeling, resin printing and casting services",
@@ -17,12 +17,12 @@ export default function OrganizationSchema() {
             "@type": "ContactPoint",
             "telephone": "+98-912-298-7123",
             "contactType": "customer service",
-            "email": "studio@aurelstudio.com",
+            "email": "info@aurelstudio.com",
             "availableLanguage": ["English", "Persian"]
         },
         "sameAs": [
             "https://www.instagram.com/aureldesignstudio",
-            "https://linkedin.com/company/aureldesign"
+            "https://www.linkedin.com/company/aurel-design-studio"
         ]
     };
 

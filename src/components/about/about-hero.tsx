@@ -22,7 +22,7 @@ export default function AboutHero({ locale }: Props) {
         }
         : {
             label: "Jewelry CAD & Manufacturing Studio",
-            title: ["From", "Concept", "To", "Production"],
+            title: ["From Concept", "To Production"],
             description:
                 "At AUREL Jewelry Design Studio, concepts are transformed into professional jewelry designs, high-precision 3D models, and production-ready files. From conceptual development and advanced modeling in MatrixGold, Rhino, and ZBrush to castable resin and wax printing for gold and silver casting, every stage is executed with precision, technical expertise, and production-focused standards.",
             cta: "View Portfolio",

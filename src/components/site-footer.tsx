@@ -134,7 +134,7 @@ export default function SiteFooter({ locale }: Props) {
                     href: `/${locale}/about`,
                 },
                 {
-                    label: "Articles",
+                    label: "Journal",
                     href: `/${locale}/journal`,
                 },
             ],
@@ -338,10 +338,10 @@ export default function SiteFooter({ locale }: Props) {
                                 </p>
 
                                 <a
-                                    href="mailto:studio@aurelstudio.com"
+                                    href="mailto:info@aurelstudio.com"
                                     className="text-white/75 transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
-                                    studio@aurelstudio.com
+                                    info@aurelstudio.com
                                 </a>
                             </div>
 

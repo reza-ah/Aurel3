@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // ✅ بهینه‌سازی import برای کاهش bundle size
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -15,7 +14,6 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // ✅ تنظیمات تصاویر - بدون quality
   images: {
     remotePatterns: [
       {
@@ -23,21 +21,18 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io",
       },
     ],
-    // ✅ فرمت‌های مدرن
     formats: ["image/avif", "image/webp"],
-    minimumCacheTTL: 60 * 60 * 24 * 30, // 30 روز cache
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     deviceSizes: [640, 750, 828, 1080, 1200],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
 
-  // ✅ بهینه‌سازی compiler
   compiler: {
     removeConsole: process.env.NODE_ENV === "production" ? {
       exclude: ["error", "warn"],
     } : false,
   },
 
-  // ✅ Security Headers
   async headers() {
     return [
       {
@@ -53,23 +48,22 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value: `
-                            default-src 'self';
-                            script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://*.vercel-analytics.com;
-                            style-src 'self' 'unsafe-inline';
-                            img-src 'self' data: blob: https://cdn.sanity.io https:;
-                            font-src 'self' data:;
-                            connect-src 'self' https://cdn.sanity.io https://api.sanity.io https://vitals.vercel-insights.com https://*.vercel-analytics.com https:;
-                            media-src 'self' blob: data: https://cdn.sanity.io;
-                            frame-src 'none';
-                            frame-ancestors 'none';
-                            base-uri 'self';
-                            form-action 'self';
-                            upgrade-insecure-requests;
-                        `.replace(/\s{2,}/g, " ").trim(),
+              default-src 'self';
+              script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com https://*.vercel-analytics.com;
+              style-src 'self' 'unsafe-inline';
+              img-src 'self' data: blob: https://cdn.sanity.io https:;
+              font-src 'self' data:;
+              connect-src 'self' https://cdn.sanity.io https://api.sanity.io https://vitals.vercel-insights.com https://*.vercel-analytics.com https:;
+              media-src 'self' blob: data: https://cdn.sanity.io;
+              frame-src 'none';
+              frame-ancestors 'none';
+              base-uri 'self';
+              form-action 'self';
+              upgrade-insecure-requests;
+            `.replace(/\s{2,}/g, " ").trim(),
           },
         ],
       },
-      // ✅ Cache headers برای فایل‌های استاتیک
       {
         source: "/_next/static/(.*)",
         headers: [
@@ -79,7 +73,6 @@ const nextConfig: NextConfig = {
           },
         ],
       },
-      // ✅ Cache headers برای تصاویر
       {
         source: "/images/(.*)",
         headers: [

@@ -31,14 +31,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = isFa ? post.title_fa : post.title_en;
     const description = isFa ? post.excerpt_fa : post.excerpt_en;
     const image = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
+    const currentUrl = `${BASE_URL}/${locale}/journal/${slug}`;
 
     return {
         title,
         description,
+        alternates: {
+            canonical: currentUrl, // ✅ اضافه شد
+            languages: { // ✅ اضافه شد
+                fa: `${BASE_URL}/fa/journal/${slug}`,
+                en: `${BASE_URL}/en/journal/${slug}`,
+                "x-default": `${BASE_URL}/en/journal/${slug}`,
+            },
+        },
         openGraph: {
             title,
             description,
             type: "article",
+            url: currentUrl, // ✅ اضافه شد
+            siteName: "Aurel Jewelry Design Studio", // ✅ اضافه شد
             images: image ? [image] : [],
         },
         twitter: {
@@ -133,7 +144,6 @@ export default async function JournalArticlePage({ params }: Props) {
 
     const articleUrl = `${BASE_URL}/${locale}/journal/${slug}`;
 
-    // ✅ BlogPosting Schema - اصلاح شده
     const structuredData = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
@@ -174,7 +184,6 @@ export default async function JournalArticlePage({ params }: Props) {
         ],
     };
 
-    // ✅ Breadcrumb Schema - اصلاح شده
     const breadcrumbSchema = {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
@@ -203,7 +212,6 @@ export default async function JournalArticlePage({ params }: Props) {
     return (
         <main className="min-h-screen bg-black text-white">
 
-            {/* ✅ استفاده از script ساده به جای Script */}
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}

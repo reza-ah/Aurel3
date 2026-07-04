@@ -12,28 +12,28 @@ const steps = [
         title_en: "Concept & Design",
         title_fa: "ایده‌پردازی و طراحی",
         desc_en: "Each piece begins with a refined concept, where form, function, and aesthetic direction are defined with precision before entering development.",
-        desc_fa: "هر قطعه با یک ایده‌ی دقیق آغاز می‌شود؛ جایی که فرم، عملکرد و جهت‌گیری طراحی پیش از ورود به مرحله توسعه مشخص می‌گردد.",
+        desc_fa: "هر قطعه با یک ایده‌پردازی دقیق آغاز می‌شود؛ به گونه‌ای که فرم، عملکرد و جهت‌گیری زیبایی‌شناسی پیش از ورود به مرحله توسعه مشخص می‌گردد.",
     },
     {
         id: 2,
         title_en: "Technical Development",
         title_fa: "توسعه فنی",
         desc_en: "Structural integrity, stone setting, proportions, and weight are engineered to ensure the design is fully production-ready.",
-        desc_fa: "ساختار، جای‌گذاری سنگ، تناسبات و وزن با دقت مهندسی بررسی می‌شوند تا مدل برای تولید کاملاً آماده باشد.",
+        desc_fa: "ساختار، سنگ‌چینی، تناسب و وزن با دقت مهندسی می‌شود تا مدل برای تولید کاملاً آماده باشد.",
     },
     {
         id: 3,
         title_en: "Precision 3D Modeling",
-        title_fa: "مدلسازی دقیق سه‌بعدی",
+        title_fa: "مدل‌سازی دقیق سه‌بعدی",
         desc_en: "Using Rhino, MatrixGold, and ZBrush, every detail is sculpted with high precision in a controlled digital environment.",
-        desc_fa: "با استفاده از Rhino، MatrixGold و ZBrush، تمامی جزئیات با دقت بالا در محیطی کنترل‌شده و دیجیتال شکل می‌گیرند.",
+        desc_fa: "با استفاده از Rhino، MatrixGold و ZBrush، تمام جزئیات با دقت بالا در محیط کنترل‌شده و دیجیتال شکل می‌گیرند.",
     },
     {
         id: 4,
         title_en: "Production Preparation",
         title_fa: "آماده‌سازی تولید",
         desc_en: "Models are produced in castable wax or resin and refined for high-precision casting in gold and silver.",
-        desc_fa: "مدل‌ها با موم یا رزین قابل ریخته‌گری ساخته شده و برای ریخته‌گری دقیق در طلا و نقره آماده می‌شوند.",
+        desc_fa: "مدل‌ها به موم یا رزین قابل ریخته‌گری ساخته شده و برای ریخته‌گری دقیق در طلا و نقره آماده می‌شوند.",
     },
 ];
 
@@ -53,11 +53,11 @@ export default function CreativeProcess({ locale }: Props) {
                         {isFa ? "فرآیند طراحی و تولید" : "Design & Production Process"}
                     </p>
                     <h2 className="text-4xl md:text-6xl font-extralight text-white leading-[1.5] whitespace-pre-line">
-                        {isFa ? "از ایده اولیه\nتا مدل آماده تولید" : "From Concept\nTo Production-Ready Models"}
+                        {isFa ? "از ایده‌ای\nتا مدل آماده تولید" : "From Concept\nTo Production-Ready Models"}
                     </h2>
                     <p className="mt-8 text-white/55 text-lg leading-relaxed max-w-2xl">
                         {isFa
-                            ? "هر قطعه در AUREL با ترکیبی از طراحی، دانش فنی و تجربه واقعی تولید توسعه پیدا می‌کند تا نتیجه نهایی، دقیق و قابل اجرا باشد."
+                            ? "هر قطعه در AUREL به ترکیبی از طراحی، دانش فنی و تجربه تولید متکی است تا نتایجی ظریف و آماده تولید ارائه دهد."
                             : "Every piece at AUREL is developed through a combination of design vision, technical expertise, and real manufacturing experience to ensure refined and production-ready results."}
                     </p>
                 </div>
@@ -90,7 +90,7 @@ export default function CreativeProcess({ locale }: Props) {
                         </div>
                     </div>
 
-                    {/* RIGHT — Cinematic Visual (کارت دست نخورده باقی ماند) */}
+                    {/* RIGHT — Cinematic Visual */}
                     <div className="relative min-h-[650px] flex items-center justify-center">
                         <div className="relative w-full h-[620px] rounded-[32px] overflow-hidden border border-white/10 bg-gradient-to-br from-[#111] via-[#090909] to-black">
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -99,8 +99,15 @@ export default function CreativeProcess({ locale }: Props) {
                             <div className="absolute inset-0 flex items-center justify-center">
                                 <span className="text-[180px] md:text-[240px] font-extralight tracking-tight text-white/[0.04] transition-all duration-700">0{active}</span>
                             </div>
-                            <div className="absolute top-10 left-10 text-white/40 text-sm tracking-[0.3em] uppercase">Atelier Process</div>
-                            <div className="absolute bottom-10 right-10 text-[#D4AF37] text-sm tracking-[0.3em] uppercase">Production Workflow</div>
+
+                            {/* ✅ ترجمه شده */}
+                            <div className="absolute top-10 left-10 text-white/40 text-sm tracking-[0.3em] uppercase">
+                                {isFa ? "فرآیند آتلیه" : "Atelier Process"}
+                            </div>
+                            <div className="absolute bottom-10 right-10 text-[#D4AF37] text-sm tracking-[0.3em] uppercase">
+                                {isFa ? "گردش تولید" : "Production Workflow"}
+                            </div>
+
                             <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-10">
                                 <h3 className="text-4xl md:text-5xl font-extralight text-white mb-6">{isFa ? steps[active - 1].title_fa : steps[active - 1].title_en}</h3>
                                 <p className="text-white/55 max-w-md leading-relaxed text-lg">{isFa ? steps[active - 1].desc_fa : steps[active - 1].desc_en}</p>

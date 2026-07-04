@@ -50,13 +50,13 @@ export async function generateMetadata({
 
         title: {
             default: isFa
-                ? "استودیو طراحی جواهرات اورل | طراحی و ساخت جواهر"
+                ? "استودیو طراحی جواهرات آرل | طراحی و ساخت جواهر"
                 : "Aurel Jewelry Design Studio | Custom Jewelry Design & Manufacturing",
-            template: isFa ? "%s | استودیو اورل" : "%s | Aurel Studio",
+            template: isFa ? "%s | استودیو آرل" : "%s | Aurel Studio",
         },
 
         description: isFa
-            ? "استودیو اورل ارائه‌دهنده خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی، پرینت سه‌بعدی و ریخته‌گری حرفه‌ای در ایران"
+            ? "استودیو آرل ارائه‌دهنده خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی، پرینت سه‌بعدی و ریخته‌گری حرفه‌ای در ایران"
             : "Aurel is a professional jewelry design studio offering CAD design, 3D modeling, resin printing and casting services for jewelry brands and workshops worldwide",
 
         keywords: isFa
@@ -89,12 +89,12 @@ export async function generateMetadata({
         },
 
         openGraph: {
-            title: isFa ? "استودیو طراحی جواهرات اورل" : "Aurel Jewelry Design Studio",
+            title: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
             description: isFa
                 ? "خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی و تولید حرفه‌ای"
                 : "Professional jewelry CAD design, 3D modeling and manufacturing services",
             url: currentUrl,
-            siteName: "Aurel Design",
+            siteName: "Aurel Jewelry Design Studio",
             locale: isFa ? "fa_IR" : "en_US",
             type: "website",
             images: [
@@ -102,14 +102,14 @@ export async function generateMetadata({
                     url: `${baseUrl}/og-image.jpg`,
                     width: 1200,
                     height: 630,
-                    alt: isFa ? "استودیو طراحی جواهرات اورل" : "Aurel Jewelry Design Studio",
+                    alt: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
                 },
             ],
         },
 
         twitter: {
             card: "summary_large_image",
-            title: isFa ? "استودیو طراحی جواهرات اورل" : "Aurel Jewelry Design Studio",
+            title: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
             description: isFa
                 ? "خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی و تولید حرفه‌ای"
                 : "Professional jewelry CAD design, 3D modeling and manufacturing services",

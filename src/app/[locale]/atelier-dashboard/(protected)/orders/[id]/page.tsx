@@ -49,8 +49,7 @@ export default function OrderDetailPage() {
                 }
 
                 const data = await res.json();
-                console.log("Order data:", data);
-                console.log("Files:", data.files);
+
 
                 setOrder(data);
             } catch (error) {

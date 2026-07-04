@@ -19,7 +19,7 @@ export function ContactHero({ locale }: Props) {
                 <h1 className="mx-auto max-w-4xl text-4xl font-light leading-tight md:text-6xl text-white">
                     {isFa
                         ? "برای سفارش و همکاری با ما در ارتباط باشید"
-                        : "Contact Us For Custom Jewelry & Luxury Creations"}
+                        : "Get in Touch for Orders & Professional Collaboration"}
                 </h1>
 
                 <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/60 md:text-base">
