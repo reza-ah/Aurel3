@@ -90,7 +90,7 @@ export default function AboutHero({ locale }: Props) {
 
                             <Image
                                 src="/images/jewel-hero.jpg"
-                                alt="Luxury Jewelry CAD Design"
+                                alt="Luxury jewelry CAD design showcase - Custom gold and diamond pieces by Aurel Studio"
                                 width={900}
                                 height={1200}
                                 priority

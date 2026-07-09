@@ -275,37 +275,44 @@ export default function SiteFooter({ locale }: Props) {
                                 </p>
                             ) : (
                                 <>
+                                    {/* ✅ اضافه شد: label مخفی برای accessibility */}
+                                    <label htmlFor="newsletter-email" className="sr-only">
+                                        {content.email}
+                                    </label>
                                     <div className="flex overflow-hidden rounded-full border border-white/10 bg-white/[0.03] backdrop-blur-xl">
                                         <input
+                                            id="newsletter-email"
                                             type="email"
                                             value={footerEmail}
                                             onChange={e => setFooterEmail(e.target.value)}
                                             onKeyDown={e => e.key === "Enter" && handleSubscribe()}
                                             placeholder={content.email}
+                                            aria-label={content.email}
                                             className="
-                                                w-full
-                                                bg-transparent
-                                                px-5
-                                                py-3.5
-                                                text-base
-                                                text-white
-                                                outline-none
-                                                placeholder:text-[#a3a3a3]
-                                            "
+                        w-full
+                        bg-transparent
+                        px-5
+                        py-3.5
+                        text-base
+                        text-white
+                        outline-none
+                        placeholder:text-[#a3a3a3]
+                    "
                                         />
 
                                         <button
                                             onClick={handleSubscribe}
+                                            aria-label={content.subscribe}
                                             className="
-                                                group relative overflow-hidden
-                                                border-l border-[#D4AF37]/20
-                                                px-6
-                                                text-[11px]
-                                                uppercase tracking-[0.22em]
-                                                text-[#D4AF37]
-                                                transition-all duration-500
-                                                hover:text-black
-                                            "
+                        group relative overflow-hidden
+                        border-l border-[#D4AF37]/20
+                        px-6
+                        text-[11px]
+                        uppercase tracking-[0.22em]
+                        text-[#D4AF37]
+                        transition-all duration-500
+                        hover:text-black
+                    "
                                         >
                                             <span className="relative z-10">
                                                 {content.subscribe}
@@ -313,11 +320,11 @@ export default function SiteFooter({ locale }: Props) {
 
                                             <div
                                                 className="
-                                                    absolute inset-0 origin-left scale-x-0
-                                                    bg-[#D4AF37]
-                                                    transition-transform duration-500
-                                                    group-hover:scale-x-100
-                                                "
+                            absolute inset-0 origin-left scale-x-0
+                            bg-[#D4AF37]
+                            transition-transform duration-500
+                            group-hover:scale-x-100
+                        "
                                             />
                                         </button>
                                     </div>

@@ -24,7 +24,6 @@ export async function generateMetadata({
             title: "طراحی جواهرات | سفارش طراحی طلا با ماتریکس | استودیو آرل",
             description: "استودیو طراحی جواهرات آرل - ارائه خدمات طراحی ، مدل‌سازی سه‌بعدی، پرینت سه‌بعدی و ریخته‌گری طلا و جواهرات. ",
             keywords: [
-                // ✅ اصلی - بیشترین حجم جستجو
                 "طراحی جواهرات ",
                 "طراحی طلا",
                 "طراحی جواهرات با ماتریکس",
@@ -40,7 +39,6 @@ export async function generateMetadata({
                 "ریخته گری طلا",
                 "ریخته گری جواهر",
                 "طراحی جواهر با راینو",
-                // ✅ ثانویه - intent خرید بالا
                 "سفارش مدل سازی جواهر",
                 "طراح جواهرات حرفه ای تهران",
                 "استودیو طراحی جواهرات تهران",
@@ -55,7 +53,6 @@ export async function generateMetadata({
                 "مخراج کاری سه بعدی",
                 "ZBrush جواهر",
                 " طراحی Zbrush",
-
             ],
             authors: [{ name: "Aurel Design Studio", url: BASE_URL }],
             creator: "Aurel Design Studio",
@@ -115,7 +112,6 @@ export async function generateMetadata({
         title: "Jewelry Design | Custom Gold Design with MatrixGold | Aurel Studio",
         description: "Aurel Jewelry Design Studio - Professional jewelry design, 3D modeling, 3D printing, and gold & jewelry casting services.",
         keywords: [
-            // ✅ اصلی - بیشترین حجم جستجو (هماهنگ با فارسی)
             "jewelry design",
             "gold design",
             "jewelry design with MatrixGold",
@@ -131,7 +127,6 @@ export async function generateMetadata({
             "gold casting",
             "jewelry casting",
             "jewelry design with Rhino",
-            // ✅ ثانویه - intent خرید بالا (هماهنگ با فارسی)
             "custom jewelry modeling order",
             "professional jewelry designer Tehran",
             "jewelry design studio Tehran",
@@ -229,6 +224,13 @@ export default async function HomePage({
     return (
         // @ts-expect-error PageBase accepts showGrid at runtime
         <PageBase showGrid={true}>
+            {/* ✅ اضافه شد: H1 مخفی برای SEO و Accessibility */}
+            <h1 className="sr-only">
+                {isFa
+                    ? "استودیو طراحی جواهرات آرل - طراحی، مدل‌سازی و تولید حرفه‌ای جواهرات"
+                    : "Aurel Jewelry Design Studio - Professional Jewelry Design, 3D Modeling & Production"}
+            </h1>
+
             {uniqueSections.map((section: any) => (
                 <HomepageSectionRenderer
                     key={section._id || section.id}
