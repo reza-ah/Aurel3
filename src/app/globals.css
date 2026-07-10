@@ -30,14 +30,14 @@
   body {
     background-color: var(--color-bg-studio);
     color: var(--color-text-primary);
-    /* ✅ تغییر از secondary به primary */
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "liga" 1, "calt" 1;
     font-variant-ligatures: common-ligatures;
     font-kerning: normal;
-    font-family: var(--font-cormorant), serif;
+    font-family: var(--font-montserrat), sans-serif;
+    /* ✅ تغییر از cormorant به montserrat */
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -54,7 +54,8 @@
   body[dir="ltr"],
   [dir="ltr"],
   [lang="en"] {
-    font-family: var(--font-cormorant), serif !important;
+    font-family: var(--font-montserrat), sans-serif !important;
+    /* ✅ تغییر */
   }
 
   /* Link styles */
@@ -162,7 +163,8 @@
   body[dir="ltr"],
   [dir="ltr"],
   [lang="en"] {
-    font-family: var(--font-cormorant), serif !important;
+    font-family: var(--font-montserrat), sans-serif !important;
+    /* ✅ تغییر */
   }
 }
 

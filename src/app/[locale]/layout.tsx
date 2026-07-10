@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import localFont from "next/font/local";
+import { Montserrat, Vazirmatn } from "next/font/google"; // ✅ تغییر
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
@@ -7,24 +7,24 @@ import AmbientLights from "@/components/ambient-lights";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import "../globals.css";
 
-// ✅ فونت اصلی با preload
-const vazir = localFont({
-    src: "../../fonts/Vazirmatn[wght].woff2",
-    variable: "--font-vazir",
+// ✅ Montserrat برای انگلیسی
+const montserrat = Montserrat({
+    subsets: ['latin'],
+    variable: "--font-montserrat",
     display: "swap",
+    weight: ["300", "400", "500", "600", "700"],
     preload: true,
     fallback: ["system-ui", "sans-serif"],
-    weight: "100 900",
 });
 
-// ✅ فونت دوم بدون preload
-const cormorant = localFont({
-    src: "../../fonts/CormorantGaramond[wght].woff2",
-    variable: "--font-cormorant",
+// ✅ Vazirmatn برای فارسی
+const vazirmatn = Vazirmatn({
+    subsets: ['arabic', 'latin'],
+    variable: "--font-vazir",
     display: "swap",
-    preload: false,
-    fallback: ["Georgia", "serif"],
-    weight: "300 700",
+    weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+    preload: true,
+    fallback: ["system-ui", "sans-serif"],
 });
 
 // ✅ Viewport metadata
@@ -136,7 +136,7 @@ export default async function LocaleLayout({
         <html
             lang={locale}
             dir={isFa ? "rtl" : "ltr"}
-            className={`${vazir.variable} ${cormorant.variable}`}
+            className={`${montserrat.variable} ${vazirmatn.variable}`}
             suppressHydrationWarning
         >
             <head>
@@ -156,7 +156,7 @@ export default async function LocaleLayout({
                     overflow-x-hidden
                     relative
                     min-h-screen
-                    ${isFa ? "font-vazir" : "font-cormorant"}
+                    ${isFa ? "font-vazir" : "font-montserrat"}
                 `}
                 suppressHydrationWarning
             >
