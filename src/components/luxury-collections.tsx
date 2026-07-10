@@ -129,10 +129,9 @@ export default function LuxuryCollections({ locale }: Props) {
                                         src={item.image}
                                         alt={`${item.title} - Aurel Jewelry Design Service`}
                                         fill
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                        quality={75}
-                                        priority={index === 0}
-                                        loading={index === 0 ? "eager" : "lazy"}
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 512px"
+                                        quality={50}
+                                        loading="lazy"
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
 
