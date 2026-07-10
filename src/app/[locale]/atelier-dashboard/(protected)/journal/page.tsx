@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { urlFor } from "@/lib/sanity";
+import dynamic from "next/dynamic";
+
+// ✅ اصلاح: استفاده از react-quill-new
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+import "react-quill-new/dist/quill.snow.css";
 
 export default function JournalManager() {
     const [items, setItems] = useState<any[]>([]);
+    const [editingId, setEditingId] = useState<string | null>(null);
+
     const [titleEn, setTitleEn] = useState("");
     const [titleFa, setTitleFa] = useState("");
     const [slug, setSlug] = useState("");
@@ -14,9 +21,12 @@ export default function JournalManager() {
     const [contentFa, setContentFa] = useState("");
     const [coverImage, setCoverImage] = useState<File | null>(null);
     const [coverPreview, setCoverPreview] = useState<string | null>(null);
+    const [existingCoverId, setExistingCoverId] = useState<string | null>(null);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [activeTab, setActiveTab] = useState<"en" | "fa">("en");
 
     useEffect(() => {
         fetchItems();
@@ -25,7 +35,6 @@ export default function JournalManager() {
     async function fetchItems() {
         const res = await fetch("/api/atelier-dashboard/journal");
         const json = await res.json();
-        // ✅ اصلاح: Sanity از data استفاده نمی‌کند، مستقیم آرایه است
         setItems(Array.isArray(json) ? json : json.data || []);
     }
 
@@ -37,30 +46,42 @@ export default function JournalManager() {
     }
 
     async function uploadImage() {
-        if (!coverImage) return null;
+        if (!coverImage) return existingCoverId;
         const form = new FormData();
         form.append("file", coverImage);
 
-        // ✅ اصلاح: استفاده از endpoint عمومی آپلود Sanity
         const res = await fetch("/api/atelier-dashboard/files/upload", {
             method: "POST",
             body: form,
         });
         const json = await res.json();
-
-        // ✅ اصلاح: Sanity از _id استفاده می‌کند
         return json?.data?._id ?? null;
     }
 
-    // اتوماتیک slug از title انگلیسی
     function handleTitleEn(val: string) {
         setTitleEn(val);
-        if (!slug) {
+        if (!slug && !editingId) {
             setSlug(val.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""));
         }
     }
 
-    async function createArticle() {
+    function resetForm() {
+        setTitleEn("");
+        setTitleFa("");
+        setSlug("");
+        setExcerptEn("");
+        setExcerptFa("");
+        setContentEn("");
+        setContentFa("");
+        setCoverImage(null);
+        setCoverPreview(null);
+        setExistingCoverId(null);
+        setEditingId(null);
+        setError("");
+        setSuccess("");
+    }
+
+    async function saveArticle(isEdit = false) {
         if (!titleEn || !titleFa || !slug) {
             setError("Title EN, Title FA and Slug are required");
             return;
@@ -68,13 +89,17 @@ export default function JournalManager() {
         setError("");
         setLoading(true);
 
-        let coverId = null;
+        let coverId = existingCoverId;
         if (coverImage) {
             coverId = await uploadImage();
         }
 
-        const res = await fetch("/api/atelier-dashboard/journal", {
-            method: "POST",
+        const url = isEdit && editingId
+            ? `/api/atelier-dashboard/journal?id=${editingId}`
+            : "/api/atelier-dashboard/journal";
+
+        const res = await fetch(url, {
+            method: isEdit ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 title_en: titleEn,
@@ -84,7 +109,6 @@ export default function JournalManager() {
                 excerpt_fa: excerptFa,
                 content_en: contentEn,
                 content_fa: contentFa,
-                // ✅ اصلاح: ساختار Sanity برای تصویر
                 cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
                 status: "published",
             }),
@@ -93,231 +117,394 @@ export default function JournalManager() {
         setLoading(false);
 
         if (res.ok) {
-            setSuccess("Article created successfully!");
-            setTitleEn("");
-            setTitleFa("");
-            setSlug("");
-            setExcerptEn("");
-            setExcerptFa("");
-            setContentEn("");
-            setContentFa("");
-            setCoverImage(null);
-            setCoverPreview(null);
+            setSuccess(isEdit ? "Article updated successfully!" : "Article created successfully!");
+            resetForm();
             setTimeout(() => setSuccess(""), 3000);
             fetchItems();
         } else {
-            setError("Failed to create article");
+            setError(isEdit ? "Failed to update article" : "Failed to create article");
         }
+    }
+
+    async function editArticle(item: any) {
+        setEditingId(item._id);
+        setTitleEn(item.title_en || "");
+        setTitleFa(item.title_fa || "");
+        setSlug(item.slug?.current || item.slug || "");
+        setExcerptEn(item.excerpt_en || "");
+        setExcerptFa(item.excerpt_fa || "");
+        setContentEn(item.content_en || "");
+        setContentFa(item.content_fa || "");
+
+        if (item.cover_image) {
+            setExistingCoverId(item.cover_image.asset?._ref || item.cover_image);
+            try {
+                const imgUrl = urlFor(item.cover_image).width(400).url();
+                setCoverPreview(imgUrl);
+            } catch {
+                setCoverPreview(null);
+            }
+        }
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     async function deleteArticle(id: string) {
         if (!confirm("Delete this article?")) return;
-        // ✅ اصلاح: Sanity از _id استفاده می‌کند
         await fetch(`/api/atelier-dashboard/journal?id=${id}`, { method: "DELETE" });
         fetchItems();
     }
 
-    // ✅ اصلاح: استفاده از urlFor برای Sanity
     function getImageUrl(item: any) {
         if (!item.cover_image) return null;
-
         try {
-            // اگر cover_image یک object با asset باشد
             if (item.cover_image.asset) {
                 return urlFor(item.cover_image).width(200).url();
             }
-
-            // اگر cover_image یک string (reference ID) باشد
             if (typeof item.cover_image === "string") {
                 return urlFor({ _type: "image", asset: { _ref: item.cover_image } }).width(200).url();
             }
-
             return null;
         } catch {
             return null;
         }
     }
 
+    const quillModules = {
+        toolbar: [
+            [{ header: [1, 2, 3, 4, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ align: [] }],
+            ["link", "image"],
+            [{ color: [] }, { background: [] }],
+            ["blockquote", "code-block"],
+            ["clean"],
+        ],
+    };
+
+    const quillFormats = [
+        "header",
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "list",
+        "bullet",
+        "indent",
+        "align",
+        "link",
+        "image",
+        "color",
+        "background",
+        "blockquote",
+        "code-block",
+    ];
+
     return (
-        <main className="pt-32 px-10 text-white pb-32 max-w-5xl">
-            <h1 className="text-3xl mb-10 font-light tracking-wide">Journal Manager</h1>
+        <main className="min-h-screen bg-black text-white pt-32 pb-20">
+            <div className="pointer-events-none fixed inset-0">
+                <div className="absolute left-1/4 top-20 h-96 w-96 rounded-full bg-[#D4AF37]/5 blur-[140px]" />
+                <div className="absolute right-1/4 bottom-20 h-96 w-96 rounded-full bg-white/[0.02] blur-[140px]" />
+            </div>
 
-            {/* FORM */}
-            <div className="bg-zinc-900 p-6 rounded-xl mb-10 space-y-4">
-                <h2 className="text-lg font-medium mb-2">New Article</h2>
+            <div className="relative z-10 mx-auto max-w-6xl px-6">
+                <div className="mb-12">
+                    <h1 className="text-4xl font-light tracking-wide">
+                        <span className="bg-gradient-to-r from-white to-[#D4AF37] bg-clip-text text-transparent">
+                            Journal Manager
+                        </span>
+                    </h1>
+                    <p className="mt-2 text-sm text-[#a3a3a3]">
+                        {editingId ? "Edit existing article" : "Create a new article"}
+                    </p>
+                </div>
 
-                {error && <p className="text-red-400 text-sm">{error}</p>}
-                {success && <p className="text-emerald-400 text-sm">{success}</p>}
-
-                <div className="flex gap-5">
-                    <div className="flex-1">
-                        <label className="text-xs text-[#a3a3a3] mb-1 block">Title (EN) *</label>
-                        <input
-                            className="w-full p-2 bg-zinc-800 rounded"
-                            placeholder="Article title in English"
-                            value={titleEn}
-                            onChange={(e) => handleTitleEn(e.target.value)}
-                        />
+                {error && (
+                    <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-400">
+                        {error}
                     </div>
-                    <div className="flex-1">
-                        <label className="text-xs text-[#a3a3a3] mb-1 block">Title (FA) *</label>
-                        <input
-                            className="w-full p-2 bg-zinc-800 rounded"
-                            placeholder="عنوان مقاله به فارسی"
-                            value={titleFa}
-                            onChange={(e) => setTitleFa(e.target.value)}
-                            dir="rtl"
-                        />
+                )}
+
+                {success && (
+                    <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-emerald-400">
+                        {success}
                     </div>
-                </div>
+                )}
 
-                <div>
-                    <label className="text-xs text-[#a3a3a3] mb-1 block">
-                        Slug * (no spaces, English only)
-                    </label>
-                    <input
-                        className="w-full p-2 bg-zinc-800 rounded font-mono text-sm"
-                        placeholder="my-article-slug"
-                        value={slug}
-                        onChange={(e) =>
-                            setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))
-                        }
-                    />
-                </div>
-
-                <div className="flex gap-5">
-                    <div className="flex-1">
-                        <label className="text-xs text-[#a3a3a3] mb-1 block">Excerpt (EN)</label>
-                        <textarea
-                            className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
-                            placeholder="Short description in English"
-                            value={excerptEn}
-                            onChange={(e) => setExcerptEn(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex-1">
-                        <label className="text-xs text-[#a3a3a3] mb-1 block">Excerpt (FA)</label>
-                        <textarea
-                            className="w-full p-2 bg-zinc-800 rounded h-20 resize-none"
-                            placeholder="توضیح کوتاه به فارسی"
-                            value={excerptFa}
-                            onChange={(e) => setExcerptFa(e.target.value)}
-                            dir="rtl"
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <label className="text-xs text-[#a3a3a3] mb-1 block">Content (EN) — HTML allowed</label>
-                    <textarea
-                        className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
-                        placeholder="<p>Article content in English...</p>"
-                        value={contentEn}
-                        onChange={(e) => setContentEn(e.target.value)}
-                    />
-                </div>
-
-                <div>
-                    <label className="text-xs text-[#a3a3a3] mb-1 block">Content (FA) — HTML allowed</label>
-                    <textarea
-                        className="w-full p-2 bg-zinc-800 rounded h-48 resize-y font-mono text-sm"
-                        placeholder="<p>محتوای مقاله به فارسی...</p>"
-                        value={contentFa}
-                        onChange={(e) => setContentFa(e.target.value)}
-                        dir="rtl"
-                    />
-                </div>
-
-                <div className="space-y-2">
-                    <label className="text-xs text-[#a3a3a3] block">Cover Image</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImage}
-                        className="w-full bg-zinc-800 p-2 rounded text-sm"
-                    />
-                    {coverPreview && (
-                        <div className="relative w-40">
-                            <img
-                                src={coverPreview}
-                                className="w-40 h-40 object-cover rounded border border-zinc-700"
-                            />
+                <div className="mb-16 rounded-2xl border border-white/10 bg-white/[0.02] p-8 backdrop-blur-sm">
+                    <div className="mb-8 flex items-center justify-between">
+                        <h2 className="text-xl font-light text-white">
+                            {editingId ? "Edit Article" : "New Article"}
+                        </h2>
+                        {editingId && (
                             <button
-                                onClick={() => {
-                                    setCoverImage(null);
-                                    setCoverPreview(null);
-                                }}
-                                className="absolute top-1 right-1 bg-black/70 text-white text-xs px-2 py-1 rounded"
+                                onClick={resetForm}
+                                className="text-sm text-[#a3a3a3] hover:text-white transition-colors"
                             >
-                                ✕
+                                Cancel Edit
                             </button>
+                        )}
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div>
+                                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                    Title (EN) *
+                                </label>
+                                <input
+                                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white placeholder:text-[#a3a3a3] focus:border-[#D4AF37]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/40"
+                                    placeholder="Article title in English"
+                                    value={titleEn}
+                                    onChange={(e) => handleTitleEn(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                    Title (FA) *
+                                </label>
+                                <input
+                                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white placeholder:text-[#a3a3a3] focus:border-[#D4AF37]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/40"
+                                    placeholder="عنوان مقاله به فارسی"
+                                    value={titleFa}
+                                    onChange={(e) => setTitleFa(e.target.value)}
+                                    dir="rtl"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                Slug * (URL-friendly)
+                            </label>
+                            <input
+                                className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 font-mono text-sm text-white placeholder:text-[#a3a3a3] focus:border-[#D4AF37]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/40"
+                                placeholder="my-article-slug"
+                                value={slug}
+                                onChange={(e) =>
+                                    setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))
+                                }
+                            />
+                            <p className="mt-2 text-xs text-[#a3a3a3]">
+                                Example: aureldesign.ir/en/journal/{slug || "your-slug-here"}
+                            </p>
+                        </div>
+
+                        <div className="grid gap-6 md:grid-cols-2">
+                            <div>
+                                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                    Excerpt (EN)
+                                </label>
+                                <textarea
+                                    className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white placeholder:text-[#a3a3a3] focus:border-[#D4AF37]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/40"
+                                    placeholder="Short description in English"
+                                    value={excerptEn}
+                                    onChange={(e) => setExcerptEn(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                    Excerpt (FA)
+                                </label>
+                                <textarea
+                                    className="h-24 w-full resize-none rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white placeholder:text-[#a3a3a3] focus:border-[#D4AF37]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]/40"
+                                    placeholder="توضیح کوتاه به فارسی"
+                                    value={excerptFa}
+                                    onChange={(e) => setExcerptFa(e.target.value)}
+                                    dir="rtl"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <div className="mb-4 flex gap-4 border-b border-white/10">
+                                <button
+                                    onClick={() => setActiveTab("en")}
+                                    className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "en"
+                                        ? "text-[#D4AF37] border-b-2 border-[#D4AF37]"
+                                        : "text-[#a3a3a3] hover:text-white"
+                                        }`}
+                                >
+                                    English Content
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab("fa")}
+                                    className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "fa"
+                                        ? "text-[#D4AF37] border-b-2 border-[#D4AF37]"
+                                        : "text-[#a3a3a3] hover:text-white"
+                                        }`}
+                                >
+                                    فارسی
+                                </button>
+                            </div>
+
+                            {activeTab === "en" && (
+                                <div>
+                                    <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                        Content (EN) — Visual Editor
+                                    </label>
+                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={contentEn}
+                                            onChange={setContentEn}
+                                            modules={quillModules}
+                                            formats={quillFormats}
+                                            placeholder="Start writing your article here..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === "fa" && (
+                                <div>
+                                    <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                        Content (FA) — Visual Editor
+                                    </label>
+                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={contentFa}
+                                            onChange={setContentFa}
+                                            modules={quillModules}
+                                            formats={quillFormats}
+                                            placeholder="مقاله خود را اینجا بنویسید..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                Cover Image
+                            </label>
+                            <div className="flex items-start gap-6">
+                                <div className="flex-1">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImage}
+                                        className="w-full rounded-xl border border-white/10 bg-white/[0.03] p-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-[#D4AF37] file:px-4 file:py-2 file:text-sm file:font-medium file:text-black hover:file:bg-[#FFE8A3]"
+                                    />
+                                    <p className="mt-2 text-xs text-[#a3a3a3]">
+                                        Recommended: 1200x630px or larger
+                                    </p>
+                                </div>
+                                {coverPreview && (
+                                    <div className="relative">
+                                        <img
+                                            src={coverPreview}
+                                            alt="Preview"
+                                            className="h-32 w-48 rounded-xl border border-white/10 object-cover"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                setCoverImage(null);
+                                                setCoverPreview(null);
+                                                if (!editingId) setExistingCoverId(null);
+                                            }}
+                                            className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white text-xs hover:bg-red-600"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex gap-4 pt-4">
+                            <button
+                                onClick={() => saveArticle(!!editingId)}
+                                disabled={loading}
+                                className="rounded-xl bg-gradient-to-r from-[#D4AF37] to-[#8B7332] px-8 py-3 text-sm font-medium uppercase tracking-[0.2em] text-black transition-all hover:from-[#FFE8A3] hover:to-[#D4AF37] disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {loading ? "Saving..." : editingId ? "Update Article" : "Create Article"}
+                            </button>
+                            {editingId && (
+                                <button
+                                    onClick={resetForm}
+                                    className="rounded-xl border border-white/20 px-8 py-3 text-sm font-medium uppercase tracking-[0.2em] text-white transition-all hover:border-white/40"
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 className="mb-6 text-xl font-light text-white">
+                        Articles ({items.length})
+                    </h2>
+
+                    {items.length === 0 ? (
+                        <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-12 text-center">
+                            <p className="text-[#a3a3a3]">No articles yet. Create your first one!</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {items.map((item) => {
+                                const imgUrl = getImageUrl(item);
+                                return (
+                                    <div
+                                        key={item._id}
+                                        className="group flex items-center gap-6 rounded-2xl border border-white/10 bg-white/[0.02] p-6 transition-all hover:border-[#D4AF37]/30 hover:bg-white/[0.04]"
+                                    >
+                                        {imgUrl ? (
+                                            <img
+                                                src={imgUrl}
+                                                alt={item.title_en}
+                                                className="h-20 w-32 rounded-xl object-cover"
+                                            />
+                                        ) : (
+                                            <div className="flex h-20 w-32 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] text-xs text-[#a3a3a3]">
+                                                No Image
+                                            </div>
+                                        )}
+
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="truncate text-lg font-light text-white group-hover:text-[#FFE8A3] transition-colors">
+                                                {item.title_en}
+                                            </h3>
+                                            <p className="text-sm text-[#a3a3a3]" dir="rtl">
+                                                {item.title_fa}
+                                            </p>
+                                            <p className="mt-1 text-xs font-mono text-[#D4AF37]">
+                                                /journal/{item.slug?.current || item.slug}
+                                            </p>
+                                        </div>
+
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => editArticle(item)}
+                                                className="rounded-lg border border-[#D4AF37]/30 px-4 py-2 text-xs font-medium text-[#D4AF37] transition-all hover:bg-[#D4AF37]/10"
+                                            >
+                                                Edit
+                                            </button>
+                                            <a
+                                                href={`/en/journal/${item.slug?.current || item.slug}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="rounded-lg border border-white/20 px-4 py-2 text-xs font-medium text-white transition-all hover:border-white/40"
+                                            >
+                                                View →
+                                            </a>
+                                            <button
+                                                onClick={() => deleteArticle(item._id)}
+                                                className="rounded-lg px-4 py-2 text-xs font-medium text-red-400 transition-all hover:bg-red-500/10"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
-
-                <button
-                    onClick={createArticle}
-                    disabled={loading}
-                    className="bg-emerald-500 disabled:bg-emerald-800 text-black px-8 py-2.5 rounded-lg font-medium transition-colors hover:bg-emerald-400"
-                >
-                    {loading ? "Creating..." : "Create Article"}
-                </button>
-            </div>
-
-            {/* LIST */}
-            <h2 className="text-xl mb-4 font-light">Articles ({items.length})</h2>
-
-            <div className="space-y-3">
-                {items.length === 0 && <p className="text-zinc-500 text-sm">No articles yet.</p>}
-                {items.map((item) => {
-                    const imgUrl = getImageUrl(item);
-                    return (
-                        <div
-                            key={item._id}
-                            className="border border-zinc-700 p-4 rounded-lg flex justify-between items-center hover:border-zinc-500 transition-colors"
-                        >
-                            <div className="flex items-center gap-4">
-                                {imgUrl ? (
-                                    <img
-                                        src={imgUrl}
-                                        alt={item.title_en}
-                                        className="w-16 h-16 object-cover rounded"
-                                    />
-                                ) : (
-                                    <div className="w-16 h-16 bg-zinc-800 rounded flex items-center justify-center text-zinc-600 text-xs">
-                                        No img
-                                    </div>
-                                )}
-                                <div>
-                                    <div className="font-medium">{item.title_en}</div>
-                                    <div className="text-sm text-[#a3a3a3]" dir="rtl">
-                                        {item.title_fa}
-                                    </div>
-                                    <div className="text-xs text-zinc-600 mt-1 font-mono">
-                                        /journal/{item.slug?.current || item.slug}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                                <a
-                                    href={`/en/journal/${item.slug?.current || item.slug}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-xs text-blue-400 hover:text-blue-300"
-                                >
-                                    View →
-                                </a>
-                                <button
-                                    onClick={() => deleteArticle(item._id)}
-                                    className="text-red-400 hover:text-red-200 text-sm"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
             </div>
         </main>
     );
