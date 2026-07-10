@@ -198,32 +198,16 @@ export default async function ProjectPage({ params }: Props) {
                             <div className="flex flex-wrap gap-4 pt-4">
                                 <Link
                                     href="/en/contact"
-                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#8B7332] text-black font-medium uppercase tracking-[0.2em] text-sm hover:from-[#FFE8A3] hover:to-[#D4AF37] transition-all duration-300 shadow-lg shadow-[#D4AF37]/25"
+                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-[#D4AF37] text-black font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#FFE8A3] hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
                                 >
-                                    {isFa ? "سفارش این طرح" : "Order This Design"}
+                                    {isFa ? "سفارش طرح مشابه" : "Order This Design"}
                                 </Link>
                                 <Link
                                     href={`/${locale}/portfolio`}
-                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-white/20 text-white uppercase tracking-[0.2em] text-sm hover:bg-white/5 transition-all duration-300"
+                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-[#D4AF37]/40 text-[#D4AF37] font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
                                 >
                                     {isFa ? "مشاهده همه" : "View All"}
                                 </Link>
-                            </div>
-
-                            {/* ✅ نشانه‌های اعتماد */}
-                            <div className="flex items-center gap-6 pt-4 text-xs text-[#a3a3a3]">
-                                <div className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                    </svg>
-                                    <span>{isFa ? "ضمانت کیفیت" : "Quality Guarantee"}</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <svg className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>{isFa ? "10-14 روز کاری" : "10-14 Days"}</span>
-                                </div>
                             </div>
                         </div>
 
@@ -259,25 +243,37 @@ export default async function ProjectPage({ params }: Props) {
             {/* ============================================
                 CTA SECTION - جدید و قوی‌تر
             ============================================ */}
+            {/* ============================================
+    CTA SECTION - هماهنگ با سبک جدید
+============================================ */}
             <section className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="relative rounded-[32px] border border-[#D4AF37]/20 bg-gradient-to-br from-[#D4AF37]/5 via-transparent to-transparent px-8 py-16 overflow-hidden">
+                    <div className="relative rounded-[32px] border border-[#D4AF37]/20 bg-white/[0.02] backdrop-blur-sm px-8 py-16 overflow-hidden">
                         {/* Background Glow */}
-                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[140px] pointer-events-none" />
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-[140px] pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/3 rounded-full blur-[120px] pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                            <div>
-                                <p className="text-[#D4AF37] uppercase tracking-[0.3em] text-xs mb-4">
-                                    {isFa ? "طراحی اختصاصی" : "Custom Design"}
-                                </p>
+                            <div className="space-y-4">
+                                {/* Badge */}
+                                <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
+                                    <span className="text-[#D4AF37] uppercase tracking-[0.3em] text-xs">
+                                        {isFa ? "طراحی اختصاصی" : "Custom Design"}
+                                    </span>
+                                </div>
 
-                                <h2 className="text-3xl md:text-4xl font-extralight mb-4">
-                                    {isFa
-                                        ? "آیا طرح مشابهی در ذهن دارید؟"
-                                        : "Have a Similar Design in Mind?"
-                                    }
+                                {/* Title */}
+                                <h2 className="text-3xl md:text-4xl font-extralight">
+                                    <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
+                                        {isFa
+                                            ? "آیا طرح مشابهی در ذهن دارید؟"
+                                            : "Have a Similar Design in Mind?"
+                                        }
+                                    </span>
                                 </h2>
 
+                                {/* Description */}
                                 <p className="text-[#e5e5e5] max-w-2xl leading-8">
                                     {isFa
                                         ? "با تیم طراحی ما تماس بگیرید. ما می‌توانیم این طرح را با سلیقه و اندازه دلخواه شما سفارشی‌سازی کنیم."
@@ -285,9 +281,10 @@ export default async function ProjectPage({ params }: Props) {
                                 </p>
                             </div>
 
+                            {/* دکمه هماهنگ با سبک جدید */}
                             <Link
                                 href="/en/contact"
-                                className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#8B7332] text-black font-medium uppercase tracking-[0.2em] text-sm hover:from-[#FFE8A3] hover:to-[#D4AF37] transition-all duration-300 shadow-lg shadow-[#D4AF37]/25 shrink-0"
+                                className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-[#D4AF37] text-black font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#FFE8A3] hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] shrink-0"
                             >
                                 {isFa ? "تماس با ما" : "Contact Us"} →
                             </Link>
