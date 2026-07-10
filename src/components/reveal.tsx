@@ -16,6 +16,8 @@ export default function Reveal({
     disableAnimation = false,
 }: RevealProps) {
     const ref = useRef<HTMLDivElement>(null);
+
+    // ✅ اصلاح: اگر disableAnimation است، isVisible از ابتدا true باشد
     const [isVisible, setIsVisible] = useState(disableAnimation);
 
     useEffect(() => {
@@ -45,6 +47,15 @@ export default function Reveal({
         };
     }, [disableAnimation]);
 
+    // ✅ اصلاح: اگر disableAnimation است، هیچ استایل مخفی اعمال نشود
+    if (disableAnimation) {
+        return (
+            <div ref={ref} className={`overflow-visible pt-2 pb-2 ${className}`}>
+                {children}
+            </div>
+        );
+    }
+
     return (
         <div
             ref={ref}
@@ -52,7 +63,7 @@ export default function Reveal({
             style={{
                 opacity: isVisible ? 1 : 0,
                 transform: isVisible ? "translateY(0)" : "translateY(24px)",
-                transition: disableAnimation ? "none" : `opacity 0.8s ease-out ${delay}s, transform 0.8s ease-out ${delay}s`,
+                transition: `opacity 0.8s ease-out ${delay}s, transform 0.8s ease-out ${delay}s`,
             }}
         >
             {children}

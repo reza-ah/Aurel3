@@ -51,49 +51,45 @@ export default function LuxuryHero({ dict }: Props) {
             {/* Content */}
             <div className="relative z-10 mx-auto w-full max-w-5xl text-center">
 
-                {/* ✅ Title - disableAnimation برای LCP */}
-                <Reveal disableAnimation>
-                    <h1
+                {/* ✅ اصلاح: حذف Reveal از H1 برای LCP */}
+                <h1
+                    className="
+                        text-5xl
+                        sm:text-6xl
+                        md:text-7xl
+                        font-light
+                        leading-tight
+                        mb-8
+                    "
+                >
+                    <span
                         className="
-                            text-5xl
-                            sm:text-6xl
-                            md:text-7xl
-                            font-light
-                            leading-tight
-                            mb-8
+                            bg-gradient-to-r
+                            from-white
+                            via-[#E7C65C]
+                            to-[#D4AF37]
+                            bg-clip-text
+                            text-transparent
                         "
                     >
-                        <span
-                            className="
-                                bg-gradient-to-r
-                                from-white
-                                via-[#E7C65C]
-                                to-[#D4AF37]
-                                bg-clip-text
-                                text-transparent
-                            "
-                        >
-                            {dict.heroTitle}
-                        </span>
-                    </h1>
-                </Reveal>
+                        {dict.heroTitle}
+                    </span>
+                </h1>
 
-                {/* ✅ Description - disableAnimation برای LCP */}
-                <Reveal disableAnimation delay={0.1}>
-                    <p
-                        className="
-                            mx-auto
-                            max-w-3xl
-                            text-base
-                            sm:text-lg
-                            md:text-xl
-                            leading-8
-                            text-white/75
-                        "
-                    >
-                        {dict.heroDescription}
-                    </p>
-                </Reveal>
+                {/* ✅ اصلاح: حذف Reveal از description برای LCP */}
+                <p
+                    className="
+                        mx-auto
+                        max-w-3xl
+                        text-base
+                        sm:text-lg
+                        md:text-xl
+                        leading-8
+                        text-white/75
+                    "
+                >
+                    {dict.heroDescription}
+                </p>
 
                 {/* CTA - انیمیشن عادی */}
                 <Reveal delay={0.2}>
