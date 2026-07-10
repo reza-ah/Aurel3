@@ -1,20 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
-
 export default function AmbientLights() {
     return (
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <motion.div
-                animate={{
-                    x: [0, 30, 0],
-                    y: [0, -20, 0],
-                }}
-                transition={{
-                    duration: 12,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
+            {/* ✅ اصلاح: حذف framer-motion، استفاده از CSS animation */}
+            <div
                 className="
                     absolute
                     left-[-10%]
@@ -24,19 +14,11 @@ export default function AmbientLights() {
                     rounded-full
                     bg-[#D4AF37]/10
                     blur-2xl
+                    animate-float-1
                 "
             />
 
-            <motion.div
-                animate={{
-                    x: [0, -25, 0],
-                    y: [0, 20, 0],
-                }}
-                transition={{
-                    duration: 14,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                }}
+            <div
                 className="
                     absolute
                     right-[-10%]
@@ -46,9 +28,9 @@ export default function AmbientLights() {
                     rounded-full
                     bg-white/5
                     blur-2xl
+                    animate-float-2
                 "
             />
         </div>
     );
 }
-
