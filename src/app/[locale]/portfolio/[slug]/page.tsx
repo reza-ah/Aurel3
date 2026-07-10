@@ -19,6 +19,11 @@ type PortfolioItem = {
     tags?: any[];
     cover_image?: any;
     gallery?: any[];
+    // ✅ فیلدهای جدید برای مشخصات
+    weight?: string;
+    material?: string;
+    dimensions?: string;
+    production_time?: string;
 };
 
 type Props = {
@@ -97,44 +102,133 @@ export default async function ProjectPage({ params }: Props) {
         },
     ];
 
+    // ✅ مشخصات محصول
+    const specs = {
+        material: project.material || (isFa ? "طلای 18 عیار" : "18K Gold"),
+        weight: project.weight || (isFa ? "حدود 10 گرم" : "Approx. 10g"),
+        dimensions: project.dimensions || (isFa ? "قابل سفارشی‌سازی" : "Customizable"),
+        productionTime: project.production_time || (isFa ? "10-14 روز کاری" : "10-14 business days"),
+    };
+
     return (
         <main className="min-h-screen bg-transparent text-white">
 
             {/* ✅ Breadcrumb Schema */}
             <BreadcrumbSchema items={breadcrumbItems} />
 
-            {/* HERO */}
-            <section className="pt-32 pb-24">
-                <div className="max-w-7xl mx-auto px-6">
+            {/* ============================================
+                HERO SECTION - حرفه‌ای‌تر
+            ============================================ */}
+            <section className="pt-32 pb-24 relative overflow-hidden">
+                {/* Background Glow */}
+                <div className="absolute inset-0 pointer-events-none">
+                    <div className="absolute left-1/4 top-20 h-96 w-96 rounded-full bg-[#D4AF37]/5 blur-[140px]" />
+                    <div className="absolute right-1/4 bottom-20 h-96 w-96 rounded-full bg-white/[0.02] blur-[140px]" />
+                </div>
 
-                    <Link
-                        href={`/${locale}/portfolio`}
-                        className="inline-flex items-center gap-2 text-sm tracking-[0.2em] uppercase text-[#a3a3a3] hover:text-white transition mb-12"
-                    >
-                        ← {isFa ? "بازگشت" : "Back"}
-                    </Link>
+                <div className="max-w-7xl mx-auto px-6 relative z-10">
+
+                    {/* ✅ Breadcrumb بصری */}
+                    <nav className="flex items-center gap-2 text-sm mb-8">
+                        <Link href={`/${locale}`} className="text-[#a3a3a3] hover:text-[#D4AF37] transition-colors">
+                            {isFa ? "خانه" : "Home"}
+                        </Link>
+                        <span className="text-[#D4AF37]">/</span>
+                        <Link href={`/${locale}/portfolio`} className="text-[#a3a3a3] hover:text-[#D4AF37] transition-colors">
+                            {isFa ? "نمونه‌کارها" : "Portfolio"}
+                        </Link>
+                        <span className="text-[#D4AF37]">/</span>
+                        <span className="text-white truncate max-w-xs">{title}</span>
+                    </nav>
 
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
 
                         {/* CONTENT */}
-                        <div>
-                            <p className="text-[#d4af37] uppercase tracking-[0.3em] text-sm mb-5">
-                                {category}
-                            </p>
+                        <div className="space-y-8">
+                            {/* ✅ Badge با آیکون */}
+                            <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
+                                <span className="text-[#D4AF37] uppercase tracking-[0.3em] text-sm">
+                                    {category}
+                                </span>
+                            </div>
 
-                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extralight leading-tight mb-8">
-                                {title}
+                            {/* ✅ عنوان با gradient */}
+                            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extralight leading-tight">
+                                <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
+                                    {title}
+                                </span>
                             </h1>
 
-                            <div className="w-24 h-px bg-[#d4af37] mb-8" />
+                            <div className="w-24 h-px bg-gradient-to-r from-[#D4AF37] to-transparent" />
 
-                            <p className="text-[#a3a3a3] leading-9 text-lg max-w-xl">
+                            <p className="text-[#e5e5e5] leading-9 text-lg max-w-xl">
                                 {description}
                             </p>
+
+                            {/* ✅ مشخصات سریع */}
+                            <div className="grid grid-cols-2 gap-4 pt-4">
+                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                    <p className="text-xs text-[#a3a3a3] mb-1">
+                                        {isFa ? "متریال" : "Material"}
+                                    </p>
+                                    <p className="text-white font-medium">{specs.material}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                    <p className="text-xs text-[#a3a3a3] mb-1">
+                                        {isFa ? "وزن" : "Weight"}
+                                    </p>
+                                    <p className="text-white font-medium">{specs.weight}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                    <p className="text-xs text-[#a3a3a3] mb-1">
+                                        {isFa ? "زمان تولید" : "Production Time"}
+                                    </p>
+                                    <p className="text-white font-medium">{specs.productionTime}</p>
+                                </div>
+                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                    <p className="text-xs text-[#a3a3a3] mb-1">
+                                        {isFa ? "ابعاد" : "Dimensions"}
+                                    </p>
+                                    <p className="text-white font-medium">{specs.dimensions}</p>
+                                </div>
+                            </div>
+
+                            {/* ✅ دکمه‌های CTA */}
+                            <div className="flex flex-wrap gap-4 pt-4">
+                                <Link
+                                    href="/en/contact"
+                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#8B7332] text-black font-medium uppercase tracking-[0.2em] text-sm hover:from-[#FFE8A3] hover:to-[#D4AF37] transition-all duration-300 shadow-lg shadow-[#D4AF37]/25"
+                                >
+                                    {isFa ? "سفارش این طرح" : "Order This Design"}
+                                </Link>
+                                <Link
+                                    href={`/${locale}/portfolio`}
+                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-white/20 text-white uppercase tracking-[0.2em] text-sm hover:bg-white/5 transition-all duration-300"
+                                >
+                                    {isFa ? "مشاهده همه" : "View All"}
+                                </Link>
+                            </div>
+
+                            {/* ✅ نشانه‌های اعتماد */}
+                            <div className="flex items-center gap-6 pt-4 text-xs text-[#a3a3a3]">
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    <span>{isFa ? "ضمانت کیفیت" : "Quality Guarantee"}</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-[#D4AF37]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>{isFa ? "10-14 روز کاری" : "10-14 Days"}</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* IMAGE */}
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-zinc-900 group">
+                        <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-zinc-900 group border border-white/10 shadow-2xl">
                             <Image
                                 src={imageUrl}
                                 alt={title}
@@ -143,13 +237,14 @@ export default async function ProjectPage({ params }: Props) {
                                 sizes="(max-width: 768px) 100vw, 50vw"
                                 className="object-cover transition duration-700 group-hover:scale-105"
                             />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         </div>
 
                     </div>
                 </div>
             </section>
 
-            {/* GALLERY */}
+            {/* GALLERY - بدون تغییر */}
             {galleryImages.length > 0 && (
                 <section className="pb-32">
                     <div className="max-w-7xl mx-auto px-6">
@@ -161,37 +256,47 @@ export default async function ProjectPage({ params }: Props) {
                 </section>
             )}
 
-            {/* ALL PROJECTS CTA */}
+            {/* ============================================
+                CTA SECTION - جدید و قوی‌تر
+            ============================================ */}
             <section className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
-                    <div className="border border-white/10 rounded-[32px] px-8 py-14 flex flex-col md:flex-row items-center justify-between gap-8 bg-white/[0.02]">
-                        <div>
-                            <p className="text-[#d4af37] uppercase tracking-[0.3em] text-xs mb-4">
-                                Portfolio
-                            </p>
+                    <div className="relative rounded-[32px] border border-[#D4AF37]/20 bg-gradient-to-br from-[#D4AF37]/5 via-transparent to-transparent px-8 py-16 overflow-hidden">
+                        {/* Background Glow */}
+                        <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[140px] pointer-events-none" />
 
-                            <h2 className="text-3xl md:text-4xl font-extralight mb-3">
-                                {isFa ? "مشاهده همه پروژه‌ها" : "Explore All Projects"}
-                            </h2>
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div>
+                                <p className="text-[#D4AF37] uppercase tracking-[0.3em] text-xs mb-4">
+                                    {isFa ? "طراحی اختصاصی" : "Custom Design"}
+                                </p>
 
-                            <p className="text-[#a3a3a3] max-w-2xl leading-8">
-                                {isFa
-                                    ? "مجموعه کامل پروژه‌های طراحی شده را مشاهده کنید."
-                                    : "Discover the complete collection of crafted luxury projects."}
-                            </p>
+                                <h2 className="text-3xl md:text-4xl font-extralight mb-4">
+                                    {isFa
+                                        ? "آیا طرح مشابهی در ذهن دارید؟"
+                                        : "Have a Similar Design in Mind?"
+                                    }
+                                </h2>
+
+                                <p className="text-[#e5e5e5] max-w-2xl leading-8">
+                                    {isFa
+                                        ? "با تیم طراحی ما تماس بگیرید. ما می‌توانیم این طرح را با سلیقه و اندازه دلخواه شما سفارشی‌سازی کنیم."
+                                        : "Get in touch with our design team. We can customize this design according to your taste and size preferences."}
+                                </p>
+                            </div>
+
+                            <Link
+                                href="/en/contact"
+                                className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#8B7332] text-black font-medium uppercase tracking-[0.2em] text-sm hover:from-[#FFE8A3] hover:to-[#D4AF37] transition-all duration-300 shadow-lg shadow-[#D4AF37]/25 shrink-0"
+                            >
+                                {isFa ? "تماس با ما" : "Contact Us"} →
+                            </Link>
                         </div>
-
-                        <Link
-                            href={`/${locale}/portfolio`}
-                            className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-[#d4af37] text-[#d4af37] uppercase tracking-[0.2em] text-sm hover:bg-[#d4af37] hover:text-black transition-all duration-300 shrink-0"
-                        >
-                            {isFa ? "همه نمونه‌کارها" : "View Portfolio"}
-                        </Link>
                     </div>
                 </div>
             </section>
 
-            {/* RELATED */}
+            {/* RELATED PROJECTS - بدون تغییر */}
             {relatedProjects.length > 0 && (
                 <section className="border-t border-white/10 pt-24 pb-32">
                     <div className="max-w-7xl mx-auto px-6">

@@ -75,16 +75,16 @@ export default async function JournalPage({
                 <Reveal>
                     <div className="mx-auto mb-20 max-w-3xl text-center">
                         <p className="mb-4 text-sm uppercase tracking-[0.3em] text-[#D4AF37]">
-                            {isFa ? "مقالات برند" : "Brand Journal"}
+                            {isFa ? "مقالات " : "Brand Journal"}
                         </p>
                         <h1 className="text-4xl font-light leading-tight text-white sm:text-5xl md:text-6xl">
                             <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
-                                {isFa ? "مقالات و الهام‌بخشی‌ها" : "Stories & Insights"}
+                                {isFa ? "مقالات و یادداشتها" : "Stories & Insights"}
                             </span>
                         </h1>
                         <p className="mt-6 text-base leading-8 text-[#e5e5e5]">
                             {isFa
-                                ? "نگاهی به فرآیند طراحی جواهرات، الهامات و داستان پشت هر قطعه."
+                                ? "نگاهی به فرآیند طراحی تا تولید جواهرات"
                                 : "A closer look at jewelry craftsmanship, design inspiration, and the stories behind each piece."}
                         </p>
                     </div>
