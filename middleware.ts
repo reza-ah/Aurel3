@@ -4,19 +4,9 @@ import { verifyAdminToken } from "@/lib/auth/verify-session";
 
 const locales = ["en", "fa"];
 const defaultLocale = "en";
-
-// ✅ لیست کشورهای فارسی‌زبان
-const FA_LOCALE_COUNTRIES = ["IR", "AF", "TJ"]; // ایران، افغانستان، تاجیکستان
-
-// ✅ نوع برای geo
-interface GeoInfo {
-    country?: string;
-    city?: string;
-    region?: string;
-}
+const FA_LOCALE_COUNTRIES = ["IR", "AF", "TJ"];
 
 function getGeoCountry(request: NextRequest): string {
-    // ✅ Vercel Geolocation - استفاده از header
     const country = request.headers.get("x-vercel-ip-country");
     return country || "US";
 }
@@ -25,7 +15,7 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const hostname = request.headers.get("host") || "";
 
-    // ✅ ۱. بهینه‌سازی: فایل‌های استاتیک رو رد کن
+    // ✅ 1. Static files
     if (
         pathname.startsWith("/_next") ||
         pathname.startsWith("/api") ||
@@ -35,48 +25,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // ✅ ۲. Redirect non-www به www (حل مشکل canonical)
-    if (!hostname.startsWith("www.")) {
-        const url = request.nextUrl.clone();
-        url.hostname = `www.${hostname}`;
-        return NextResponse.redirect(url, 301);
-    }
-
-    // ✅ ۳. Redirect ریشه به locale مناسب بر اساس IP
-    if (pathname === "/") {
-        const country = getGeoCountry(request);
-        const detectedLocale = FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en";
-
-        // ✅ Set cookie برای حفظ انتخاب کاربر
-        const response = NextResponse.redirect(
-            new URL(`/${detectedLocale}`, request.url)
-        );
-
-        response.cookies.set("detected_locale", detectedLocale, {
-            maxAge: 60 * 60 * 24 * 30, // 30 روز
-            path: "/",
-            sameSite: "lax",
-        });
-
-        return response;
-    }
-
-    // ✅ ۴. اضافه کردن locale به مسیرهای بدون locale
-    const pathnameHasLocale = locales.some(
-        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-    );
-
-    if (!pathnameHasLocale) {
-        const cookieLocale = request.cookies.get("detected_locale")?.value;
-        const country = getGeoCountry(request);
-        const detectedLocale = cookieLocale || (FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en");
-
-        return NextResponse.redirect(
-            new URL(`/${detectedLocale}${pathname}`, request.url)
-        );
-    }
-
-    // ✅ ۵. Admin auth check
+    // ✅ 2. Admin auth
     if (pathname.includes("/atelier-dashboard") && !pathname.includes("/login")) {
         const token = request.cookies.get("admin_auth")?.value;
 
@@ -96,7 +45,40 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    return NextResponse.next();
+    // ✅ 3. Check if locale exists
+    const pathnameHasLocale = locales.some(
+        (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+    );
+
+    // ✅ 4. If has locale, only check non-www
+    if (pathnameHasLocale) {
+        if (!hostname.startsWith("www.")) {
+            const url = request.nextUrl.clone();
+            url.hostname = `www.${hostname}`;
+            return NextResponse.redirect(url, 301);
+        }
+        return NextResponse.next();
+    }
+
+    // ✅ 5. If no locale, redirect to www + locale in ONE step
+    const country = getGeoCountry(request);
+    const detectedLocale = FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en";
+    const cookieLocale = request.cookies.get("detected_locale")?.value;
+    const finalLocale = cookieLocale || detectedLocale;
+
+    const url = request.nextUrl.clone();
+    url.hostname = hostname.startsWith("www.") ? hostname : `www.${hostname}`;
+    url.pathname = `/${finalLocale}${pathname === "/" ? "" : pathname}`;
+
+    const response = NextResponse.redirect(url, 301);
+
+    response.cookies.set("detected_locale", finalLocale, {
+        maxAge: 60 * 60 * 24 * 30,
+        path: "/",
+        sameSite: "lax",
+    });
+
+    return response;
 }
 
 export const config = {
