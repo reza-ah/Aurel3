@@ -12,8 +12,8 @@ const nextConfig: NextConfig = {
       "react-hook-form",
       "@hookform/resolvers",
     ],
-    // ✅ اضافه شد: بهینه‌سازی CSS
-    optimizeCss: true,
+    // ❌ حذف شد: optimizeCss باعث خطا شده
+    // optimizeCss: true,
   },
 
   images: {
