@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image"; // ✅ اضافه شد
 import { client, getOptimizedImage } from "@/lib/sanity";
 
 async function getFeaturedPortfolioItems() {
@@ -47,7 +48,6 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {validItems.map((item: any) => {
-                        // ✅ اصلاح: quality از 75 به 50
                         const imageUrl = getOptimizedImage(item.cover_image, {
                             width: 800,
                             quality: 50,
@@ -63,13 +63,16 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
                                 href={`/${locale}/portfolio/${item.slug?.current || item._id}`}
                                 className="group relative overflow-hidden rounded-2xl bg-zinc-900/30 backdrop-blur-sm border border-white/5"
                             >
+                                {/* ✅ اصلاح: تبدیل <img> به <Image> */}
                                 <div className="relative h-80 w-full overflow-hidden">
-                                    <img
+                                    <Image
                                         src={imageUrl}
                                         alt={title}
+                                        fill
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        quality={50}
                                         loading="lazy"
-                                        decoding="async"
-                                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        className="object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
                                 <div className="p-6">
