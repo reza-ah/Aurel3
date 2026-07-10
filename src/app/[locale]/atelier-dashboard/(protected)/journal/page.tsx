@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { urlFor } from "@/lib/sanity";
 import dynamic from "next/dynamic";
 
-// ✅ اصلاح: استفاده از react-quill-new
+// ✅ استفاده از react-quill-new
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
@@ -27,6 +27,9 @@ export default function JournalManager() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [activeTab, setActiveTab] = useState<"en" | "fa">("en");
+
+    // ✅ اضافه شد: state برای Preview
+    const [showPreview, setShowPreview] = useState(false);
 
     useEffect(() => {
         fetchItems();
@@ -79,6 +82,7 @@ export default function JournalManager() {
         setEditingId(null);
         setError("");
         setSuccess("");
+        setShowPreview(false);
     }
 
     async function saveArticle(isEdit = false) {
@@ -202,8 +206,124 @@ export default function JournalManager() {
         "code-block",
     ];
 
+    // ✅ استایل‌های سفارشی برای Quill Editor (ارتفاع بیشتر)
+    const quillStyles = `
+        .quill-editor-large .ql-container {
+            min-height: 500px !important;
+            font-size: 16px;
+            font-family: inherit;
+            background: white;
+        }
+        .quill-editor-large .ql-editor {
+            min-height: 500px !important;
+            padding: 24px;
+            line-height: 1.8;
+            color: #1a1a1a;
+        }
+        .quill-editor-large .ql-toolbar {
+            border: none !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+            background: rgba(255,255,255,0.03);
+            padding: 12px 8px;
+        }
+        .quill-editor-large .ql-container {
+            border: none !important;
+        }
+        .quill-editor-large .ql-editor.ql-blank::before {
+            color: #a3a3a3;
+            font-style: normal;
+            left: 24px;
+            right: 24px;
+        }
+        .quill-editor-large .ql-snow .ql-stroke {
+            stroke: #D4AF37;
+        }
+        .quill-editor-large .ql-snow .ql-fill {
+            fill: #D4AF37;
+        }
+        .quill-editor-large .ql-snow .ql-picker {
+            color: #D4AF37;
+        }
+        .quill-editor-large .ql-snow .ql-picker-options {
+            background: #1a1a1a;
+            border-color: rgba(212, 175, 55, 0.3);
+        }
+        .quill-editor-large .ql-snow .ql-picker-label {
+            color: #D4AF37;
+        }
+        
+        /* Preview Modal Styles */
+        .preview-prose h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        .preview-prose h2 {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff, #D4AF37);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .preview-prose h3 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: #D4AF37;
+        }
+        .preview-prose p {
+            font-size: 1.125rem;
+            line-height: 2;
+            color: #e5e5e5;
+            margin-bottom: 1.5rem;
+        }
+        .preview-prose blockquote {
+            border-left: 3px solid #D4AF37;
+            padding: 1.5rem 2rem;
+            margin: 2.5rem 0;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 0 12px 12px 0;
+            font-style: italic;
+            font-size: 1.25rem;
+            color: #FFE8A3;
+        }
+        .preview-prose ul, .preview-prose ol {
+            margin: 1.5rem 0;
+            padding-left: 2rem;
+        }
+        .preview-prose li {
+            margin-bottom: 0.75rem;
+            color: #e5e5e5;
+            line-height: 1.8;
+        }
+        .preview-prose a {
+            color: #D4AF37;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+        .preview-prose strong {
+            color: #FFE8A3;
+            font-weight: 500;
+        }
+        .preview-prose img {
+            border-radius: 16px;
+            margin: 2rem auto;
+            max-width: 100%;
+        }
+    `;
+
     return (
         <main className="min-h-screen bg-black text-white pt-32 pb-20">
+            {/* ✅ استایل‌های سفارشی */}
+            <style>{quillStyles}</style>
+
             <div className="pointer-events-none fixed inset-0">
                 <div className="absolute left-1/4 top-20 h-96 w-96 rounded-full bg-[#D4AF37]/5 blur-[140px]" />
                 <div className="absolute right-1/4 bottom-20 h-96 w-96 rounded-full bg-white/[0.02] blur-[140px]" />
@@ -249,6 +369,7 @@ export default function JournalManager() {
                     </div>
 
                     <div className="space-y-6">
+                        {/* Titles */}
                         <div className="grid gap-6 md:grid-cols-2">
                             <div>
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -275,6 +396,7 @@ export default function JournalManager() {
                             </div>
                         </div>
 
+                        {/* Slug */}
                         <div>
                             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                 Slug * (URL-friendly)
@@ -292,6 +414,7 @@ export default function JournalManager() {
                             </p>
                         </div>
 
+                        {/* Excerpts */}
                         <div className="grid gap-6 md:grid-cols-2">
                             <div>
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -318,6 +441,7 @@ export default function JournalManager() {
                             </div>
                         </div>
 
+                        {/* Content Tabs */}
                         <div>
                             <div className="mb-4 flex gap-4 border-b border-white/10">
                                 <button
@@ -340,13 +464,15 @@ export default function JournalManager() {
                                 </button>
                             </div>
 
+                            {/* English Content */}
                             {activeTab === "en" && (
                                 <div>
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (EN) — Visual Editor
                                     </label>
-                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
                                         <ReactQuill
+                                            key={`en-${editingId || 'new'}`}
                                             theme="snow"
                                             value={contentEn}
                                             onChange={setContentEn}
@@ -355,16 +481,21 @@ export default function JournalManager() {
                                             placeholder="Start writing your article here..."
                                         />
                                     </div>
+                                    <p className="mt-2 text-xs text-[#a3a3a3]">
+                                        Use the toolbar above to format your text, add images, links, lists, etc.
+                                    </p>
                                 </div>
                             )}
 
+                            {/* Persian Content */}
                             {activeTab === "fa" && (
                                 <div>
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (FA) — Visual Editor
                                     </label>
-                                    <div className="rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
                                         <ReactQuill
+                                            key={`fa-${editingId || 'new'}`}
                                             theme="snow"
                                             value={contentFa}
                                             onChange={setContentFa}
@@ -373,10 +504,14 @@ export default function JournalManager() {
                                             placeholder="مقاله خود را اینجا بنویسید..."
                                         />
                                     </div>
+                                    <p className="mt-2 text-xs text-[#a3a3a3]">
+                                        از نوار ابزار بالا برای فرمت‌دهی متن، اضافه کردن تصویر، لینک، لیست و... استفاده کنید.
+                                    </p>
                                 </div>
                             )}
                         </div>
 
+                        {/* Cover Image */}
                         <div>
                             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                 Cover Image
@@ -415,7 +550,16 @@ export default function JournalManager() {
                             </div>
                         </div>
 
-                        <div className="flex gap-4 pt-4">
+                        {/* Actions */}
+                        <div className="flex flex-wrap gap-4 pt-4">
+                            <button
+                                onClick={() => setShowPreview(true)}
+                                disabled={!titleEn && !titleFa}
+                                className="rounded-xl border border-[#D4AF37]/40 px-8 py-3 text-sm font-medium uppercase tracking-[0.2em] text-[#D4AF37] transition-all hover:bg-[#D4AF37]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                👁 Preview
+                            </button>
+
                             <button
                                 onClick={() => saveArticle(!!editingId)}
                                 disabled={loading}
@@ -423,6 +567,7 @@ export default function JournalManager() {
                             >
                                 {loading ? "Saving..." : editingId ? "Update Article" : "Create Article"}
                             </button>
+
                             {editingId && (
                                 <button
                                     onClick={resetForm}
@@ -435,6 +580,7 @@ export default function JournalManager() {
                     </div>
                 </div>
 
+                {/* Articles List */}
                 <div>
                     <h2 className="mb-6 text-xl font-light text-white">
                         Articles ({items.length})
@@ -506,6 +652,129 @@ export default function JournalManager() {
                     )}
                 </div>
             </div>
+
+            {/* ✅ Preview Modal */}
+            {showPreview && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/90 backdrop-blur-sm"
+                        onClick={() => setShowPreview(false)}
+                    />
+
+                    {/* Modal Content */}
+                    <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-[#070707] shadow-2xl">
+                        {/* Modal Header */}
+                        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-white/10 bg-[#070707]/95 px-8 py-4 backdrop-blur-sm">
+                            <div className="flex items-center gap-3">
+                                <span className="h-2 w-2 rounded-full bg-[#D4AF37] animate-pulse" />
+                                <h3 className="text-lg font-light text-white">
+                                    Article Preview
+                                </h3>
+                            </div>
+                            <button
+                                onClick={() => setShowPreview(false)}
+                                className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 text-white transition-all hover:border-white/40 hover:bg-white/5"
+                            >
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        {/* Preview Content */}
+                        <div className="p-8 md:p-12">
+                            {/* Category Badge */}
+                            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
+                                <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
+                                <span className="text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
+                                    Preview Mode
+                                </span>
+                            </div>
+
+                            {/* Title */}
+                            <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl">
+                                <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
+                                    {titleEn || titleFa || "Article Title"}
+                                </span>
+                            </h1>
+
+                            {/* Meta Info */}
+                            <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-white/10 pt-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8B7332]">
+                                        <span className="text-sm font-medium text-black">A</span>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-white">Aurel Studio</p>
+                                        <p className="text-xs text-[#a3a3a3]">Design Team</p>
+                                    </div>
+                                </div>
+
+                                <div className="hidden h-8 w-px bg-white/10 sm:block" />
+
+                                <div className="flex items-center gap-2 text-sm text-[#a3a3a3]">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Preview</span>
+                                </div>
+
+                                <div className="hidden h-8 w-px bg-white/10 sm:block" />
+
+                                <div className="flex items-center gap-2 text-sm text-[#a3a3a3]">
+                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span>
+                                        {activeTab === "en" ? "English" : "فارسی"}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* Cover Image */}
+                            {coverPreview && (
+                                <div className="relative mt-8 aspect-video overflow-hidden rounded-2xl border border-white/10">
+                                    <img
+                                        src={coverPreview}
+                                        alt="Cover"
+                                        className="h-full w-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                                </div>
+                            )}
+
+                            {/* Excerpt */}
+                            {(activeTab === "en" ? excerptEn : excerptFa) && (
+                                <p className="mt-8 text-lg leading-relaxed text-[#e5e5e5] border-l-2 border-[#D4AF37]/40 pl-6">
+                                    {activeTab === "en" ? excerptEn : excerptFa}
+                                </p>
+                            )}
+
+                            {/* Content */}
+                            <div
+                                className="preview-prose mt-12"
+                                dangerouslySetInnerHTML={{
+                                    __html: (activeTab === "en" ? contentEn : contentFa) || "<p style='color:#a3a3a3; text-align:center; padding:3rem 0;'>No content yet. Start writing in the editor...</p>"
+                                }}
+                            />
+
+                            {/* Footer Info */}
+                            <div className="mt-16 rounded-2xl border border-[#D4AF37]/20 bg-gradient-to-br from-[#D4AF37]/5 to-transparent p-8 text-center">
+                                <p className="text-xs uppercase tracking-[0.3em] text-[#D4AF37]">
+                                    Preview Mode
+                                </p>
+                                <p className="mt-2 text-sm text-[#a3a3a3]">
+                                    This is how your article will look when published
+                                </p>
+                                <p className="mt-4 text-xs text-[#a3a3a3]">
+                                    Slug: /{activeTab === "en" ? "en" : "fa"}/journal/{slug || "your-slug"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

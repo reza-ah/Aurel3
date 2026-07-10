@@ -28,8 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     if (!post) return {};
 
     const isFa = locale === "fa";
-    const title = isFa ? post.title_fa : post.title_en;
-    const description = isFa ? post.excerpt_fa : post.excerpt_en;
+    const title = isFa
+        ? (post.title_fa || post.title_en || "Untitled")
+        : (post.title_en || post.title_fa || "Untitled");
+
+    const description = isFa
+        ? (post.excerpt_fa || post.excerpt_en || "")
+        : (post.excerpt_en || post.excerpt_fa || "");
+
     const image = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
     const currentUrl = `${BASE_URL}/${locale}/journal/${slug}`;
 
@@ -83,9 +89,15 @@ export default async function JournalArticlePage({ params }: Props) {
     const prevPost = currentIndex > 0 ? posts[currentIndex - 1] : null;
     const nextPost = currentIndex < posts.length - 1 ? posts[currentIndex + 1] : null;
 
-    const currentTitleWords = (isFa ? post.title_fa : post.title_en)
+    // ✅ اصلاح: fallback برای title
+    const currentTitle = isFa
+        ? (post.title_fa || post.title_en || "")
+        : (post.title_en || post.title_fa || "");
+
+    const currentTitleWords = currentTitle
         .toLowerCase()
-        .split(/\s+/);
+        .split(/\s+/)
+        .filter(Boolean);
 
     const related = posts
         .filter((p: any) => {
@@ -93,9 +105,15 @@ export default async function JournalArticlePage({ params }: Props) {
             return pSlug !== slug;
         })
         .map((p: any) => {
-            const titleWords = (isFa ? p.title_fa : p.title_en)
+            // ✅ اصلاح: fallback برای title
+            const pTitle = isFa
+                ? (p.title_fa || p.title_en || "")
+                : (p.title_en || p.title_fa || "");
+
+            const titleWords = pTitle
                 .toLowerCase()
-                .split(/\s+/);
+                .split(/\s+/)
+                .filter(Boolean);
 
             const score = titleWords.filter((word: string) =>
                 currentTitleWords.includes(word)
@@ -106,13 +124,23 @@ export default async function JournalArticlePage({ params }: Props) {
         .sort((a: any, b: any) => b.score - a.score)
         .slice(0, 3);
 
-    const title = isFa ? post.title_fa : post.title_en;
-    const description = isFa ? post.excerpt_fa : post.excerpt_en;
-    const content = isFa ? post.content_fa : post.content_en || "";
+    // ✅ اصلاح: fallback برای title, description, content
+    const title = isFa
+        ? (post.title_fa || post.title_en || "Untitled")
+        : (post.title_en || post.title_fa || "Untitled");
+
+    const description = isFa
+        ? (post.excerpt_fa || post.excerpt_en || "")
+        : (post.excerpt_en || post.excerpt_fa || "");
+
+    const content = isFa
+        ? (post.content_fa || post.content_en || "")
+        : (post.content_en || post.content_fa || "");
+
     const imageUrl = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 
     const plainText = content.replace(/<[^>]+>/g, "");
-    const words = plainText.trim().split(/\s+/).length;
+    const words = plainText.trim().split(/\s+/).filter(Boolean).length;
     const readingTime = Math.max(1, Math.round(words / 200));
 
     const headings = [...content.matchAll(/<(h2|h3)[^>]*>(.*?)<\/\1>/gi)]
@@ -429,7 +457,7 @@ export default async function JournalArticlePage({ params }: Props) {
                             </svg>
                             <span>
                                 {isFa
-                                    ? `${toFaNumber(readingTime)} ${isFa ? "دقیقه مطالعه" : "min read"}`
+                                    ? `${toFaNumber(readingTime)} دقیقه مطالعه`
                                     : `${readingTime} min read`}
                             </span>
                         </div>
@@ -630,7 +658,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                 {isFa ? "مقاله قبلی" : "Previous"}
                             </p>
                             <p className="mt-3 text-lg font-light text-white group-hover:text-[#FFE8A3] transition-colors">
-                                {isFa ? prevPost.title_fa : prevPost.title_en}
+                                {isFa ? (prevPost.title_fa || prevPost.title_en) : (prevPost.title_en || prevPost.title_fa)}
                             </p>
                         </Link>
                     )}
@@ -645,7 +673,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                 <span>→</span>
                             </p>
                             <p className="mt-3 text-lg font-light text-white group-hover:text-[#FFE8A3] transition-colors">
-                                {isFa ? nextPost.title_fa : nextPost.title_en}
+                                {isFa ? (nextPost.title_fa || nextPost.title_en) : (nextPost.title_en || nextPost.title_fa)}
                             </p>
                         </Link>
                     )}
@@ -664,7 +692,9 @@ export default async function JournalArticlePage({ params }: Props) {
 
                         <div className="grid gap-8 md:grid-cols-3">
                             {related.map((p: any) => {
-                                const relTitle = isFa ? p.title_fa : p.title_en;
+                                const relTitle = isFa
+                                    ? (p.title_fa || p.title_en || "Untitled")
+                                    : (p.title_en || p.title_fa || "Untitled");
                                 const relSlug = typeof p.slug === "string" ? p.slug : p.slug?.current;
                                 const relImage = getOptimizedImage(p.cover_image, {
                                     width: 600,
