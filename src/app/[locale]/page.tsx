@@ -24,8 +24,13 @@ export async function generateMetadata({
             title: "طراحی جواهرات | سفارش طراحی طلا با ماتریکس | استودیو آرل",
             description: "استودیو طراحی جواهرات آرل - ارائه خدمات طراحی ، مدل‌سازی سه‌بعدی، پرینت سه‌بعدی و ریخته‌گری طلا و جواهرات. ",
             keywords: [
-                "طراحی جواهرات ",
+                // ✅ اصلی - بیشترین حجم جستجو
+                "طراحی جواهرات",
                 "طراحی طلا",
+                "خدمات طراحی طلا",
+                "خدمات طلا",
+                "خدمات طراحی جواهرات",
+                "خدمات جواهرات",
                 "طراحی جواهرات با ماتریکس",
                 "طراحی طلا با ماتریکس",
                 "مدل سازی جواهرات با ماتریکس",
@@ -39,10 +44,11 @@ export async function generateMetadata({
                 "ریخته گری طلا",
                 "ریخته گری جواهر",
                 "طراحی جواهر با راینو",
+                // ✅ ثانویه - intent خرید بالا
                 "سفارش مدل سازی جواهر",
                 "طراح جواهرات حرفه ای تهران",
                 "استودیو طراحی جواهرات تهران",
-                " طراحی جواهرات تهران",
+                "طراحی جواهرات تهران",
                 "طراحی جواهر اختصاصی",
                 "ساخت مدل طلا",
                 "فایل آماده ریخته گری جواهر",
@@ -52,7 +58,7 @@ export async function generateMetadata({
                 "طراحی سرویس جواهر",
                 "مخراج کاری سه بعدی",
                 "ZBrush جواهر",
-                " طراحی Zbrush",
+                "طراحی Zbrush",
             ],
             authors: [{ name: "Aurel Design Studio", url: BASE_URL }],
             creator: "Aurel Design Studio",
@@ -112,8 +118,13 @@ export async function generateMetadata({
         title: "Jewelry Design | Custom Gold Design with MatrixGold | Aurel Studio",
         description: "Aurel Jewelry Design Studio - Professional jewelry design, 3D modeling, 3D printing, and gold & jewelry casting services.",
         keywords: [
+            // ✅ اصلی - بیشترین حجم جستجو
             "jewelry design",
             "gold design",
+            "jewelry design services",
+            "gold services",
+            "jewelry services",
+            "custom jewelry services",
             "jewelry design with MatrixGold",
             "gold design with MatrixGold",
             "jewelry modeling with MatrixGold",
@@ -127,6 +138,7 @@ export async function generateMetadata({
             "gold casting",
             "jewelry casting",
             "jewelry design with Rhino",
+            // ✅ ثانویه - intent خرید بالا
             "custom jewelry modeling order",
             "professional jewelry designer Tehran",
             "jewelry design studio Tehran",

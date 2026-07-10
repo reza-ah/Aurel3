@@ -17,14 +17,13 @@ interface GeoInfo {
 
 function getGeoCountry(request: NextRequest): string {
     // ✅ Vercel Geolocation - استفاده از header
-    // Vercel این header ها را اضافه می‌کند:
-    // x-vercel-ip-country, x-vercel-ip-city, etc.
     const country = request.headers.get("x-vercel-ip-country");
     return country || "US";
 }
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    const hostname = request.headers.get("host") || "";
 
     // ✅ ۱. بهینه‌سازی: فایل‌های استاتیک رو رد کن
     if (
@@ -36,15 +35,17 @@ export async function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // ✅ ۲. Redirect ریشه به locale مناسب بر اساس IP
+    // ✅ ۲. Redirect non-www به www (حل مشکل canonical)
+    if (!hostname.startsWith("www.")) {
+        const url = request.nextUrl.clone();
+        url.hostname = `www.${hostname}`;
+        return NextResponse.redirect(url, 301);
+    }
+
+    // ✅ ۳. Redirect ریشه به locale مناسب بر اساس IP
     if (pathname === "/") {
-        // ✅ تشخیص کشور از header های Vercel
         const country = getGeoCountry(request);
-
-        // ✅ تشخیص locale بر اساس کشور
         const detectedLocale = FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en";
-
-        console.log(`🌍 Geo detection: country=${country}, locale=${detectedLocale}`);
 
         // ✅ Set cookie برای حفظ انتخاب کاربر
         const response = NextResponse.redirect(
@@ -60,13 +61,12 @@ export async function middleware(request: NextRequest) {
         return response;
     }
 
-    // ✅ ۳. اضافه کردن locale به مسیرهای بدون locale
+    // ✅ ۴. اضافه کردن locale به مسیرهای بدون locale
     const pathnameHasLocale = locales.some(
         (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
     );
 
     if (!pathnameHasLocale) {
-        // ✅ اگر کاربر locale ندارد، از cookie یا geo استفاده کن
         const cookieLocale = request.cookies.get("detected_locale")?.value;
         const country = getGeoCountry(request);
         const detectedLocale = cookieLocale || (FA_LOCALE_COUNTRIES.includes(country) ? "fa" : "en");
@@ -76,7 +76,7 @@ export async function middleware(request: NextRequest) {
         );
     }
 
-    // ✅ ۴. Admin auth check
+    // ✅ ۵. Admin auth check
     if (pathname.includes("/atelier-dashboard") && !pathname.includes("/login")) {
         const token = request.cookies.get("admin_auth")?.value;
 

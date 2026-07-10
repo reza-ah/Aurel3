@@ -1,0 +1,34 @@
+# Aurel Jewelry Design Studio
+
+Professional jewelry CAD design, 3D modeling, and production-ready services.
+
+## About
+- [About Us](https://www.aureldesign.ir/en/about)
+- [Founder Story](https://www.aureldesign.ir/en/about#founder)
+
+## Services
+- [Services & Pricing](https://www.aureldesign.ir/en/pricing)
+- [Jewelry Design](https://www.aureldesign.ir/en/pricing#design)
+- [3D Modeling](https://www.aureldesign.ir/en/pricing#modeling)
+- [3D Printing](https://www.aureldesign.ir/en/pricing#printing)
+- [Casting](https://www.aureldesign.ir/en/pricing#casting)
+
+## Portfolio
+- [Selected Projects](https://www.aureldesign.ir/en/portfolio)
+- [Jewelry Collection](https://www.aureldesign.ir/en/portfolio#collection)
+
+## Journal
+- [Articles & Insights](https://www.aureldesign.ir/en/journal)
+- [Design Process](https://www.aureldesign.ir/en/journal#process)
+
+## Contact
+- [Contact Us](https://www.aureldesign.ir/en/contact)
+- [Submit Order](https://www.aureldesign.ir/en/contact#order)
+
+## FAQ
+- [Frequently Asked Questions](https://www.aureldesign.ir/en/faq)
+
+## Social Media
+- [Instagram](https://www.instagram.com/aureldesignstudio)
+- [LinkedIn](https://www.linkedin.com/company/aurel-design-studio)
+- [WhatsApp](https://wa.me/989122987123)

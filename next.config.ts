@@ -33,6 +33,28 @@ const nextConfig: NextConfig = {
     } : false,
   },
 
+  // ✅ اصلاح شد: فقط redirect /articles باقی ماند
+  async redirects() {
+    return [
+      // Redirect /articles (old) → /journal (new)
+      {
+        source: '/en/articles',
+        destination: '/en/journal',
+        permanent: true,
+      },
+      {
+        source: '/fa/articles',
+        destination: '/fa/journal',
+        permanent: true,
+      },
+      {
+        source: '/articles',
+        destination: '/en/journal',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

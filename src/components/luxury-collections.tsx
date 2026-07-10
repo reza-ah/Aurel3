@@ -113,7 +113,6 @@ export default function LuxuryCollections({ locale }: Props) {
                             {content.title}
                         </h2>
 
-                        {/* ✅ اصلاح: text-gray-400 → text-white/75 */}
                         <p className="mt-6 text-base leading-8 text-white/75">
                             {content.subtitle}
                         </p>
@@ -125,14 +124,15 @@ export default function LuxuryCollections({ locale }: Props) {
                         <Reveal key={index} delay={index * 0.1}>
                             <div className="group overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.03] backdrop-blur-sm">
                                 <div className="relative h-[500px] overflow-hidden">
+                                    {/* ✅ اصلاح: sizes دقیق‌تر و quality بهتر */}
                                     <Image
                                         src={item.image}
                                         alt={`${item.title} - Aurel Jewelry Design Service`}
                                         fill
-                                        sizes="(max-width: 768px) 100vw, 50vw"
-                                        quality={60}
-                                        priority={false}
-                                        loading="lazy"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                        quality={75}
+                                        priority={index === 0}
+                                        loading={index === 0 ? "eager" : "lazy"}
                                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
 
@@ -146,8 +146,7 @@ export default function LuxuryCollections({ locale }: Props) {
                                         {item.title}
                                     </h3>
 
-                                    {/* ✅ اصلاح: text-gray-400 → text-[#e5e5e5] */}
-                                    <p className="mt-4 text-sm leading-7 text-[#e5e5e5]">
+                                    <p className="mt-4 text-base leading-7 text-[#e5e5e5]">
                                         {item.description}
                                     </p>
 
