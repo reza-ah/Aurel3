@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       "react-hook-form",
       "@hookform/resolvers",
     ],
+    // ✅ اضافه شد: بهینه‌سازی CSS
+    optimizeCss: true,
   },
 
   images: {
@@ -33,10 +35,8 @@ const nextConfig: NextConfig = {
     } : false,
   },
 
-  // ✅ اصلاح شد: فقط redirect /articles باقی ماند
   async redirects() {
     return [
-      // Redirect /articles (old) → /journal (new)
       {
         source: '/en/articles',
         destination: '/en/journal',

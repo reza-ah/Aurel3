@@ -153,9 +153,11 @@ export default function PortfolioGrid({ locale, items }: Props) {
                     {displayedItems.map((item, index) => {
                         const title = isFa ? item.title_fa : item.title_en;
                         const category = isFa ? item.category_fa : item.category_en;
+
+                        // ✅ اصلاح: quality از 75 به 50
                         const imageUrl = getOptimizedImage(item.cover_image, {
                             width: 900,
-                            quality: 75,
+                            quality: 50,
                             format: "webp"
                         }) || "/placeholder.jpg";
 
@@ -209,7 +211,6 @@ export default function PortfolioGrid({ locale, items }: Props) {
                 </AnimatePresence>
             </motion.div>
 
-            {/* سنسور تشخیص اسکرول به انتهای صفحه */}
             <div ref={loadMoreRef} className="h-10 w-full clear-both" />
         </div>
     );

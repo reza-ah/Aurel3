@@ -20,7 +20,6 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
     const items = await getFeaturedPortfolioItems();
     const isFa = locale === "fa";
 
-    // ✅ فیلتر کردن آیتم‌های placeholder (Test, Sample, Demo)
     const validItems = (items || []).filter((item: any) => {
         const title = (isFa ? item.title_fa : item.title_en) || "";
         const lowerTitle = title.toLowerCase();
@@ -48,10 +47,10 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                     {validItems.map((item: any) => {
-                        // ✅ استفاده از getOptimizedImage
+                        // ✅ اصلاح: quality از 75 به 50
                         const imageUrl = getOptimizedImage(item.cover_image, {
                             width: 800,
-                            quality: 75,
+                            quality: 50,
                             format: "webp"
                         }) || "/placeholder.jpg";
 
@@ -68,6 +67,8 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
                                     <img
                                         src={imageUrl}
                                         alt={title}
+                                        loading="lazy"
+                                        decoding="async"
                                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                                     />
                                 </div>
