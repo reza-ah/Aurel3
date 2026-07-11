@@ -117,7 +117,15 @@ export async function getPortfolioItems() {
             gallery, 
             tags[]->{ _id, name_en, name_fa },
             featured, 
-            date_created 
+            date_created,
+            material_en,
+            material_fa,
+            weight_en,
+            weight_fa,
+            production_time_en,
+            production_time_fa,
+            dimensions_en,
+            dimensions_fa
         }`
     );
 }
@@ -137,7 +145,15 @@ export async function getFeaturedPortfolioItems() {
             gallery, 
             tags[]->{ _id, name_en, name_fa },
             featured, 
-            date_created 
+            date_created,
+            material_en,
+            material_fa,
+            weight_en,
+            weight_fa,
+            production_time_en,
+            production_time_fa,
+            dimensions_en,
+            dimensions_fa
         }`
     );
 }
@@ -157,7 +173,15 @@ export async function getPortfolioBySlug(slug: string) {
             gallery, 
             tags[]->{ _id, name_en, name_fa },
             featured, 
-            date_created 
+            date_created,
+            material_en,
+            material_fa,
+            weight_en,
+            weight_fa,
+            production_time_en,
+            production_time_fa,
+            dimensions_en,
+            dimensions_fa
         }`,
         { slug }
     );

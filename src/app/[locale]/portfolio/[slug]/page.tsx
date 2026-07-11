@@ -19,11 +19,14 @@ type PortfolioItem = {
     tags?: any[];
     cover_image?: any;
     gallery?: any[];
-    // ✅ فیلدهای جدید برای مشخصات
-    weight?: string;
-    material?: string;
-    dimensions?: string;
-    production_time?: string;
+    material_fa?: string;
+    material_en?: string;
+    weight_fa?: string;
+    weight_en?: string;
+    dimensions_fa?: string;
+    dimensions_en?: string;
+    production_time_fa?: string;
+    production_time_en?: string;
 };
 
 type Props = {
@@ -102,13 +105,21 @@ export default async function ProjectPage({ params }: Props) {
         },
     ];
 
-    // ✅ مشخصات محصول
+    // ✅ مشخصات محصول از Sanity
     const specs = {
-        material: project.material || (isFa ? "طلای 18 عیار" : "18K Gold"),
-        weight: project.weight || (isFa ? "حدود 10 گرم" : "Approx. 10g"),
-        dimensions: project.dimensions || (isFa ? "قابل سفارشی‌سازی" : "Customizable"),
-        productionTime: project.production_time || (isFa ? "10-14 روز کاری" : "10-14 business days"),
+        material: isFa ? project.material_fa : project.material_en,
+        weight: isFa ? project.weight_fa : project.weight_en,
+        dimensions: isFa ? project.dimensions_fa : project.dimensions_en,
+        productionTime: isFa ? project.production_time_fa : project.production_time_en,
     };
+
+    // ✅ فقط کارت‌هایی را نشان بده که مقدار دارند
+    const specCards = [
+        { label: isFa ? "متریال" : "Material", value: specs.material },
+        { label: isFa ? "وزن" : "Weight", value: specs.weight },
+        { label: isFa ? "زمان تولید" : "Production Time", value: specs.productionTime },
+        { label: isFa ? "ابعاد" : "Dimensions", value: specs.dimensions },
+    ].filter(spec => spec.value);
 
     return (
         <main className="min-h-screen bg-transparent text-white">
@@ -117,7 +128,7 @@ export default async function ProjectPage({ params }: Props) {
             <BreadcrumbSchema items={breadcrumbItems} />
 
             {/* ============================================
-                HERO SECTION - حرفه‌ای‌تر
+                HERO SECTION
             ============================================ */}
             <section className="pt-32 pb-24 relative overflow-hidden">
                 {/* Background Glow */}
@@ -166,39 +177,23 @@ export default async function ProjectPage({ params }: Props) {
                                 {description}
                             </p>
 
-                            {/* ✅ مشخصات سریع */}
-                            <div className="grid grid-cols-2 gap-4 pt-4">
-                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                                    <p className="text-xs text-[#a3a3a3] mb-1">
-                                        {isFa ? "متریال" : "Material"}
-                                    </p>
-                                    <p className="text-white font-medium">{specs.material}</p>
+                            {/* ✅ مشخصات سریع - فقط اگر مقدار داشته باشد */}
+                            {specCards.length > 0 && (
+                                <div className="grid grid-cols-2 gap-4 pt-4">
+                                    {specCards.map((spec, index) => (
+                                        <div key={index} className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+                                            <p className="text-xs text-[#a3a3a3] mb-1">{spec.label}</p>
+                                            <p className="text-white font-medium">{spec.value}</p>
+                                        </div>
+                                    ))}
                                 </div>
-                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                                    <p className="text-xs text-[#a3a3a3] mb-1">
-                                        {isFa ? "وزن" : "Weight"}
-                                    </p>
-                                    <p className="text-white font-medium">{specs.weight}</p>
-                                </div>
-                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                                    <p className="text-xs text-[#a3a3a3] mb-1">
-                                        {isFa ? "زمان تولید" : "Production Time"}
-                                    </p>
-                                    <p className="text-white font-medium">{specs.productionTime}</p>
-                                </div>
-                                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4">
-                                    <p className="text-xs text-[#a3a3a3] mb-1">
-                                        {isFa ? "ابعاد" : "Dimensions"}
-                                    </p>
-                                    <p className="text-white font-medium">{specs.dimensions}</p>
-                                </div>
-                            </div>
+                            )}
 
                             {/* ✅ دکمه‌های CTA */}
                             <div className="flex flex-wrap gap-4 pt-4">
                                 <Link
                                     href="/en/contact"
-                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-[#D4AF37] text-black font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#FFE8A3] hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
+                                    className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-[#D4AF37]/40 text-[#D4AF37] font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
                                 >
                                     {isFa ? "سفارش طرح مشابه" : "Order This Design"}
                                 </Link>
@@ -228,7 +223,7 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
             </section>
 
-            {/* GALLERY - بدون تغییر */}
+            {/* GALLERY */}
             {galleryImages.length > 0 && (
                 <section className="pb-32">
                     <div className="max-w-7xl mx-auto px-6">
@@ -241,17 +236,14 @@ export default async function ProjectPage({ params }: Props) {
             )}
 
             {/* ============================================
-                CTA SECTION - جدید و قوی‌تر
+                CTA SECTION
             ============================================ */}
-            {/* ============================================
-    CTA SECTION - هماهنگ با سبک جدید
-============================================ */}
             <section className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="relative rounded-[32px] border border-[#D4AF37]/20 bg-white/[0.02] backdrop-blur-sm px-8 py-16 overflow-hidden">
                         {/* Background Glow */}
                         <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-[140px] pointer-events-none" />
-                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/3 rounded-full blur-[120px] pointer-events-none" />
+                        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/[0.03] rounded-full blur-[120px] pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                             <div className="space-y-4">
@@ -281,7 +273,7 @@ export default async function ProjectPage({ params }: Props) {
                                 </p>
                             </div>
 
-                            {/* دکمه هماهنگ با سبک جدید */}
+                            {/* دکمه */}
                             <Link
                                 href="/en/contact"
                                 className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-[#D4AF37] text-black font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#FFE8A3] hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] shrink-0"
@@ -293,7 +285,7 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
             </section>
 
-            {/* RELATED PROJECTS - بدون تغییر */}
+            {/* RELATED PROJECTS */}
             {relatedProjects.length > 0 && (
                 <section className="border-t border-white/10 pt-24 pb-32">
                     <div className="max-w-7xl mx-auto px-6">
