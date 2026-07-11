@@ -32,6 +32,15 @@ type PortfolioItem = {
     cover_image?: SanityImage | string;
     gallery?: (SanityImage | string)[];
     tags?: SanityReference[];
+    // ✅ فیلدهای جدید برای مشخصات محصول
+    material_fa?: string;
+    material_en?: string;
+    weight_fa?: string;
+    weight_en?: string;
+    dimensions_fa?: string;
+    dimensions_en?: string;
+    production_time_fa?: string;
+    production_time_en?: string;
 };
 
 type TagItem = {
@@ -58,7 +67,6 @@ function slugify(text: string) {
         .replace(/-+/g, "-");
 }
 
-// ✅ تابع کمکی برای ساخت URL تصویر Sanity
 function getImageUrl(image: SanityImage | string | null | undefined): string | null {
     if (!image) return null;
 
@@ -77,14 +85,12 @@ function getImageUrl(image: SanityImage | string | null | undefined): string | n
     }
 }
 
-// ✅ تابع کمکی برای گرفتن slug
 function getSlug(slug: { current: string } | string | undefined): string {
     if (!slug) return "";
     if (typeof slug === "string") return slug;
     return slug.current || "";
 }
 
-// ✅ تابع کمکی برای استخراج tag IDs
 function normalizeTagIds(input: SanityReference[] | null | undefined): string[] {
     if (!input || !Array.isArray(input)) return [];
     return input
@@ -121,6 +127,15 @@ export default function PortfolioEditPage() {
         featured: false,
         status: "published",
         cover_image: null as SanityImage | string | null,
+        // ✅ فیلدهای جدید
+        material_fa: "",
+        material_en: "",
+        weight_fa: "",
+        weight_en: "",
+        dimensions_fa: "",
+        dimensions_en: "",
+        production_time_fa: "",
+        production_time_en: "",
     });
 
     useEffect(() => {
@@ -159,6 +174,15 @@ export default function PortfolioEditPage() {
                 featured: !!current?.featured,
                 status: current?.status || "published",
                 cover_image: current?.cover_image || null,
+                // ✅ بارگذاری فیلدهای جدید
+                material_fa: current?.material_fa || "",
+                material_en: current?.material_en || "",
+                weight_fa: current?.weight_fa || "",
+                weight_en: current?.weight_en || "",
+                dimensions_fa: current?.dimensions_fa || "",
+                dimensions_en: current?.dimensions_en || "",
+                production_time_fa: current?.production_time_fa || "",
+                production_time_en: current?.production_time_en || "",
             });
 
             setEditGallery(current?.gallery || []);
@@ -193,7 +217,6 @@ export default function PortfolioEditPage() {
         });
 
         const json = await res.json().catch(() => null);
-        // ✅ اصلاح: Sanity از _id استفاده می‌کند
         const fileId = json?.data?._id || json?._id;
 
         if (!res.ok || !fileId) throw new Error(json?.message || "Upload failed");
@@ -232,7 +255,6 @@ export default function PortfolioEditPage() {
             const payload = {
                 title_en: form.title_en,
                 title_fa: form.title_fa,
-                // ✅ اصلاح: slug به صورت object برای Sanity
                 slug: { current: form.slug },
                 category_fa: form.category_fa,
                 category_en: form.category_en,
@@ -240,12 +262,18 @@ export default function PortfolioEditPage() {
                 description_en: form.description_en,
                 featured: form.featured,
                 status: form.status,
-                // ✅ اصلاح: ساختار Sanity برای cover_image
                 cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
-                // ✅ اصلاح: ساختار Sanity برای gallery
                 gallery: galleryRefs.map(ref => ({ _type: "image", asset: { _ref: ref } })),
-                // ✅ اصلاح: ساختار Sanity برای tags (references)
                 tags: editSelectedTags.map(tagId => ({ _type: "reference", _ref: tagId })),
+                // ✅ اضافه کردن فیلدهای جدید به payload
+                material_fa: form.material_fa || null,
+                material_en: form.material_en || null,
+                weight_fa: form.weight_fa || null,
+                weight_en: form.weight_en || null,
+                dimensions_fa: form.dimensions_fa || null,
+                dimensions_en: form.dimensions_en || null,
+                production_time_fa: form.production_time_fa || null,
+                production_time_en: form.production_time_en || null,
             };
 
             const apiUrl = isNew
@@ -257,7 +285,7 @@ export default function PortfolioEditPage() {
             const res = await fetch(apiUrl, {
                 method: apiMethod,
                 headers: { "Content-Type": "application/json" },
-                credentials: "include",  // ✅ اضافه شد
+                credentials: "include",
                 body: JSON.stringify(payload),
             });
 
@@ -362,6 +390,90 @@ export default function PortfolioEditPage() {
                         value={form.description_en}
                         onChange={(e) => setForm((prev) => ({ ...prev, description_en: e.target.value }))}
                     />
+
+                    {/* ✅ بخش جدید: مشخصات محصول */}
+                    <div className="border-t border-zinc-700 pt-4 mt-2">
+                        <h3 className="text-lg font-semibold mb-3 text-[#D4AF37]">مشخصات محصول</h3>
+                        <p className="text-xs text-[#a3a3a3] mb-4">این فیلدها اختیاری هستند و فقط در صورت پر شدن نمایش داده می‌شوند</p>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Material (فارسی)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="مثلاً: طلای 18 عیار"
+                                    value={form.material_fa}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, material_fa: e.target.value }))}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Material (English)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="e.g., 18K Gold"
+                                    value={form.material_en}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, material_en: e.target.value }))}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Weight (فارسی)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="مثلاً: حدود 10 گرم"
+                                    value={form.weight_fa}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, weight_fa: e.target.value }))}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Weight (English)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="e.g., Approx. 10g"
+                                    value={form.weight_en}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, weight_en: e.target.value }))}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Dimensions (فارسی)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="مثلاً: قابل سفارشی‌سازی"
+                                    value={form.dimensions_fa}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, dimensions_fa: e.target.value }))}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Dimensions (English)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="e.g., Customizable"
+                                    value={form.dimensions_en}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, dimensions_en: e.target.value }))}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Production Time (فارسی)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="مثلاً: 10-14 روز کاری"
+                                    value={form.production_time_fa}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, production_time_fa: e.target.value }))}
+                                />
+                            </div>
+                            <div>
+                                <label className="text-sm text-[#a3a3a3]">Production Time (English)</label>
+                                <input
+                                    className="w-full p-2 rounded-lg bg-zinc-800"
+                                    placeholder="e.g., 10-14 business days"
+                                    value={form.production_time_en}
+                                    onChange={(e) => setForm((prev) => ({ ...prev, production_time_en: e.target.value }))}
+                                />
+                            </div>
+                        </div>
+                    </div>
 
                     <div className="grid gap-1.5">
                         <label className="text-sm text-[#a3a3a3]">Status (وضعیت انتشار)</label>
