@@ -1,5 +1,6 @@
 import { getPricingCategories, getPricingItems } from "@/lib/sanity";
-import PricingAccordion from "@/features/pricing/components/pricing-accordion";
+// import PricingAccordion from "@/features/pricing/components/pricing-accordion";
+import PricingCards from "@/features/pricing/components/pricing-cards";
 import Reveal from "@/components/reveal";
 import ServiceSchema from "@/components/seo/service-schema";
 import type { Metadata } from "next";
@@ -122,7 +123,7 @@ export default async function PricingPage({
             </section>
 
             <section className="container mx-auto max-w-7xl px-6 pb-32">
-                <PricingAccordion
+                <PricingCards
                     locale={locale}
                     categories={categories}
                     items={items}
