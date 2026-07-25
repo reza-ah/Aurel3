@@ -10,8 +10,8 @@ const vazirmatn = Vazirmatn({
     variable: "--font-vazir",
     display: "swap",
     weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
-    preload: false, // ✅ جلوگیری از preload خودکار
-    fallback: ["system-ui", "sans-serif"], // ✅ فونت جایگزین هنگام لود
+    preload: false,
+    fallback: ["system-ui", "sans-serif"],
 });
 
 // ✅ فونت انگلیسی - Cormorant Garamond
@@ -20,8 +20,8 @@ const cormorant = Cormorant_Garamond({
     variable: "--font-cormorant",
     display: "swap",
     weight: ["300", "400", "500", "600", "700"],
-    preload: false, // ✅ جلوگیری از preload خودکار
-    fallback: ["system-ui", "serif"], // ✅ فونت جایگزین
+    preload: false,
+    fallback: ["system-ui", "serif"],
 });
 
 export const metadata: Metadata = {
@@ -46,6 +46,15 @@ export const metadata: Metadata = {
     creator: "Aurel Design Studio",
     publisher: "Aurel Design Studio",
     manifest: "/manifest.json",
+    icons: {
+        icon: [
+            { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+            { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+            { url: "/icon.svg", type: "image/svg+xml" },
+        ],
+        shortcut: "/favicon.ico",
+        apple: "/icon.ico",
+    },
     openGraph: {
         type: "website",
         locale: "en_US",
