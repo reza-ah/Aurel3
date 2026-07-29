@@ -15,12 +15,13 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const hostname = request.headers.get("host") || "";
 
-    // ✅ 1. Static files
+    // ✅ 1. Static files & verification files
     if (
         pathname.startsWith("/_next") ||
         pathname.startsWith("/api") ||
         pathname.includes(".") ||
-        pathname === "/favicon.ico"
+        pathname === "/favicon.ico" ||
+        pathname === "/76220062.txt"
     ) {
         return NextResponse.next();
     }
@@ -82,5 +83,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+    matcher: ["/((?!_next/static|_next/image|favicon.ico|76220062\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
 };
