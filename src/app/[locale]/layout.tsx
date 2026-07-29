@@ -49,9 +49,7 @@ export async function generateMetadata({
         metadataBase: new URL(baseUrl),
 
         title: {
-            default: isFa
-                ? "استودیو طراحی جواهرات آرل | طراحی و ساخت جواهر"
-                : "Aurel Jewelry Design Studio | Custom Jewelry Design & Manufacturing",
+            default: "76220062",  // ← موقتاً
             template: isFa ? "%s | استودیو آرل" : "%s | Aurel Studio",
         },
 
@@ -141,7 +139,6 @@ export default async function LocaleLayout({
         >
             <head>
                 {/* ✅ برگرداندن preconnect به Sanity.io */}
-                <meta name="enamad" content="76220062" />
                 <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://cdn.sanity.io" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
