@@ -49,7 +49,9 @@ export async function generateMetadata({
         metadataBase: new URL(baseUrl),
 
         title: {
-            default: "76220062",  // ← موقتاً
+            default: isFa
+                ? "استودیو طراحی جواهرات آرل | طراحی و ساخت جواهر"
+                : "Aurel Jewelry Design Studio | Custom Jewelry Design & Manufacturing",
             template: isFa ? "%s | استودیو آرل" : "%s | Aurel Studio",
         },
 
