@@ -141,6 +141,7 @@ export default async function LocaleLayout({
         >
             <head>
                 {/* ✅ برگرداندن preconnect به Sanity.io */}
+                <meta name="enamad" content="76220062" />
                 <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://cdn.sanity.io" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />

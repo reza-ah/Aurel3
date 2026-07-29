@@ -1,17 +1,24 @@
-export default function OrganizationSchema() {
+export default function LocalBusinessSchema() {
     const schema = {
         "@context": "https://schema.org",
-        "@type": "Organization",
+        "@type": "ProfessionalService",
         "name": "Aurel Design Studio",
         "alternateName": "ارل دیزاین",
         "url": "https://www.aureldesign.ir",
         "logo": "https://www.aureldesign.ir/icon.svg",
         "description": "Professional jewelry design studio offering CAD design, 3D modeling, resin printing and casting services",
         "foundingDate": "2010",
+        "priceRange": "$$",
+        "areaServed": "Worldwide",
         "address": {
             "@type": "PostalAddress",
             "addressLocality": "Tehran",
             "addressCountry": "IR"
+        },
+        "geo": {
+            "@type": "GeoCoordinates",
+            "latitude": 35.67639440068573,
+            "longitude": 51.4127901957651
         },
         "contactPoint": {
             "@type": "ContactPoint",
