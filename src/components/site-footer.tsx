@@ -289,30 +289,30 @@ export default function SiteFooter({ locale }: Props) {
                                             placeholder={content.email}
                                             aria-label={content.email}
                                             className="
-                        w-full
-                        bg-transparent
-                        px-5
-                        py-3.5
-                        text-base
-                        text-white
-                        outline-none
-                        placeholder:text-[#a3a3a3]
-                    "
+                                                w-full
+                                                bg-transparent
+                                                px-5
+                                                py-3.5
+                                                text-base
+                                                text-white
+                                                outline-none
+                                                placeholder:text-[#a3a3a3]
+                                            "
                                         />
 
                                         <button
                                             onClick={handleSubscribe}
                                             aria-label={content.subscribe}
                                             className="
-                        group relative overflow-hidden
-                        border-l border-[#D4AF37]/20
-                        px-6
-                        text-[11px]
-                        uppercase tracking-[0.22em]
-                        text-[#D4AF37]
-                        transition-all duration-500
-                        hover:text-black
-                    "
+                                                group relative overflow-hidden
+                                                border-l border-[#D4AF37]/20
+                                                px-6
+                                                text-[11px]
+                                                uppercase tracking-[0.22em]
+                                                text-[#D4AF37]
+                                                transition-all duration-500
+                                                hover:text-black
+                                            "
                                         >
                                             <span className="relative z-10">
                                                 {content.subscribe}
@@ -320,11 +320,11 @@ export default function SiteFooter({ locale }: Props) {
 
                                             <div
                                                 className="
-                            absolute inset-0 origin-left scale-x-0
-                            bg-[#D4AF37]
-                            transition-transform duration-500
-                            group-hover:scale-x-100
-                        "
+                                                    absolute inset-0 origin-left scale-x-0
+                                                    bg-[#D4AF37]
+                                                    transition-transform duration-500
+                                                    group-hover:scale-x-100
+                                                "
                                             />
                                         </button>
                                     </div>
@@ -374,17 +374,38 @@ export default function SiteFooter({ locale }: Props) {
                                     {isFa ? "آدرس" : "Address"}
                                 </p>
 
-                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
+                                {/* ✅ آدرس جدید با مختصات به‌روزشده */}
                                 <a
-                                    href="https://www.google.com/maps/search/?api=1&query=35.67639440068573,51.4127901957651"
+                                    href="https://www.google.com/maps/search/?api=1&query=35.694517,51.418968"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="leading-7 text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
                                     {isFa
-                                        ? "تهران، خیابان ۱۵ خرداد"
-                                        : "Tehran, Iran"}
+                                        ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، پلاک 81"
+                                        : "Golshan Passage, 1st Floor, No. 81, Istanbul Crossroads, Tehran, Iran"}
                                 </a>
+
+                                {/* ✅ نمایش اینماد فقط در نسخه فارسی */}
+                                {/* ✅ نمایش اینماد فقط در نسخه فارسی */}
+                                {isFa && (
+                                    <a
+                                        referrerPolicy="origin"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        href="https://trustseal.enamad.ir/?id=7095628&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                        className="inline-block mt-4"
+                                    >
+                                        <img
+                                            referrerPolicy="origin"
+                                            src="https://trustseal.enamad.ir/logo.aspx?id=7095628&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                            alt="نماد اعتماد الکترونیکی"
+                                            style={{ cursor: "pointer" }}
+                                            /* ویژگی code از اینجا حذف شد تا خطای TypeScript برطرف شود */
+                                            className="w-28 h-auto"
+                                        />
+                                    </a>
+                                )}
                             </div>
                         </div>
                     </div>

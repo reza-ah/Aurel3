@@ -53,8 +53,15 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "آدرس" : "Address"}
                     </p>
-                    <a href="https://www.google.com/maps/search/?api=1&query=35.67639440068573,51.4127901957651" target="_blank" rel="noopener noreferrer" className="leading-7 ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37]">
-                        {isFa ? "تهران، خیابان 15 خرداد" : "Tehran, Iran"}
+                    <a
+                        href="https://www.google.com/maps/search/?api=1&query=35.694517,51.418968"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="leading-7 text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
+                    >
+                        {isFa
+                            ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، پلاک 81"
+                            : "Golshan Passage, 1st Floor, No. 81, Istanbul Crossroads, Tehran, Iran"}
                     </a>
                 </div>
 
