@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ✅ پکیج‌های Sanity را bundle نکن تا از ماژول http نود استفاده کنند
+  // این باعث می‌شود global-agent بتواند ترافیک را از پروکسی عبور دهد
+  serverExternalPackages: ['@sanity/client', 'get-it', 'global-agent'],
+
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -12,7 +16,6 @@ const nextConfig: NextConfig = {
       "react-hook-form",
       "@hookform/resolvers",
     ],
-    // ❌ کاملاً حذف شد: optimizeCss باعث خطا می‌شود
   },
 
   images: {
@@ -74,7 +77,7 @@ const nextConfig: NextConfig = {
               style-src 'self' 'unsafe-inline';
               img-src 'self' data: blob: https://cdn.sanity.io https:;
               font-src 'self' data:;
-              connect-src 'self' https://cdn.sanity.io https://api.sanity.io https://vitals.vercel-insights.com https://*.vercel-analytics.com https:;
+              connect-src 'self' https://cdn.sanity.io https://api.sanity.io https://apicdn.sanity.io https://vitals.vercel-insights.com https://*.vercel-analytics.com https:;
               media-src 'self' blob: data: https://cdn.sanity.io;
               frame-src 'none';
               frame-ancestors 'none';

@@ -181,7 +181,6 @@ export default function SiteFooter({ locale }: Props) {
 
                         <div className="mt-4 h-px w-24 bg-gradient-to-r from-[#D4AF37] to-transparent" />
 
-                        {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                         <p className="persian-smooth mt-7 max-w-xl text-base leading-8 text-[#e5e5e5]">
                             {content.description}
                         </p>
@@ -262,7 +261,6 @@ export default function SiteFooter({ locale }: Props) {
                             {content.newsletter}
                         </h3>
 
-                        {/* ✅ اصلاح: text-sm → text-base و text-[#e5e5e5] */}
                         <p className="persian-smooth mt-6 text-base leading-7 text-[#e5e5e5]">
                             {content.newsletterText}
                         </p>
@@ -275,7 +273,6 @@ export default function SiteFooter({ locale }: Props) {
                                 </p>
                             ) : (
                                 <>
-                                    {/* ✅ اضافه شد: label مخفی برای accessibility */}
                                     <label htmlFor="newsletter-email" className="sr-only">
                                         {content.email}
                                     </label>
@@ -337,14 +334,12 @@ export default function SiteFooter({ locale }: Props) {
                             )}
                         </div>
 
-                        {/* ✅ اصلاح: text-sm → text-base */}
                         <div className="mt-7 space-y-4 text-base">
                             <div>
                                 <p className="mb-1 text-[#C6A86A]">
                                     {isFa ? "ایمیل" : "Email"}
                                 </p>
 
-                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                                 <a
                                     href="mailto:info@aurelstudio.com"
                                     className="text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
@@ -358,7 +353,6 @@ export default function SiteFooter({ locale }: Props) {
                                     {isFa ? "تلفن" : "Phone"}
                                 </p>
 
-                                {/* ✅ اصلاح: text-white/75 → text-[#e5e5e5] */}
                                 <a
                                     href="tel:+989122987123"
                                     dir="ltr"
@@ -374,7 +368,6 @@ export default function SiteFooter({ locale }: Props) {
                                     {isFa ? "آدرس" : "Address"}
                                 </p>
 
-                                {/* ✅ آدرس جدید با مختصات به‌روزشده */}
                                 <a
                                     href="https://www.google.com/maps/search/?api=1&query=35.694517,51.418968"
                                     target="_blank"
@@ -386,25 +379,25 @@ export default function SiteFooter({ locale }: Props) {
                                         : "Golshan Passage, 1st Floor, No. 81, Istanbul Crossroads, Tehran, Iran"}
                                 </a>
 
-                                {/* ✅ نمایش اینماد فقط در نسخه فارسی */}
-                                {/* ✅ نمایش اینماد فقط در نسخه فارسی */}
+                                {/* ✅ نماد اعتماد الکترونیکی — فقط فارسی، کد رسمی اینماد */}
                                 {isFa && (
-                                    <a
-                                        referrerPolicy="origin"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        href="https://trustseal.enamad.ir/?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
-                                        className="inline-block mt-4"
-                                    >
-                                        <img
+                                    <div className="mt-5">
+                                        <a
                                             referrerPolicy="origin"
-                                            src="https://trustseal.enamad.ir/logo.aspx?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
-                                            alt="نماد اعتماد الکترونیکی"
-                                            style={{ cursor: "pointer" }}
-                                            /* ویژگی code از اینجا حذف شد تا خطای TypeScript برطرف شود */
-                                            className="w-28 h-auto"
-                                        />
-                                    </a>
+                                            target="_blank"
+                                            href="https://trustseal.enamad.ir/?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                            className="inline-block rounded-xl border border-white/10 bg-white/5 p-3 transition-all duration-300 hover:border-[#D4AF37]/40 hover:bg-white/10"
+                                        >
+                                            <img
+                                                referrerPolicy="origin"
+                                                src="https://trustseal.enamad.ir/logo.aspx?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                                alt=""
+                                                style={{ cursor: "pointer" }}
+                                                {...({ code: "bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL" } as any)}
+                                                className="w-24 h-auto"
+                                            />
+                                        </a>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -432,7 +425,6 @@ export default function SiteFooter({ locale }: Props) {
                         © 2026 AUREL — {content.rights}
                     </p>
 
-                    {/* ✅ اصلاح: text-white/50 → text-[#a3a3a3] */}
                     <p className="tracking-[0.15em] text-[#a3a3a3]">
                         LUXURY JEWELRY EXPERIENCE
                     </p>

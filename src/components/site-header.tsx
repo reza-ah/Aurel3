@@ -12,6 +12,7 @@ type Props = {
         home: string;
         portfolio: string;
         pricing: string;
+        order: string;
         contact: string;
         faq: string;
         about: string,
@@ -38,6 +39,7 @@ export default function SiteHeader({ dict }: Props) { // <-- locale رو برد�
         { label: dict.home, href: `/${locale}` },
         { label: dict.portfolio, href: `/${locale}/portfolio` },
         { label: dict.pricing, href: `/${locale}/pricing` },
+        { label: dict.order, href: `/${locale}/custom-order` },
         { label: dict.contact, href: `/${locale}/contact` },
         { label: dict.faq, href: `/${locale}/faq` },
         { label: dict.about, href: `/${locale}/about` },
