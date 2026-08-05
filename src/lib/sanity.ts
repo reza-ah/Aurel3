@@ -1,24 +1,27 @@
 import { createClient } from 'next-sanity';
 import { createImageUrlBuilder } from '@sanity/image-url';
 
-// ✅ Client با CDN (برای داده‌های عمومی که تغییر نمی‌کنند)
+// ✅ Client با CDN (حتماً باید توکن داشته باشد تا خطای 403 ندهد)
 export const client = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
     apiVersion: '2024-01-01',
     useCdn: true,
+    token: process.env.SANITY_API_TOKEN, // ⚠️ این خط حیاتی است
 });
 
-// ✅ Client بدون CDN (برای داده‌هایی که باید سریع به‌روز شوند)
+// ✅ Client بدون CDN
 export const freshClient = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
     apiVersion: '2024-01-01',
     useCdn: false,
+    token: process.env.SANITY_API_TOKEN,
 });
 
 const builder = createImageUrlBuilder(client);
 
+// ✅ Write Client (برای عملیات نوشتن مثل ثبت سفارش)
 export const writeClient = createClient({
     projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
     dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',

@@ -1,24 +1,10 @@
 import Link from "next/link";
-import Image from "next/image"; // ✅ اضافه شد
-import { client, getOptimizedImage } from "@/lib/sanity";
-
-async function getFeaturedPortfolioItems() {
-    return client.fetch(
-        `*[_type == "portfolio" && featured == true && status == "published"] | order(date_created desc)[0...6] {
-            _id,
-            slug,
-            title_en,
-            title_fa,
-            category_en,
-            category_fa,
-            cover_image,
-            featured
-        }`
-    );
-}
+import Image from "next/image";
+// ✅ اصلاح: حذف client و استفاده از تابع آماده sanity.ts
+import { getFeaturedPortfolioItems, getOptimizedImage } from "@/lib/sanity";
 
 export default async function PortfolioSection({ locale }: { locale: string }) {
-    const items = await getFeaturedPortfolioItems();
+    const items = await getFeaturedPortfolioItems(); // ✅ استفاده از تابع sanity.ts که freshClient دارد
     const isFa = locale === "fa";
 
     const validItems = (items || []).filter((item: any) => {
@@ -63,7 +49,6 @@ export default async function PortfolioSection({ locale }: { locale: string }) {
                                 href={`/${locale}/portfolio/${item.slug?.current || item._id}`}
                                 className="group relative overflow-hidden rounded-2xl bg-zinc-900/30 backdrop-blur-sm border border-white/5"
                             >
-                                {/* ✅ اصلاح: تبدیل <img> به <Image> */}
                                 <div className="relative h-80 w-full overflow-hidden">
                                     <Image
                                         src={imageUrl}

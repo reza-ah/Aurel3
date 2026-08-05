@@ -382,7 +382,7 @@ export default function SiteFooter({ locale }: Props) {
                                     className="leading-7 text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
                                     {isFa
-                                        ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، پلاک 81"
+                                        ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، واحد 81"
                                         : "Golshan Passage, 1st Floor, No. 81, Istanbul Crossroads, Tehran, Iran"}
                                 </a>
 
@@ -393,12 +393,12 @@ export default function SiteFooter({ locale }: Props) {
                                         referrerPolicy="origin"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        href="https://trustseal.enamad.ir/?id=7095628&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                        href="https://trustseal.enamad.ir/?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
                                         className="inline-block mt-4"
                                     >
                                         <img
                                             referrerPolicy="origin"
-                                            src="https://trustseal.enamad.ir/logo.aspx?id=7095628&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
+                                            src="https://trustseal.enamad.ir/logo.aspx?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
                                             alt="نماد اعتماد الکترونیکی"
                                             style={{ cursor: "pointer" }}
                                             /* ویژگی code از اینجا حذف شد تا خطای TypeScript برطرف شود */

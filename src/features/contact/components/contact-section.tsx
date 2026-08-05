@@ -60,7 +60,7 @@ export function ContactSection({ locale }: Props) {
                         className="leading-7 text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                     >
                         {isFa
-                            ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، پلاک 81"
+                            ? "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، واحد 81"
                             : "Golshan Passage, 1st Floor, No. 81, Istanbul Crossroads, Tehran, Iran"}
                     </a>
                 </div>
