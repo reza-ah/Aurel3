@@ -5,6 +5,7 @@ import UploadZone from "./upload-zone"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { FaWhatsapp } from "react-icons/fa"
 import { sendOrderConfirmationToCustomer, sendOrderNotificationToAdmin } from '@/lib/emailjs'
 
 type Props = {
@@ -317,7 +318,26 @@ export function OrderForm({ locale, onSuccess }: Props) {
                     </div>
                 )}
             </div>
+            {/* ✅ راهنمای ارتباط از طریق واتساپ */}
+            <div dir={isFa ? "rtl" : "ltr"} className="w-full rounded-2xl border border-[rgba(var(--gold),0.15)] bg-[rgba(var(--gold),0.02)] p-4 sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+                    <p className="flex-1 text-sm leading-6 text-white/85">
+                        {isFa
+                            ? "اگر در پر کردن فرم یا آپلود عکس مشکلی داشتید، از طریق واتساپ با ما در ارتباط باشید."
+                            : "If you have any trouble filling out the form or uploading photos, feel free to reach out via WhatsApp."}
+                    </p>
 
+                    <a
+                        href="https://wa.me/989122987123"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-[#1fb355] hover:shadow-[0_0_24px_rgba(37,211,102,0.35)]"
+                    >
+                        <FaWhatsapp className="text-lg" />
+                        <span>{isFa ? "تماس در واتساپ" : "Chat on WhatsApp"}</span>
+                    </a>
+                </div>
+            </div>
             {serverError && (
                 <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-xs text-red-300 w-full">
                     {serverError}

@@ -2,7 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import {
     FaWhatsapp, FaCheckCircle, FaShieldAlt, FaTruck,
-    FaPenNib, FaGem, FaMapMarkerAlt, FaAward, FaUsers
+    FaPenNib, FaGem, FaMapMarkerAlt, FaAward, FaUsers,
+    FaInstagram
 } from "react-icons/fa";
 
 export default async function CustomOrderPage({ params }: { params: Promise<{ locale: "en" | "fa" }> }) {
@@ -200,7 +201,7 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
             "تهران، چهارراه استانبول، پاساژ گلشن، طبقه اول، واحد ۸۱",
 
         renderTitle: "آنچه تأیید می‌کنید، همان چیزی است که ساخته می‌شود",
-        renderLabel1: "رندر سه‌بعدی",
+        renderLabel1: "مدل سه‌بعدی",
         renderLabel2: "محصول نهایی",
 
         testimonialsTitle: "تجربه مشتریان",
@@ -218,7 +219,7 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
             {
                 value: "رایگان",
                 title: "طراحی و مدلسازی",
-                desc: "در سفارش‌های ساخت، هزینه طراحی، مدلسازی سه‌بعدی و پرینت رزینی به‌صورت جداگانه دریافت نمی‌شود و در اجرت ساخت لحاظ شده است."
+                desc: "در سفارش‌های ساخت، هزینه طراحی، مدلسازی سه‌بعدی و پرینت  به‌صورت جداگانه دریافت نمی‌شود و در اجرت ساخت لحاظ شده است."
             },
             {
                 value: "۱۰٪",
@@ -336,12 +337,15 @@ export default async function CustomOrderPage({ params }: { params: Promise<{ lo
                             <FaWhatsapp className="text-xl" />
                             {content.btnConsult}
                         </a>
-                        <Link
-                            href={`/${locale}/portfolio`}
-                            className="rounded-full border border-white/20 px-8 py-4 text-base font-medium text-white transition-all duration-300 hover:border-[#D4AF37] hover:text-[#D4AF37]"
+                        <a
+                            href="https://www.instagram.com/aureldesignstudio"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="group flex items-center gap-3 rounded-full bg-[#D4AF37] px-8 py-4 text-base font-medium text-black transition-all duration-300 hover:bg-[#b5952f] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]"
                         >
+                            <FaInstagram className="text-xl" />
                             {content.btnPortfolio}
-                        </Link>
+                        </a>
                     </div>
                 </div>
             </section>

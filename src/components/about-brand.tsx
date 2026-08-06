@@ -24,11 +24,11 @@ export default function AboutBrand({ locale }: Props) {
             label: "طراحی، مدلسازی، تولید",
             title: "طراحی  جواهرات\nبا دقتی فراتر از استانداردها",
             description:
-                "استودیو طراحی جواهرات AUREL خدمات تخصصی طراحی، مدلسازی سه‌بعدی و پرینت سه بعدی را برای علاقه‌مندان به ساخت جواهرات سفارشی، برندها، گالری‌ها و کارگاه‌های طلاسازی ارائه می‌کند. هر پروژه با درنظر گرفتن جزئیات فنی، قابلیت ساخت و فرآیند واقعی تولید طراحی می‌شود تا نتیجه نهایی، دقیق، قابل اجرا و آماده تولید باشد.",
+                "استودیو طراحی جواهرات AUREL خدمات تخصصی طراحی، مدلسازی سه‌بعدی ، پرینت سه بعدی و ساخت را برای علاقه‌مندان به ساخت جواهرات سفارشی، برندها، گالری‌ها و کارگاه‌های طلاسازی ارائه می‌کند. هر پروژه با درنظر گرفتن جزئیات فنی، قابلیت ساخت و فرآیند واقعی تولید طراحی می‌شود تا نتیجه نهایی، دقیق، قابل اجرا و آماده تولید باشد.",
             secondary:
                 "ترکیب خلاقیت، دقت مهندسی و تجربه عملی در ساخت جواهرات، پایه اصلی رویکرد طراحی ماست.",
             pathQuestion: "مسیر مناسب سفارش خود را انتخاب کنید.",
-            retailTag: "مشتریان نهایی",
+            retailTag: "سفارشات ساخت",
             retailTitle: "طراحی و ساخت جواهرات سفارشی",
             retailDesc: "برای افرادی که می‌خواهند جواهری منحصربه‌فرد، مطابق سلیقه خود داشته باشند.",
             tradeTag: "هم‌صنف‌ها و طلاسازان",
@@ -77,36 +77,75 @@ export default function AboutBrand({ locale }: Props) {
             dir={isFa ? "rtl" : "ltr"}
             className="relative overflow-visible px-5 py-16 sm:px-6 sm:py-24 lg:py-28"
         >
-            <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
-                <Reveal>
-                    <div>
-                        <p className="mb-4 text-xs uppercase tracking-[0.3em] text-[#D4AF37] sm:text-sm">
-                            {content.label}
-                        </p>
+            {/* گرید: موبایل تک‌ستونه (ترتیب DOM)، دسکتاپ دو ستونه */}
+            <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-10 sm:gap-12 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-10">
+                {/* ===== ۱. متن معرفی ===== */}
+                <div className="lg:col-start-1 lg:row-start-1">
+                    <Reveal>
+                        <div className="max-w-3xl">
+                            <p className="mb-4 text-xs uppercase tracking-[0.3em] text-[#D4AF37] sm:text-sm">
+                                {content.label}
+                            </p>
 
-                        {/* عنوان اصلی بخش: یک H2 واقعی برای سئو/اکسسیبیلیتی + یک لایه گرادیانی دکوری روی آن */}
-                        <div className="relative inline-block overflow-visible pt-2 sm:pt-4">
-                            <h2 className="persian-smooth text-3xl font-light leading-[1.45] text-white/0 whitespace-pre-line sm:text-5xl sm:leading-[1.55] md:text-6xl">
-                                {content.title}
-                            </h2>
-                            <h2
-                                aria-hidden="true"
-                                className="persian-smooth absolute inset-0 text-3xl font-light leading-[1.45] whitespace-pre-line bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent pointer-events-none select-none overflow-visible sm:text-5xl sm:leading-[1.55] md:text-6xl"
-                            >
-                                {content.title}
-                            </h2>
+                            <div className="relative inline-block overflow-visible pt-2 sm:pt-4">
+                                <h2 className="persian-smooth text-3xl font-light leading-[1.45] text-white/0 whitespace-pre-line sm:text-5xl sm:leading-[1.55] md:text-6xl">
+                                    {content.title}
+                                </h2>
+                                <h2
+                                    aria-hidden="true"
+                                    className="persian-smooth absolute inset-0 text-3xl font-light leading-[1.45] whitespace-pre-line bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent pointer-events-none select-none overflow-visible sm:text-5xl sm:leading-[1.55] md:text-6xl"
+                                >
+                                    {content.title}
+                                </h2>
+                            </div>
+
+                            <p className="mt-6 text-sm leading-7 text-white/75 sm:mt-8 sm:text-base sm:leading-8 md:text-lg">
+                                {content.description}
+                            </p>
+
+                            <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
+                                {content.secondary}
+                            </p>
                         </div>
+                    </Reveal>
+                </div>
 
-                        <p className="mt-6 text-sm leading-7 text-white/75 sm:mt-8 sm:text-base sm:leading-8 md:text-lg">
-                            {content.description}
-                        </p>
+                {/* ===== ۲. ✅ عکس — موبایل: بعد از متن / دسکتاپ: ستون راست تمام‌قد ===== */}
+                <div className="lg:col-start-2 lg:row-start-1 lg:row-span-3">
+                    <Reveal delay={0.15} className="lg:h-full">
+                        <div className="relative lg:h-full">
+                            <div className="absolute -inset-3 rounded-[32px] bg-[#D4AF37]/10 blur-2xl sm:-inset-4 sm:rounded-[40px]" />
 
-                        <p className="mt-4 text-sm leading-7 text-white/65 sm:mt-6 sm:text-base sm:leading-8">
-                            {content.secondary}
-                        </p>
+                            <div className="group relative h-full overflow-hidden rounded-[28px] border border-white/10 bg-black/40 backdrop-blur-md sm:rounded-[36px]">
+                                <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
-                        {/* ✅ آمار — فشرده در موبایل */}
-                        <div className="mt-8 grid grid-cols-3 gap-2 sm:mt-12 sm:gap-4 lg:gap-6">
+                                <Image
+                                    src="/images/jewel-2.jpg"
+                                    alt={content.imageAlt}
+                                    width={1600}
+                                    height={1600}
+                                    sizes="(max-width: 1024px) 100vw, 50vw"
+                                    loading="lazy"
+                                    className="h-[640px] w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-[440px] lg:h-full"
+                                />
+
+                                <div className="absolute bottom-4 left-4 right-4 z-20 rounded-2xl border border-white/10 bg-black/50 p-4 backdrop-blur-xl sm:bottom-6 sm:left-6 sm:right-6 sm:p-6">
+                                    <h3 className="persian-smooth text-xs uppercase tracking-[0.2em] text-[#D4AF37] sm:text-sm sm:tracking-[0.25em]">
+                                        {content.overlayTitle}
+                                    </h3>
+                                    <p className="persian-smooth mt-2 text-xs leading-6 text-gray-300 sm:mt-3 sm:text-sm sm:leading-7">
+                                        {content.overlayDesc}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </Reveal>
+                </div>
+
+                {/* ===== ۳. ✅ آمار — موبایل: بعد از عکس / دسکتاپ: ستون چپ ===== */}
+                <div className="lg:col-start-1 lg:row-start-2">
+                    <Reveal delay={0.2}>
+                        <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6">
                             {content.stats.map((stat, i) => (
                                 <div
                                     key={i}
@@ -121,9 +160,13 @@ export default function AboutBrand({ locale }: Props) {
                                 </div>
                             ))}
                         </div>
+                    </Reveal>
+                </div>
 
-                        {/* ✅ انتخاب مسیر */}
-                        <div className="mt-8 sm:mt-10">
+                {/* ===== ۴. انتخاب مسیر ===== */}
+                <div className="lg:col-start-1 lg:row-start-3">
+                    <Reveal delay={0.25}>
+                        <div>
                             <div className="mb-3 flex items-center gap-3 sm:mb-4">
                                 <span className="relative flex h-2 w-2">
                                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#D4AF37] opacity-60" />
@@ -204,37 +247,8 @@ export default function AboutBrand({ locale }: Props) {
                                 </Link>
                             </div>
                         </div>
-                    </div>
-                </Reveal>
-
-                <Reveal delay={0.2}>
-                    <div className="relative">
-                        <div className="absolute -inset-3 rounded-[32px] bg-[#D4AF37]/10 blur-2xl sm:-inset-4 sm:rounded-[40px]" />
-
-                        <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-black/40 backdrop-blur-md sm:rounded-[36px]">
-                            <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-                            <Image
-                                src="/images/jewel-2.jpg"
-                                alt={content.imageAlt}
-                                width={900}
-                                height={1200}
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                loading="lazy"
-                                className="h-[420px] w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-[520px] lg:h-[650px]"
-                            />
-
-                            <div className="absolute bottom-4 left-4 right-4 z-20 rounded-2xl border border-white/10 bg-black/50 p-4 backdrop-blur-xl sm:bottom-6 sm:left-6 sm:right-6 sm:p-6">
-                                <h3 className="persian-smooth text-xs uppercase tracking-[0.2em] text-[#D4AF37] sm:text-sm sm:tracking-[0.25em]">
-                                    {content.overlayTitle}
-                                </h3>
-                                <p className="persian-smooth mt-2 text-xs leading-6 text-gray-300 sm:mt-3 sm:text-sm sm:leading-7">
-                                    {content.overlayDesc}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </Reveal>
+                    </Reveal>
+                </div>
             </div>
         </section>
     );
