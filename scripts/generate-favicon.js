@@ -4,7 +4,7 @@ const path = require('path');
 
 async function generateFavicon() {
     try {
-        const publicDir = path.join(__dirname, 'public');
+        const publicDir = path.join(__dirname, '..', 'public');
 
         // خواندن فایل‌های PNG
         const png16 = fs.readFileSync(path.join(publicDir, 'favicon-16x16.png'));

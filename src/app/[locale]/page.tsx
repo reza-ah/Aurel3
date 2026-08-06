@@ -234,8 +234,7 @@ export default async function HomePage({
     const products = productsEnabled ? await getProducts() : [];
 
     return (
-        // @ts-expect-error PageBase accepts showGrid at runtime
-        <PageBase showGrid={true}>
+        <PageBase>
             {/* ✅ اضافه شد: H1 مخفی برای SEO و Accessibility */}
             <h1 className="sr-only">
                 {isFa

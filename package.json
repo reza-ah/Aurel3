@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "generate:favicon": "node scripts/generate-favicon.js",
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start"
