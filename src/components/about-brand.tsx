@@ -112,21 +112,21 @@ export default function AboutBrand({ locale }: Props) {
 
                 {/* ===== ۲. ✅ عکس — موبایل: بعد از متن / دسکتاپ: ستون راست تمام‌قد ===== */}
                 <div className="lg:col-start-2 lg:row-start-1 lg:row-span-3">
-                    <Reveal delay={0.15} className="lg:h-full">
-                        <div className="relative lg:h-full">
+                    <Reveal delay={0.15} className="lg:h-full lg:flex lg:items-center">
+                        <div className="relative w-full">
                             <div className="absolute -inset-3 rounded-[32px] bg-[#D4AF37]/10 blur-2xl sm:-inset-4 sm:rounded-[40px]" />
 
-                            <div className="group relative h-full overflow-hidden rounded-[28px] border border-white/10 bg-black/40 backdrop-blur-md sm:rounded-[36px]">
+                            <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-black/40 backdrop-blur-md sm:rounded-[36px]">
                                 <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
                                 <Image
                                     src="/images/jewel-2.jpg"
                                     alt={content.imageAlt}
-                                    width={1600}
-                                    height={1600}
+                                    width={900}
+                                    height={1200}
                                     sizes="(max-width: 1024px) 100vw, 50vw"
                                     loading="lazy"
-                                    className="h-[640px] w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-[440px] lg:h-full"
+                                    className="h-[320px] w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-[440px] lg:h-[620px]"
                                 />
 
                                 <div className="absolute bottom-4 left-4 right-4 z-20 rounded-2xl border border-white/10 bg-black/50 p-4 backdrop-blur-xl sm:bottom-6 sm:left-6 sm:right-6 sm:p-6">
@@ -141,7 +141,6 @@ export default function AboutBrand({ locale }: Props) {
                         </div>
                     </Reveal>
                 </div>
-
                 {/* ===== ۳. ✅ آمار — موبایل: بعد از عکس / دسکتاپ: ستون چپ ===== */}
                 <div className="lg:col-start-1 lg:row-start-2">
                     <Reveal delay={0.2}>
