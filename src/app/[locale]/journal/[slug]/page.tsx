@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import ShareButtons from "@/components/share-buttons";
 import { notFound } from "next/navigation";
+
 type Params = {
     locale: string;
     slug: string;
@@ -129,16 +130,9 @@ export default async function JournalArticlePage({ params }: Props) {
         ? (post.excerpt_fa || post.excerpt_en || "")
         : (post.excerpt_en || post.excerpt_fa || "");
 
-    const rawContent = isFa
+    const content = isFa
         ? (post.content_fa || post.content_en || "")
         : (post.content_en || post.content_fa || "");
-
-    // ✅ پاک‌سازی محتوای مقاله (ریشه مشکل دو عنوان و H1 تکراری)
-    const content = rawContent
-        .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
-        .replace(/<meta[^>]*>/gi, "")
-        .replace(/<\/?(html|head|body)[^>]*>/gi, "")
-        .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
 
     const imageUrl = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 
