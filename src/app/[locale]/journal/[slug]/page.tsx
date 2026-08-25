@@ -143,7 +143,12 @@ export default async function JournalArticlePage({ params }: Props) {
     const headings = [...content.matchAll(/<(h2|h3)[^>]*>(.*?)<\/\1>/gi)]
         .map((match, index) => {
             const level = match[1];
-            const text = match[2].replace(/<[^>]+>/g, "").trim();
+            const text = match[2]
+                .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
+                .replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+                .replace(/<[^>]+>/g, "")
+                .replace(/&amp;/g, "&")
+                .trim();
 
             const baseId = text
                 .toLowerCase()
@@ -243,7 +248,7 @@ export default async function JournalArticlePage({ params }: Props) {
     };
 
     return (
-        <main className="min-h-screen bg-black text-white">
+        <main className="min-h-screen bg-black text-white overflow-x-hidden">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -340,6 +345,18 @@ export default async function JournalArticlePage({ params }: Props) {
                 .journal-prose strong {
                     color: #FFE8A3;
                     font-weight: 500;
+                }
+
+                .journal-prose,
+                .journal-prose * {
+                    max-width: 100%;
+                    overflow-wrap: anywhere;
+                    word-break: break-word;
+                }
+
+                nav ul li a {
+                    overflow-wrap: anywhere;
+                    max-width: 100%;
                 }
 
                 .journal-prose img {
@@ -524,7 +541,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                                     {String(h.index).padStart(2, "0")}
                                                 </span>
                                                 <span className="h-px w-4 bg-[#D4AF37]/30 transition-all group-hover:w-8 group-hover:bg-[#D4AF37]" />
-                                                <span>{h.text}</span>
+                                                <span>{h.text.length > 70 ? h.text.slice(0, 70) + "…" : h.text}</span>
                                             </a>
                                         </li>
                                     ))}
@@ -603,7 +620,7 @@ export default async function JournalArticlePage({ params }: Props) {
                                                         : "text-[#e5e5e5]"
                                                         }`}
                                                 >
-                                                    {h.text}
+                                                    {h.text.length > 70 ? h.text.slice(0, 70) + "…" : h.text}
                                                 </a>
                                             </li>
                                         ))}
