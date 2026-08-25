@@ -235,6 +235,26 @@ export default function JournalManager() {
             left: 24px;
             right: 24px;
         }
+        .quill-editor-large[dir="rtl"] .ql-editor {
+            direction: rtl;
+            text-align: right;
+            font-family: var(--font-vazir), system-ui, sans-serif;
+        }
+        .quill-editor-large[dir="ltr"] .ql-editor {
+            direction: ltr;
+            text-align: left;
+            font-family: var(--font-montserrat), system-ui, sans-serif;
+        }
+        .quill-editor-large[dir="rtl"] .ql-editor.ql-blank::before {
+            right: 24px;
+            left: auto;
+            text-align: right;
+        }
+        .quill-editor-large[dir="ltr"] .ql-editor.ql-blank::before {
+            left: 24px;
+            right: auto;
+            text-align: left;
+        }
         .quill-editor-large .ql-snow .ql-stroke {
             stroke: #D4AF37;
         }
@@ -466,11 +486,11 @@ export default function JournalManager() {
 
                             {/* English Content */}
                             {activeTab === "en" && (
-                                <div>
+                                <div dir="ltr">
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (EN) — Visual Editor
                                     </label>
-                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden" dir="ltr">
                                         <ReactQuill
                                             key={`en-${editingId || 'new'}`}
                                             theme="snow"
@@ -489,11 +509,11 @@ export default function JournalManager() {
 
                             {/* Persian Content */}
                             {activeTab === "fa" && (
-                                <div>
+                                <div dir="rtl">
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (FA) — Visual Editor
                                     </label>
-                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden">
+                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden" dir="rtl">
                                         <ReactQuill
                                             key={`fa-${editingId || 'new'}`}
                                             theme="snow"
