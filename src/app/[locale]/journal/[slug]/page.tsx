@@ -133,20 +133,12 @@ export default async function JournalArticlePage({ params }: Props) {
         ? (post.content_fa || post.content_en || "")
         : (post.content_en || post.content_fa || "");
 
-    const sanitizeContent = (html: string, title: string) =>
-        html
-            .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
-            .replace(/<meta[^>]*>/gi, "")
-            .replace(/<\/?(html|head|body)[^>]*>/gi, "")
-            .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
-            // ✅ اضافه کردن alt به عکس‌های بدون alt
-            .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => {
-                return `<img alt="${title}"${attrs}>`;
-            })
-            // ✅ خالی کردن alt="..." اگر متن داخلش خالی است
-            .replace(/alt=""/g, `alt="${title}"`);
-
-    const content = sanitizeContent(rawContent, title);
+    // ✅ پاک‌سازی محتوای مقاله (ریشه مشکل دو عنوان و H1 تکراری)
+    const content = rawContent
+        .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
+        .replace(/<meta[^>]*>/gi, "")
+        .replace(/<\/?(html|head|body)[^>]*>/gi, "")
+        .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
 
     const imageUrl = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 
@@ -356,58 +348,9 @@ export default async function JournalArticlePage({ params }: Props) {
                     font-weight: 500;
                 }
 
-                /* ✅ عکس‌ها در مقالات */
                 .journal-prose img {
-                    max-width: 100% !important;
-                    height: auto !important;
                     border-radius: 16px;
-                    margin: 2rem auto;
-                    display: block;
-                    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-                    border: 1px solid rgba(255, 255, 255, 0.1);
-                }
-
-                /* عکس‌های inline (اگر Quill اینگونه رندر کند) */
-                .journal-prose p > img {
-                    max-width: 100%;
-                    display: inline-block;
-                    vertical-align: middle;
-                    margin: 0.5rem;
-                }
-
-                /* اگر عکس شناور باشد */
-                .journal-prose img[style*="float"] {
-                    max-width: 50%;
-                    margin: 1rem;
-                }
-
-                /* در موبایل عکس‌ها تمام عرض */
-                @media (max-width: 768px) {
-                    .journal-prose img {
-                        margin: 1.5rem auto;
-                        max-width: 100%;
-                    }
-                }
-
-                /* اگر Quill عرض ثابت گذاشته باشد، override کن */
-                .journal-prose img[width],
-                .journal-prose img[style*="width"] {
-                    width: 100% !important;
-                    max-width: 100% !important;
-                    height: auto !important;
-                }
-
-                /* Figure و caption */
-                .journal-prose figure {
                     margin: 2rem 0;
-                    text-align: center;
-                }
-
-                .journal-prose figcaption {
-                    font-size: 0.875rem;
-                    color: #a3a3a3;
-                    margin-top: 0.75rem;
-                    font-style: italic;
                 }
 
                 @keyframes fadeInUp {
