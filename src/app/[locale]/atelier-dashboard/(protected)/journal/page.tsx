@@ -16,6 +16,8 @@ function sanitizeContent(html: string, title: string): string {
         .replace(/<meta[^>]*>/gi, "")
         .replace(/<\/?(html|head|body)[^>]*>/gi, "")
         .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
+        // ✅ حذف رنگ‌های تیره (مشکی) که روی پس‌زمینه تیره نامرئی‌اند
+        .replace(/color\s*:\s*(?:#000(?:000)?|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|black)\s*;?/gi, "")
         .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => {
             return `<img alt="${title}"${attrs}>`;
         })
@@ -393,6 +395,13 @@ export default function JournalManager() {
         .preview-prose strong {
             color: #FFE8A3;
             font-weight: 500;
+        }
+        /* ✅ متن‌های با رنگ inline مشکی → روشن شوند */
+        .preview-prose [style*="rgb(0, 0, 0)"],
+        .preview-prose [style*="rgb(0,0,0)"],
+        .preview-prose [style*="#000"],
+        .preview-prose [style*="black"] {
+            color: #e5e5e5 !important;
         }
         .preview-prose img {
             max-width: 100% !important;
