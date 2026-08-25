@@ -8,6 +8,53 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
+// ✅ تابع sanitizer مشترک (هم برای Preview و هم برای صفحه عمومی)
+function sanitizeContent(html: string, title: string): string {
+    if (!html) return "";
+    return html
+        .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
+        .replace(/<meta[^>]*>/gi, "")
+        .replace(/<\/?(html|head|body)[^>]*>/gi, "")
+        .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
+        .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => {
+            return `<img alt="${title}"${attrs}>`;
+        })
+        .replace(/alt=""/g, `alt="${title}"`);
+}
+
+// ✅ پردازش heading ها (اضافه کردن id)
+function processHeadings(html: string): string {
+    if (!html) return "";
+    const headings = [...html.matchAll(/<(h2|h3)[^>]*>(.*?)<\/\1>/gi)];
+    let processed = html;
+
+    headings.forEach((match, index) => {
+        const level = match[1];
+        const text = match[2].replace(/<[^>]+>/g, "").trim();
+        const baseId = text
+            .toLowerCase()
+            .replace(/[^\w\sآ-ی]/g, "")
+            .replace(/\s+/g, "-")
+            .trim();
+        const id = baseId.length > 0 ? `${baseId}-${index}` : `section-${index}`;
+        const safeText = text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const regex = new RegExp(`<${level}([^>]*)>${safeText}</${level}>`, "i");
+        processed = processed.replace(regex, `<${level} id="${id}"$1>${text}</${level}>`);
+    });
+
+    return processed;
+}
+
+// ✅ Drop cap برای اولین پاراگراف
+function applyDropCap(html: string): string {
+    if (!html) return "";
+    return html.replace(/<p>(.*?)<\/p>/i, (match: string, text: string) => {
+        const firstChar = text.charAt(0);
+        const rest = text.slice(1);
+        return `<p><span class="drop-cap">${firstChar}</span>${rest}</p>`;
+    });
+}
+
 export default function JournalManager() {
     const [items, setItems] = useState<any[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -273,6 +320,12 @@ export default function JournalManager() {
         }
         
         /* Preview Modal Styles */
+        .preview-prose {
+            direction: ltr;
+        }
+        .preview-prose[dir="rtl"] {
+            direction: rtl;
+        }
         .preview-prose h1 {
             font-size: 2.5rem;
             font-weight: 300;
@@ -314,9 +367,18 @@ export default function JournalManager() {
             font-size: 1.25rem;
             color: #FFE8A3;
         }
+        .preview-prose[dir="rtl"] blockquote {
+            border-left: none;
+            border-right: 3px solid #D4AF37;
+            border-radius: 12px 0 0 12px;
+        }
         .preview-prose ul, .preview-prose ol {
             margin: 1.5rem 0;
             padding-left: 2rem;
+        }
+        .preview-prose[dir="rtl"] ul, .preview-prose[dir="rtl"] ol {
+            padding-left: 0;
+            padding-right: 2rem;
         }
         .preview-prose li {
             margin-bottom: 0.75rem;
@@ -333,9 +395,34 @@ export default function JournalManager() {
             font-weight: 500;
         }
         .preview-prose img {
+            max-width: 100% !important;
+            height: auto !important;
             border-radius: 16px;
             margin: 2rem auto;
-            max-width: 100%;
+            display: block;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .preview-prose img[width],
+        .preview-prose img[style*="width"] {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        .preview-prose figure {
+            margin: 2rem 0;
+            text-align: center;
+        }
+        .preview-prose figcaption {
+            font-size: 0.875rem;
+            color: #a3a3a3;
+            margin-top: 0.75rem;
+            font-style: italic;
+        }
+        @media (max-width: 768px) {
+            .preview-prose img {
+                margin: 1.5rem auto;
+            }
         }
     `;
 
@@ -773,9 +860,19 @@ export default function JournalManager() {
 
                             {/* Content */}
                             <div
-                                className="preview-prose mt-12"
+                                className={`preview-prose mt-12 ${activeTab === "fa" ? "text-right" : "text-left"}`}
+                                dir={activeTab === "fa" ? "rtl" : "ltr"}
                                 dangerouslySetInnerHTML={{
-                                    __html: (activeTab === "en" ? contentEn : contentFa) || "<p style='color:#a3a3a3; text-align:center; padding:3rem 0;'>No content yet. Start writing in the editor...</p>"
+                                    __html: (() => {
+                                        const rawContent = activeTab === "en" ? contentEn : contentFa;
+                                        if (!rawContent) {
+                                            return "<p style='color:#a3a3a3; text-align:center; padding:3rem 0;'>No content yet. Start writing in the editor...</p>";
+                                        }
+                                        const sanitized = sanitizeContent(rawContent, activeTab === "en" ? titleEn : titleFa);
+                                        const withHeadings = processHeadings(sanitized);
+                                        const withDropCap = applyDropCap(withHeadings);
+                                        return withDropCap;
+                                    })()
                                 }}
                             />
 
