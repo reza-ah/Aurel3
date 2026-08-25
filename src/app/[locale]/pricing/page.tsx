@@ -16,13 +16,22 @@ export async function generateMetadata({
     const isFa = locale === "fa";
     const currentUrl = `${BASE_URL}/${locale}/pricing`;
 
+    const title = isFa
+        ? "خدمات و تعرفه‌ها | استودیو طراحی جواهرات آرل"
+        : "Services & Pricing | Aurel Jewelry Design Studio";
+
+    const description = isFa
+        ? "مشاهده تعرفه خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری حرفه‌ای"
+        : "Explore pricing for professional jewelry design, 3D modeling, printing, and casting services";
+
+    const ogImage = `${BASE_URL}/og-image.jpg`;
+
     return {
-        title: isFa
-            ? "خدمات و تعرفه‌ها | استودیو طراحی جواهرات آرل"
-            : "Services & Pricing | Aurel Jewelry Design Studio",
-        description: isFa
-            ? "مشاهده تعرفه خدمات طراحی جواهرات، مدل‌سازی سه‌بعدی، پرینت و ریخته‌گری حرفه‌ای"
-            : "Explore pricing for professional jewelry design, 3D modeling, printing, and casting services",
+        title,
+        description,
+        keywords: isFa
+            ? ["تعرفه طراحی جواهر", "قیمت مدل‌سازی سه‌بعدی جواهر", "هزینه پرینت سه‌بعدی جواهر", "قیمت ریخته‌گری طلا", "نرخ طراحی جواهرات"]
+            : ["jewelry design pricing", "jewelry 3D modeling cost", "jewelry 3D printing price", "gold casting cost", "custom jewelry pricing"],
         alternates: {
             canonical: currentUrl,
             languages: {
@@ -32,13 +41,29 @@ export async function generateMetadata({
             },
         },
         openGraph: {
-            title: isFa ? "خدمات و تعرفه‌ها | استودیو آرل" : "Services & Pricing | Aurel Design Studio",
-            description: isFa
-                ? "مشاهده تعرفه خدمات طراحی جواهرات"
-                : "Explore pricing for professional jewelry design services",
+            title,
+            description,
             url: currentUrl,
             siteName: "Aurel Jewelry Design Studio",
+            locale: isFa ? "fa_IR" : "en_US",
+            alternateLocale: isFa ? "en_US" : "fa_IR",
             type: "website",
+            images: [
+                {
+                    url: ogImage,
+                    width: 1200,
+                    height: 630,
+                    alt: isFa ? "تعرفه خدمات طراحی جواهرات استودیو آرل" : "Aurel Studio Pricing & Services",
+                    type: "image/jpeg",
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: [ogImage],
+            creator: "@AurelDesign",
         },
     };
 }

@@ -5,6 +5,7 @@ import { getOptimizedImage } from "@/lib/sanity";
 import PortfolioGallery from "@/features/portfolio/components/portfolio-gallery";
 import { getPortfolioItems } from "@/lib/sanity";
 import BreadcrumbSchema from "@/components/seo/breadcrumb-schema";
+import type { Metadata } from "next";
 
 type PortfolioItem = {
     _id: string;
@@ -43,19 +44,133 @@ const getSlug = (slug: any): string => {
     return "";
 };
 
-export default async function ProjectPage({ params }: Props) {
+// ✅ توابع کمکی برای تولید metadata
+async function getProject(params: Props["params"]) {
     const { locale, slug } = await params;
+    const portfolioItems: PortfolioItem[] = await getPortfolioItems();
+    const project = portfolioItems.find((item) => getSlug(item.slug) === slug);
+    if (!project) return null;
+    return { project, locale, slug, allItems: portfolioItems };
+}
+
+// ✅ متادیتای اختصاصی برای هر پروژه (Canonical + Hreflang + OG + Twitter)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const result = await getProject(params);
+    if (!result) return {};
+
+    const { project, locale, slug } = result;
     const isFa = locale === "fa";
 
-    const portfolioItems: PortfolioItem[] = await getPortfolioItems();
+    const title = (isFa ? project.title_fa : project.title_en) || "";
+    const description = (isFa ? project.description_fa : project.description_en) || "";
+    const category = (isFa ? project.category_fa : project.category_en) || "";
 
-    const project = portfolioItems.find(
-        (item) => getSlug(item.slug) === slug
+    // ✅ اگر اسکیما Sanity فقط یک slug دارد، برای هر دو زبان همان slug استفاده می‌شود
+    const canonicalPath = `/${locale}/portfolio/${slug}`;
+    const otherLocale = isFa ? "en" : "fa";
+    const otherPath = `/${otherLocale}/portfolio/${slug}`;
+
+    const imageUrl = getOptimizedImage(project.cover_image, {
+        width: 1200,
+        quality: 80,
+        format: "webp",
+    }) || "https://www.aureldesign.ir/og-default.jpg";
+
+    const siteName = isFa ? "استودیو آرل" : "Aurel Studio";
+    const fullTitle = `${title} | ${category} | ${siteName}`;
+
+    return {
+        title: fullTitle,
+        description: description,
+        alternates: {
+            canonical: `https://www.aureldesign.ir${canonicalPath}`,
+            languages: {
+                fa: `https://www.aureldesign.ir/fa/portfolio/${slug}`,
+                en: `https://www.aureldesign.ir/en/portfolio/${slug}`,
+            },
+        },
+        openGraph: {
+            title: fullTitle,
+            description: description,
+            url: `https://www.aureldesign.ir${canonicalPath}`,
+            siteName: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
+            type: "article",
+            locale: isFa ? "fa_IR" : "en_US",
+            alternateLocale: isFa ? "en_US" : "fa_IR",
+            images: [
+                {
+                    url: imageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                },
+            ],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: fullTitle,
+            description: description,
+            images: [imageUrl],
+        },
+    };
+}
+
+// ✅ JSON-LD Schema برای Product (جواهرات به‌عنوان محصول)
+function ProductSchema({
+    project,
+    locale,
+    slug,
+    imageUrl,
+}: {
+    project: PortfolioItem;
+    locale: string;
+    slug: string;
+    imageUrl: string;
+}) {
+    const isFa = locale === "fa";
+    const title = isFa ? project.title_fa : project.title_en;
+    const description = isFa ? project.description_fa : project.description_en;
+    const material = isFa ? project.material_fa : project.material_en;
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: title,
+        description: description,
+        image: imageUrl,
+        url: `https://www.aureldesign.ir/${locale}/portfolio/${slug}`,
+        brand: {
+            "@type": "Brand",
+            name: "Aurel Design Studio",
+        },
+        manufacturer: {
+            "@type": "Organization",
+            name: "Aurel Design Studio",
+        },
+        material: material || undefined,
+        category: isFa ? project.category_fa : project.category_en,
+        offers: {
+            "@type": "Offer",
+            availability: "https://schema.org/PreOrder",
+            priceCurrency: isFa ? "IRR" : "USD",
+            price: "0", // قیمت تماسی
+        },
+    };
+
+    return (
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
     );
+}
 
-    if (!project) {
-        notFound();
-    }
+export default async function ProjectPage({ params }: Props) {
+    const result = await getProject(params);
+    if (!result) notFound();
+
+    const { project, locale, slug, allItems: portfolioItems } = result;
+    const isFa = locale === "fa";
 
     const title = isFa ? project.title_fa : project.title_en;
     const category = isFa ? project.category_fa : project.category_en;
@@ -64,7 +179,7 @@ export default async function ProjectPage({ params }: Props) {
     const imageUrl = getOptimizedImage(project.cover_image, {
         width: 1200,
         quality: 80,
-        format: "webp"
+        format: "webp",
     }) || "/placeholder.jpg";
 
     const galleryImages = (project.gallery || [])
@@ -77,35 +192,20 @@ export default async function ProjectPage({ params }: Props) {
 
     const relatedProjects = portfolioItems
         .filter((item) => {
-            if (getSlug(item.slug) === slug) {
-                return false;
-            }
-
+            if (getSlug(item.slug) === slug) return false;
             const itemTags = (item.tags || [])
                 .map((tag) => tag._ref || tag.slug?.current || tag.slug)
                 .filter(Boolean);
-
             return itemTags.some((tag) => currentTags.includes(tag));
         })
         .slice(0, 3);
 
-    // ✅ Breadcrumb items
     const breadcrumbItems = [
-        {
-            name: isFa ? "خانه" : "Home",
-            url: `/${locale}`,
-        },
-        {
-            name: isFa ? "نمونه‌کارها" : "Portfolio",
-            url: `/${locale}/portfolio`,
-        },
-        {
-            name: title,
-            url: `/${locale}/portfolio/${slug}`,
-        },
+        { name: isFa ? "خانه" : "Home", url: `/${locale}` },
+        { name: isFa ? "نمونه‌کارها" : "Portfolio", url: `/${locale}/portfolio` },
+        { name: title, url: `/${locale}/portfolio/${slug}` },
     ];
 
-    // ✅ مشخصات محصول از Sanity
     const specs = {
         material: isFa ? project.material_fa : project.material_en,
         weight: isFa ? project.weight_fa : project.weight_en,
@@ -113,33 +213,32 @@ export default async function ProjectPage({ params }: Props) {
         productionTime: isFa ? project.production_time_fa : project.production_time_en,
     };
 
-    // ✅ فقط کارت‌هایی را نشان بده که مقدار دارند
     const specCards = [
         { label: isFa ? "متریال" : "Material", value: specs.material },
         { label: isFa ? "وزن" : "Weight", value: specs.weight },
         { label: isFa ? "زمان تولید" : "Production Time", value: specs.productionTime },
         { label: isFa ? "ابعاد" : "Dimensions", value: specs.dimensions },
-    ].filter(spec => spec.value);
+    ].filter((spec) => spec.value);
 
     return (
         <main className="min-h-screen bg-transparent text-white">
-
-            {/* ✅ Breadcrumb Schema */}
+            {/* ✅ Schemaهای SEO */}
             <BreadcrumbSchema items={breadcrumbItems} />
+            <ProductSchema
+                project={project}
+                locale={locale}
+                slug={slug}
+                imageUrl={imageUrl}
+            />
 
-            {/* ============================================
-                HERO SECTION
-            ============================================ */}
+            {/* HERO SECTION */}
             <section className="pt-32 pb-24 relative overflow-hidden">
-                {/* Background Glow */}
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute left-1/4 top-20 h-96 w-96 rounded-full bg-[#D4AF37]/5 blur-[140px]" />
                     <div className="absolute right-1/4 bottom-20 h-96 w-96 rounded-full bg-white/[0.02] blur-[140px]" />
                 </div>
 
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
-
-                    {/* ✅ Breadcrumb بصری */}
                     <nav className="flex items-center gap-2 text-sm mb-8">
                         <Link href={`/${locale}`} className="text-[#a3a3a3] hover:text-[#D4AF37] transition-colors">
                             {isFa ? "خانه" : "Home"}
@@ -153,10 +252,7 @@ export default async function ProjectPage({ params }: Props) {
                     </nav>
 
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
-
-                        {/* CONTENT */}
                         <div className="space-y-8">
-                            {/* ✅ Badge با آیکون */}
                             <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
                                 <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
                                 <span className="text-[#D4AF37] uppercase tracking-[0.3em] text-sm">
@@ -164,7 +260,6 @@ export default async function ProjectPage({ params }: Props) {
                                 </span>
                             </div>
 
-                            {/* ✅ عنوان با gradient */}
                             <h1 className="text-5xl md:text-6xl lg:text-7xl font-extralight leading-tight">
                                 <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
                                     {title}
@@ -177,7 +272,6 @@ export default async function ProjectPage({ params }: Props) {
                                 {description}
                             </p>
 
-                            {/* ✅ مشخصات سریع - فقط اگر مقدار داشته باشد */}
                             {specCards.length > 0 && (
                                 <div className="grid grid-cols-2 gap-4 pt-4">
                                     {specCards.map((spec, index) => (
@@ -189,10 +283,9 @@ export default async function ProjectPage({ params }: Props) {
                                 </div>
                             )}
 
-                            {/* ✅ دکمه‌های CTA */}
                             <div className="flex flex-wrap gap-4 pt-4">
                                 <Link
-                                    href="/en/contact"
+                                    href={`/${locale}/custom-order`}
                                     className="inline-flex items-center justify-center h-14 px-8 rounded-full border border-[#D4AF37]/40 text-[#D4AF37] font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_30px_rgba(212,175,55,0.35)]"
                                 >
                                     {isFa ? "سفارش طرح مشابه" : "Order This Design"}
@@ -206,7 +299,6 @@ export default async function ProjectPage({ params }: Props) {
                             </div>
                         </div>
 
-                        {/* IMAGE */}
                         <div className="relative aspect-[4/5] overflow-hidden rounded-[32px] bg-zinc-900 group border border-white/10 shadow-2xl">
                             <Image
                                 src={imageUrl}
@@ -218,36 +310,26 @@ export default async function ProjectPage({ params }: Props) {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                         </div>
-
                     </div>
                 </div>
             </section>
 
-            {/* GALLERY */}
             {galleryImages.length > 0 && (
                 <section className="pb-32">
                     <div className="max-w-7xl mx-auto px-6">
-                        <PortfolioGallery
-                            title={title}
-                            images={galleryImages}
-                        />
+                        <PortfolioGallery title={title} images={galleryImages} />
                     </div>
                 </section>
             )}
 
-            {/* ============================================
-                CTA SECTION
-            ============================================ */}
             <section className="pb-24">
                 <div className="max-w-7xl mx-auto px-6">
                     <div className="relative rounded-[32px] border border-[#D4AF37]/20 bg-white/[0.02] backdrop-blur-sm px-8 py-16 overflow-hidden">
-                        {/* Background Glow */}
                         <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-[140px] pointer-events-none" />
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#D4AF37]/[0.03] rounded-full blur-[120px] pointer-events-none" />
 
                         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                             <div className="space-y-4">
-                                {/* Badge */}
                                 <div className="inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
                                     <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37] animate-pulse" />
                                     <span className="text-[#D4AF37] uppercase tracking-[0.3em] text-xs">
@@ -255,17 +337,12 @@ export default async function ProjectPage({ params }: Props) {
                                     </span>
                                 </div>
 
-                                {/* Title */}
                                 <h2 className="text-3xl md:text-4xl font-extralight">
                                     <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
-                                        {isFa
-                                            ? "آیا طرح مشابهی در ذهن دارید؟"
-                                            : "Have a Similar Design in Mind?"
-                                        }
+                                        {isFa ? "آیا طرح مشابهی در ذهن دارید؟" : "Have a Similar Design in Mind?"}
                                     </span>
                                 </h2>
 
-                                {/* Description */}
                                 <p className="text-[#e5e5e5] max-w-2xl leading-8">
                                     {isFa
                                         ? "با تیم طراحی ما تماس بگیرید. ما می‌توانیم این طرح را با سلیقه و اندازه دلخواه شما سفارشی‌سازی کنیم."
@@ -273,9 +350,8 @@ export default async function ProjectPage({ params }: Props) {
                                 </p>
                             </div>
 
-                            {/* دکمه */}
                             <Link
-                                href="/en/contact"
+                                href={`/${locale}/custom-order`}
                                 className="inline-flex items-center justify-center h-14 px-8 rounded-full bg-[#D4AF37] text-black font-medium uppercase tracking-[0.2em] text-sm transition-all duration-300 hover:bg-[#FFE8A3] hover:shadow-[0_0_30px_rgba(212,175,55,0.35)] shrink-0"
                             >
                                 {isFa ? "تماس با ما" : "Contact Us"} →
@@ -285,16 +361,13 @@ export default async function ProjectPage({ params }: Props) {
                 </div>
             </section>
 
-            {/* RELATED PROJECTS */}
             {relatedProjects.length > 0 && (
                 <section className="border-t border-white/10 pt-24 pb-32">
                     <div className="max-w-7xl mx-auto px-6">
-
                         <div className="mb-14">
                             <p className="text-[#d4af37] tracking-[0.3em] uppercase text-sm mb-4">
                                 Portfolio
                             </p>
-
                             <h2 className="text-4xl md:text-5xl font-extralight">
                                 {isFa ? "پروژه‌های مشابه" : "Related Projects"}
                             </h2>
@@ -307,7 +380,7 @@ export default async function ProjectPage({ params }: Props) {
                                 const itemImage = getOptimizedImage(item.cover_image, {
                                     width: 900,
                                     quality: 75,
-                                    format: "webp"
+                                    format: "webp",
                                 }) || "/placeholder.jpg";
 
                                 return (
@@ -325,11 +398,9 @@ export default async function ProjectPage({ params }: Props) {
                                                 className="object-cover transition duration-700 group-hover:scale-105"
                                             />
                                         </div>
-
                                         <p className="text-[#d4af37] text-xs tracking-[0.25em] uppercase mb-2">
                                             {itemCategory}
                                         </p>
-
                                         <h3 className="text-2xl font-light transition group-hover:text-[#d4af37]">
                                             {itemTitle}
                                         </h3>
@@ -337,11 +408,9 @@ export default async function ProjectPage({ params }: Props) {
                                 );
                             })}
                         </div>
-
                     </div>
                 </section>
             )}
-
         </main>
     );
 }

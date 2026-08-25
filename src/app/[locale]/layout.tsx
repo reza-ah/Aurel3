@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Vazirmatn } from "next/font/google"; // ✅ تغییر
+import { Montserrat, Vazirmatn } from "next/font/google";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
@@ -7,7 +7,6 @@ import AmbientLights from "@/components/ambient-lights";
 import { getDictionary } from "@/lib/utils/get-dictionary";
 import "../globals.css";
 
-// ✅ Montserrat برای انگلیسی
 const montserrat = Montserrat({
     subsets: ['latin'],
     variable: "--font-montserrat",
@@ -17,7 +16,6 @@ const montserrat = Montserrat({
     fallback: ["system-ui", "sans-serif"],
 });
 
-// ✅ Vazirmatn برای فارسی
 const vazirmatn = Vazirmatn({
     subsets: ['arabic', 'latin'],
     variable: "--font-vazir",
@@ -27,13 +25,13 @@ const vazirmatn = Vazirmatn({
     fallback: ["system-ui", "sans-serif"],
 });
 
-// ✅ Viewport metadata
 export const viewport: Viewport = {
     themeColor: "#070707",
     width: "device-width",
     initialScale: 1,
 };
 
+// ✅ فقط متادیتای پایه — بدون canonical (تا صفحات خودشان تعریف کنند)
 export async function generateMetadata({
     params,
 }: {
@@ -41,9 +39,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
     const { locale } = (await params) as { locale: "en" | "fa" };
     const isFa = locale === "fa";
-
     const baseUrl = "https://www.aureldesign.ir";
-    const currentUrl = `${baseUrl}/${locale}`;
+    const defaultOgImage = `${baseUrl}/og-image.jpg`;
 
     return {
         metadataBase: new URL(baseUrl),
@@ -79,8 +76,8 @@ export async function generateMetadata({
             },
         },
 
+        // ✅ فقط hreflang — بدون canonical (مهم‌ترین تغییر!)
         alternates: {
-            canonical: currentUrl,
             languages: {
                 fa: `${baseUrl}/fa`,
                 en: `${baseUrl}/en`,
@@ -89,32 +86,25 @@ export async function generateMetadata({
         },
 
         openGraph: {
-            title: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
-            description: isFa
-                ? "خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی و تولید حرفه‌ای"
-                : "Professional jewelry CAD design, 3D modeling and manufacturing services",
-            url: currentUrl,
-            siteName: "Aurel Jewelry Design Studio",
+            siteName: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
             locale: isFa ? "fa_IR" : "en_US",
+            alternateLocale: isFa ? "en_US" : "fa_IR",
             type: "website",
             images: [
                 {
-                    url: `${baseUrl}/og-image.jpg`,
+                    url: defaultOgImage,
                     width: 1200,
                     height: 630,
                     alt: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
+                    type: "image/jpeg",
                 },
             ],
         },
 
         twitter: {
             card: "summary_large_image",
-            title: isFa ? "استودیو طراحی جواهرات آرل" : "Aurel Jewelry Design Studio",
-            description: isFa
-                ? "خدمات طراحی سه‌بعدی جواهرات، مدل‌سازی تخصصی و تولید حرفه‌ای"
-                : "Professional jewelry CAD design, 3D modeling and manufacturing services",
-            images: [`${baseUrl}/og-image.jpg`],
             creator: "@AurelDesign",
+            images: [defaultOgImage],
         },
 
         category: "Jewelry Design",
@@ -140,12 +130,11 @@ export default async function LocaleLayout({
             suppressHydrationWarning
         >
             <head>
-                {/* ✅ برگرداندن preconnect به Sanity.io */}
                 <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
                 <link rel="dns-prefetch" href="https://cdn.sanity.io" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="apple-touch-icon" href="/icon.ico" />
                 <link rel="manifest" href="/manifest.json" />
             </head>
             <body

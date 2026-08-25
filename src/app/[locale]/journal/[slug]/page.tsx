@@ -3,7 +3,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import ShareButtons from "@/components/share-buttons";
-
+import { notFound } from "next/navigation";
 type Params = {
     locale: string;
     slug: string;
@@ -74,11 +74,7 @@ export default async function JournalArticlePage({ params }: Props) {
     const post = await getJournalPost(slug);
 
     if (!post) {
-        return (
-            <main className="min-h-screen bg-black text-white flex items-center justify-center">
-                {isFa ? "مقاله پیدا نشد" : "Article not found"}
-            </main>
-        );
+        notFound();
     }
 
     const posts = await getJournalPosts();
@@ -133,9 +129,16 @@ export default async function JournalArticlePage({ params }: Props) {
         ? (post.excerpt_fa || post.excerpt_en || "")
         : (post.excerpt_en || post.excerpt_fa || "");
 
-    const content = isFa
+    const rawContent = isFa
         ? (post.content_fa || post.content_en || "")
         : (post.content_en || post.content_fa || "");
+
+    // ✅ پاک‌سازی محتوای مقاله (ریشه مشکل دو عنوان و H1 تکراری)
+    const content = rawContent
+        .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
+        .replace(/<meta[^>]*>/gi, "")
+        .replace(/<\/?(html|head|body)[^>]*>/gi, "")
+        .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>");
 
     const imageUrl = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
 

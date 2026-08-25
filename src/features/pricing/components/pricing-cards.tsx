@@ -57,17 +57,26 @@ export default function PricingCards({ locale, categories, items }: Props) {
                         key={item._id}
                         className="flex flex-col overflow-hidden rounded-[32px] border border-white/10 bg-[#070707]/85 shadow-[0_24px_90px_-40px_rgba(0,0,0,0.8)] transition-all duration-500 hover:-translate-y-2 hover:border-[#d4af37]/30 hover:bg-white/[0.08]"
                     >
-                        {item.img && (
-                            <div className="relative overflow-hidden">
-                                <img
-                                    src={getAssetUrl(item.img) || "/placeholder.jpg"}
-                                    alt={isFa ? item.title_fa : item.title_en}
-                                    className="h-56 w-full object-cover"
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-                            </div>
-                        )}
+                        {item.img && (() => {
+                            // ✅ alt هوشمند با fallback چندلایه
+                            const rawAlt = isFa ? item.title_fa : item.title_en;
+                            const altText = rawAlt?.trim()
+                                || (isFa ? item.description_fa : item.description_en)
+                                || (isFa ? "خدمات طراحی جواهرات استودیو آرل" : "Aurel Studio jewelry design service");
+
+                            return (
+                                <div className="relative overflow-hidden">
+                                    <img
+                                        src={getAssetUrl(item.img) || "/placeholder.jpg"}
+                                        alt={altText}
+                                        className="h-56 w-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                                </div>
+                            );
+                        })()}
 
                         <div className="flex flex-1 flex-col gap-4 p-8">
                             <h3 className="text-xl font-semibold tracking-tight text-white md:text-2xl">

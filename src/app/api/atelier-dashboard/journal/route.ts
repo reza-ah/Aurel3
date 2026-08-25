@@ -73,3 +73,35 @@ export async function DELETE(request: NextRequest) {
         return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
     }
 }
+
+export async function PUT(request: NextRequest) {
+    const authError = await requireAdminAuth();
+    if (authError) return authError;
+
+    try {
+        const id = request.nextUrl.searchParams.get("id");
+        if (!id) {
+            return NextResponse.json({ error: "Missing id" }, { status: 400 });
+        }
+
+        const body = await request.json();
+
+        const result = await writeClient.patch(id).set({
+            title_en: body.title_en || "",
+            title_fa: body.title_fa || "",
+            slug: { _type: "slug", current: body.slug },
+            excerpt_en: body.excerpt_en || "",
+            excerpt_fa: body.excerpt_fa || "",
+            content_en: body.content_en || "",
+            content_fa: body.content_fa || "",
+            cover_image: body.cover_image || null,
+            status: body.status || "draft",
+            date_updated: new Date().toISOString(),
+        }).commit();
+
+        return NextResponse.json(result);
+    } catch (error) {
+        console.error("Journal PUT error:", error);
+        return NextResponse.json({ error: "Failed to update" }, { status: 500 });
+    }
+}

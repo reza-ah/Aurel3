@@ -391,9 +391,10 @@ export default function SiteFooter({ locale }: Props) {
                                             <img
                                                 referrerPolicy="origin"
                                                 src="https://trustseal.enamad.ir/logo.aspx?id=766862&Code=bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL"
-                                                alt=""
+                                                alt="نماد اعتماد الکترونیکی استودیو آرل"
+                                                loading="lazy"
                                                 style={{ cursor: "pointer" }}
-                                                {...({ code: "bNk0v10FexAm3ee2vi3LR9Q0dpW0ONGL" } as any)}
+                                                {...({ code: "bNk0v10FexAm3ee2vi3LR9Q0ONGL" } as any)}
                                                 className="w-24 h-auto"
                                             />
                                         </a>
