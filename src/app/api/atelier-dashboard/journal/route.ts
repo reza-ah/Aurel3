@@ -9,16 +9,18 @@ export async function GET() {
     try {
         const posts = await client.fetch(
             `*[_type == "journal"] | order(date_created desc) {
-                _id,
-                slug,
-                title_en,
-                title_fa,
-                excerpt_en,
-                excerpt_fa,
-                cover_image,
-                status,
-                date_created
-            }`
+        _id,
+        slug,
+        title_en,
+        title_fa,
+        excerpt_en,
+        excerpt_fa,
+        content_en,
+        content_fa,
+        cover_image,
+        status,
+        date_created
+    }`
         );
 
         return NextResponse.json(posts);

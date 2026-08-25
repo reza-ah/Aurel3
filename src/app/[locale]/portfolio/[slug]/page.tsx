@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const fullTitle = `${title} | ${category} | ${siteName}`;
 
     return {
-        title: fullTitle,
+        title: { absolute: fullTitle },
         description: description,
         alternates: {
             canonical: `https://www.aureldesign.ir${canonicalPath}`,
