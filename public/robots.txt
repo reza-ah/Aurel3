@@ -4,11 +4,36 @@
 User-agent: *
 Allow: /
 
-# ✅ مسیرهای حساس - اجازه نده
+# مسیرهای حساس - اجازه نده
 Disallow: /atelier-dashboard/
 Disallow: /api/
 Disallow: /_next/
 Disallow: /*?
 
-# ✅ Sitemap - هم‌خوان با sitemap.ts
+# ✅ اجازهٔ صریح به کراولرهای هوش مصنوعی
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Sitemap - هم‌خوان با sitemap.ts
 Sitemap: https://www.aureldesign.ir/sitemap.xml
