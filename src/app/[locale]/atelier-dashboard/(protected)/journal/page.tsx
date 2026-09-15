@@ -4,11 +4,25 @@ import { useEffect, useState, useRef } from "react";
 import { urlFor } from "@/lib/sanity";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-// ✅ جایگزینی Image معمولی با ResizeImage
 import ResizeImage from "tiptap-extension-resize-image";
-import Link from "@tiptap/extension-link";
-import TextAlign from "@tiptap/extension-text-align";
-import Placeholder from "@tiptap/extension-placeholder";
+import { Link } from "@tiptap/extension-link";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { Placeholder } from "@tiptap/extension-placeholder";
+import { Highlight } from "@tiptap/extension-highlight";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
+import { Color } from "@tiptap/extension-color";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { FontFamily } from "@tiptap/extension-font-family";
+import { Underline } from "@tiptap/extension-underline";
+import { HorizontalRule } from "@tiptap/extension-horizontal-rule";
+import { TaskList } from "@tiptap/extension-task-list";
+import { TaskItem } from "@tiptap/extension-task-item";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { CharacterCount } from "@tiptap/extension-character-count";
 
 // ==========================================
 // توابع پردازش و پاک‌سازی محتوا
@@ -19,7 +33,6 @@ function sanitizeContent(html: string, title: string): string {
         .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
         .replace(/<meta[^>]*>/gi, "")
         .replace(/<\/?(html|head|body)[^>]*>/gi, "")
-        .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
         .replace(/&nbsp;/gi, " ")
         .replace(/\u00a0/g, " ")
         .replace(/color\s*:\s*(?:#000(?:000)?|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|black)\s*;?/gi, "")
@@ -33,7 +46,7 @@ function sanitizeContent(html: string, title: string): string {
 
 function processHeadings(html: string): string {
     if (!html) return "";
-    const headings = [...html.matchAll(/<(h[2-6])[^>]*>(.*?)<\/\1>/gi)];
+    const headings = [...html.matchAll(/<(h[1-6])[^>]*>(.*?)<\/\1>/gi)];
     let processed = html;
     headings.forEach((match, index) => {
         const level = match[1];
@@ -87,6 +100,8 @@ export default function JournalManager() {
     const [success, setSuccess] = useState("");
     const [activeTab, setActiveTab] = useState<"en" | "fa">("en");
     const [showPreview, setShowPreview] = useState(false);
+    const [currentHeading, setCurrentHeading] = useState("Normal");
+    const [charCount, setCharCount] = useState(0);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -130,17 +145,18 @@ export default function JournalManager() {
         setCoverImage(null); setCoverPreview(null);
         setExistingCoverId(null); setEditingId(null);
         setError(""); setSuccess(""); setShowPreview(false);
+        setCurrentHeading("Normal");
     }
 
     // ==========================================
-    // تنظیمات TipTap Editor
+    // تنظیمات TipTap Editor - کامل
     // ==========================================
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
-                heading: { levels: [1, 2, 3] },
+                heading: { levels: [1, 2, 3, 4] },
+                horizontalRule: false, // استفاده از extension جداگانه
             }),
-            // ✅ استفاده از ResizeImage به جای Image معمولی
             ResizeImage.configure({
                 inline: false,
                 allowBase64: false,
@@ -150,9 +166,35 @@ export default function JournalManager() {
             }),
             Link.configure({
                 openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-[#D4AF37] underline',
+                },
             }),
             Placeholder.configure({
                 placeholder: activeTab === "en" ? "Start writing your article here..." : "مقاله خود را اینجا بنویسید...",
+            }),
+            Highlight.configure({
+                multicolor: true,
+            }),
+            Subscript,
+            Superscript,
+            Color,
+            TextStyle,
+            FontFamily,
+            Underline,
+            HorizontalRule,
+            TaskList,
+            TaskItem.configure({
+                nested: true,
+            }),
+            Table.configure({
+                resizable: true,
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
+            CharacterCount.configure({
+                limit: 50000,
             }),
         ],
         content: activeTab === "en" ? contentEn : contentFa,
@@ -160,6 +202,7 @@ export default function JournalManager() {
             const html = editor.getHTML();
             if (activeTab === "en") setContentEn(html);
             else setContentFa(html);
+            setCharCount(editor.storage.characterCount.characters());
         },
     });
 
@@ -171,6 +214,37 @@ export default function JournalManager() {
             }
         }
     }, [activeTab, contentEn, contentFa, editor]);
+
+    useEffect(() => {
+        if (!editor) return;
+
+        const updateHeadingStatus = () => {
+            if (editor.isActive('heading', { level: 1 })) setCurrentHeading("H1 - Main Title");
+            else if (editor.isActive('heading', { level: 2 })) setCurrentHeading("H2 - Section");
+            else if (editor.isActive('heading', { level: 3 })) setCurrentHeading("H3 - Subsection");
+            else if (editor.isActive('heading', { level: 4 })) setCurrentHeading("H4 - Sub-subsection");
+            else if (editor.isActive('paragraph')) setCurrentHeading("Normal");
+            else if (editor.isActive('bulletList')) setCurrentHeading("Bullet List");
+            else if (editor.isActive('orderedList')) setCurrentHeading("Ordered List");
+            else if (editor.isActive('taskList')) setCurrentHeading("Task List");
+            else if (editor.isActive('blockquote')) setCurrentHeading("Quote");
+            else if (editor.isActive('codeBlock')) setCurrentHeading("Code Block");
+            else if (editor.isActive('table')) setCurrentHeading("Table");
+            else if (editor.isActive('image')) setCurrentHeading("Image");
+            else setCurrentHeading("Normal");
+
+            setCharCount(editor.storage.characterCount.characters());
+        };
+
+        editor.on('selectionUpdate', updateHeadingStatus);
+        editor.on('update', updateHeadingStatus);
+        updateHeadingStatus();
+
+        return () => {
+            editor.off('selectionUpdate', updateHeadingStatus);
+            editor.off('update', updateHeadingStatus);
+        };
+    }, [editor]);
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -306,16 +380,19 @@ export default function JournalManager() {
             flex-wrap: wrap;
             gap: 4px;
             flex-shrink: 0;
+            max-height: 120px;
+            overflow-y: auto;
         }
         .tiptap-toolbar button {
             padding: 6px 10px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
             color: #374151;
             background: transparent;
             border: 1px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .tiptap-toolbar button:hover {
             background: #e5e7eb;
@@ -329,6 +406,33 @@ export default function JournalManager() {
             width: 1px;
             background: #d1d5db;
             margin: 4px 8px;
+        }
+        .tiptap-toolbar select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            border: 1px solid #d1d5db;
+            background: white;
+            cursor: pointer;
+        }
+        .tiptap-status-bar {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 6px 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #374151;
+            flex-shrink: 0;
+        }
+        .tiptap-status-bar .status-badge {
+            background: #D4AF37;
+            color: #000;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 11px;
         }
         .tiptap-editor {
             flex: 1;
@@ -350,13 +454,36 @@ export default function JournalManager() {
             text-align: right;
         }
         .tiptap-editor p { margin-bottom: 1em; }
-        .tiptap-editor h1, .tiptap-editor h2, .tiptap-editor h3, .tiptap-editor h4 {
+        .tiptap-editor h1 {
+            font-size: 2.2em;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            font-weight: 700;
+            color: #000;
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 0.3em;
+        }
+        .tiptap-editor h2 {
+            font-size: 1.7em;
             margin-top: 1.5em;
             margin-bottom: 0.5em;
             font-weight: 600;
             color: #000;
         }
-        /* ✅ استایل دستگیره‌های تغییر سایز عکس */
+        .tiptap-editor h3 {
+            font-size: 1.4em;
+            margin-top: 1.3em;
+            margin-bottom: 0.4em;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .tiptap-editor h4 {
+            font-size: 1.2em;
+            margin-top: 1.2em;
+            margin-bottom: 0.3em;
+            font-weight: 600;
+            color: #374151;
+        }
         .tiptap-editor img {
             max-width: 100%;
             height: auto;
@@ -371,6 +498,56 @@ export default function JournalManager() {
         .tiptap-editor a {
             color: #D4AF37;
             text-decoration: underline;
+        }
+        .tiptap-editor blockquote {
+            border-left: 4px solid #D4AF37;
+            padding-left: 1em;
+            margin-left: 0;
+            font-style: italic;
+            color: #6b7280;
+        }
+        .tiptap-editor code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .tiptap-editor pre {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 1em;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .tiptap-editor pre code {
+            background: transparent;
+            padding: 0;
+        }
+        .tiptap-editor hr {
+            border: none;
+            border-top: 2px solid #D4AF37;
+            margin: 2em 0;
+        }
+        .tiptap-editor table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1em 0;
+        }
+        .tiptap-editor td, .tiptap-editor th {
+            border: 1px solid #d1d5db;
+            padding: 8px 12px;
+            min-width: 100px;
+        }
+        .tiptap-editor th {
+            background: #f9fafb;
+            font-weight: 600;
+        }
+        .tiptap-editor .task-list-item {
+            list-style-type: none;
+        }
+        .tiptap-editor .task-list-item label {
+            margin-right: 8px;
         }
         .drop-cap::first-letter {
             float: left;
@@ -458,35 +635,97 @@ export default function JournalManager() {
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">Content ({activeTab === "en" ? "EN" : "FA"}) — Visual Editor</label>
 
                                 <div className="tiptap-wrapper">
+                                    {/* نوار ابزار کامل */}
                                     <div className="tiptap-toolbar">
-                                        {/* ✅ دکمه‌های Heading و Normal */}
-                                        <ToolbarButton onClick={() => editor?.chain().focus().setParagraph().run()} isActive={editor?.isActive('paragraph')} title="Normal Text">P</ToolbarButton>
-                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor?.isActive('heading', { level: 1 })} title="Heading 1">H1</ToolbarButton>
-                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor?.isActive('heading', { level: 2 })} title="Heading 2">H2</ToolbarButton>
-                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor?.isActive('heading', { level: 3 })} title="Heading 3">H3</ToolbarButton>
+                                        {/* Undo/Redo */}
+                                        <ToolbarButton onClick={() => editor?.chain().focus().undo().run()} title="Undo">↶</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().redo().run()} title="Redo">↷</ToolbarButton>
                                         <div className="divider" />
 
+                                        {/* Headings */}
+                                        <ToolbarButton onClick={() => editor?.chain().focus().setParagraph().run()} isActive={editor?.isActive('paragraph')} title="Normal">P</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor?.isActive('heading', { level: 1 })} title="H1">H1</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor?.isActive('heading', { level: 2 })} title="H2">H2</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()} isActive={editor?.isActive('heading', { level: 3 })} title="H3">H3</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 4 }).run()} isActive={editor?.isActive('heading', { level: 4 })} title="H4">H4</ToolbarButton>
+                                        <div className="divider" />
+
+                                        {/* Text Formatting */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleBold().run()} isActive={editor?.isActive('bold')} title="Bold"><b>B</b></ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleItalic().run()} isActive={editor?.isActive('italic')} title="Italic"><i>I</i></ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleUnderline().run()} isActive={editor?.isActive('underline')} title="Underline"><u>U</u></ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleStrike().run()} isActive={editor?.isActive('strike')} title="Strike"><s>S</s></ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleHighlight().run()} isActive={editor?.isActive('highlight')} title="Highlight">🖍</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleSubscript().run()} isActive={editor?.isActive('subscript')} title="Subscript">X₂</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleSuperscript().run()} isActive={editor?.isActive('superscript')} title="Superscript">X²</ToolbarButton>
                                         <div className="divider" />
 
+                                        {/* Color & Font */}
+                                        <input
+                                            type="color"
+                                            onInput={(e: any) => editor?.chain().focus().setColor(e.target.value).run()}
+                                            value={editor?.getAttributes('textStyle').color || '#000000'}
+                                            title="Text Color"
+                                            className="w-8 h-8 rounded cursor-pointer"
+                                        />
+                                        <select
+                                            onChange={(e) => editor?.chain().focus().setFontFamily(e.target.value).run()}
+                                            value={editor?.getAttributes('textStyle').fontFamily || ''}
+                                            title="Font Family"
+                                        >
+                                            <option value="">Default</option>
+                                            <option value="Arial">Arial</option>
+                                            <option value="Times New Roman">Times New Roman</option>
+                                            <option value="Courier New">Courier New</option>
+                                            <option value="Georgia">Georgia</option>
+                                            <option value="Verdana">Verdana</option>
+                                        </select>
+                                        <div className="divider" />
+
+                                        {/* Lists */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleBulletList().run()} isActive={editor?.isActive('bulletList')} title="Bullet List">• List</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleOrderedList().run()} isActive={editor?.isActive('orderedList')} title="Ordered List">1. List</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleTaskList().run()} isActive={editor?.isActive('taskList')} title="Task List">☑ Task</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* ✅ دکمه‌های تراز (برای متن و عکس) */}
+                                        {/* Alignment */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('left').run()} isActive={editor?.isActive({ textAlign: 'left' })} title="Align Left">Left</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('center').run()} isActive={editor?.isActive({ textAlign: 'center' })} title="Align Center">Center</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('right').run()} isActive={editor?.isActive({ textAlign: 'right' })} title="Align Right">Right</ToolbarButton>
                                         <div className="divider" />
 
-                                        <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Upload Image">📷 Image</ToolbarButton>
+                                        {/* Blocks */}
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleBlockquote().run()} isActive={editor?.isActive('blockquote')} title="Quote">❝ Quote</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().toggleCodeBlock().run()} isActive={editor?.isActive('codeBlock')} title="Code Block">{ } Code</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">— HR</ToolbarButton>
+                                        <div className="divider" />
+
+                                        {/* Table */}
+                                        <ToolbarButton onClick={() => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table"> Table</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().addColumnBefore().run()} title="Add Column Before">+Col←</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().addColumnAfter().run()} title="Add Column After">+Col→</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().addRowBefore().run()} title="Add Row Before">+Row↑</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().addRowAfter().run()} title="Add Row After">+Row↓</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().deleteTable().run()} title="Delete Table">✖ Table</ToolbarButton>
+                                        <div className="divider" />
+
+                                        {/* Media & Links */}
+                                        <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Upload Image"> Image</ToolbarButton>
                                         <ToolbarButton onClick={() => {
                                             const url = window.prompt('Enter URL:');
                                             if (url) editor?.chain().focus().setLink({ href: url }).run();
-                                        }} isActive={editor?.isActive('link')} title="Add Link"> Link</ToolbarButton>
-                                        <ToolbarButton onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting"> Clear</ToolbarButton>
+                                        }} isActive={editor?.isActive('link')} title="Add Link">🔗 Link</ToolbarButton>
+                                        <ToolbarButton onClick={() => editor?.chain().focus().unsetLink().run()} title="Remove Link">✖ Link</ToolbarButton>
+                                        <div className="divider" />
+
+                                        {/* Clear */}
+                                        <ToolbarButton onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">✖ Clear</ToolbarButton>
+                                    </div>
+
+                                    {/* نوار وضعیت */}
+                                    <div className="tiptap-status-bar">
+                                        <span>Current: <span className="status-badge">{currentHeading}</span></span>
+                                        <span className="text-xs text-gray-400">Characters: {charCount} / 50,000</span>
                                     </div>
 
                                     <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
@@ -496,7 +735,7 @@ export default function JournalManager() {
                                     </div>
                                 </div>
                                 <p className="mt-2 text-xs text-[#a3a3a3]">
-                                    💡 برای تغییر سایز عکس، روی آن کلیک کنید تا کادر طلایی ظاهر شود، سپس گوشه‌های عکس را با ماوس بکشید. برای جابجایی از دکمه‌های Left/Center/Right استفاده کنید.
+                                    💡 ادیتور کامل با تمام امکانات: Headings, Bold, Italic, Underline, Highlight, Sub/Superscript, Colors, Fonts, Lists, Tasks, Tables, Quotes, Code, Images, Links, Alignment و...
                                 </p>
                             </div>
                         </div>
