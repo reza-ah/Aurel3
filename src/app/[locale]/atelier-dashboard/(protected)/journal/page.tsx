@@ -7,30 +7,22 @@ import dynamic from "next/dynamic";
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
-// ✅ sanitizeContent - حذف کامل &nbsp; و تگ‌های ناخواسته
 function sanitizeContent(html: string, title: string): string {
     if (!html) return "";
 
     let sanitized = html
-        // حذف تگ‌های خطرناک و غیرضروری
         .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
         .replace(/<meta[^>]*>/gi, "")
         .replace(/<\/?(html|head|body)[^>]*>/gi, "")
-        // تبدیل h1 به h2
         .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
-        // ✅ حذف کامل &nbsp; و جایگزینی با فاصله معمولی
         .replace(/&nbsp;/gi, " ")
-        .replace(/\u00a0/g, " ") // Unicode &nbsp;
-        // حذف رنگ‌های تیره
+        .replace(/\u00a0/g, " ")
         .replace(/color\s*:\s*(?:#000(?:000)?|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|black)\s*;?/gi, "")
-        // اضافه کردن alt به تصاویر
         .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => {
             return `<img alt="${title}"${attrs}>`;
         })
         .replace(/alt=""/g, `alt="${title}"`)
-        // حذف تگ‌های توخالی اضافی
         .replace(/<[^>]+>\s*<\/[^>]+>/g, "")
-        // نرمال‌سازی فاصله‌های چندگانه
         .replace(/\s{2,}/g, " ")
         .trim();
 
@@ -62,7 +54,7 @@ function processHeadings(html: string): string {
 function applyDropCap(html: string): string {
     if (!html) return "";
     return html.replace(/<p>(.*?)<\/p>/i, (match: string, text: string) => {
-        if (text.includes('<span class="drop-cap">')) return match; // Already has drop-cap
+        if (text.includes('<span class="drop-cap">')) return match;
         const firstChar = text.charAt(0);
         const rest = text.slice(1);
         return `<p><span class="drop-cap">${firstChar}</span>${rest}</p>`;
@@ -144,18 +136,106 @@ export default function JournalManager() {
         setShowPreview(false);
     }
 
-    // ✅ تابع کمکی برای تمیز کردن محتوا - اعمال چندباره sanitize
     function cleanContent(rawContent: string, title: string): string {
-        // اعمال چندباره برای اطمینان از حذف همه چیز
         let cleaned = sanitizeContent(rawContent, title);
         cleaned = processHeadings(cleaned);
         cleaned = applyDropCap(cleaned);
-
-        // ✅ یک بار دیگر sanitize برای اطمینان کامل
         cleaned = sanitizeContent(cleaned, title);
-
         return cleaned;
     }
+
+    // ✅ Handler سفارشی برای عکس - بدون نیاز به ref
+    const handleImageClick = () => {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const res = await fetch('/api/atelier-dashboard/files/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const json = await res.json();
+            const imageId = json?.data?._id;
+
+            if (imageId) {
+                const imageUrl = urlFor({ _type: 'image', asset: { _ref: imageId } }).url();
+
+                // پیدا کردن ادیتور فعال
+                const editorElement = document.querySelector('.quill-editor-large .ql-editor');
+                if (editorElement) {
+                    // درج عکس در موقعیت cursor
+                    const range = window.getSelection()?.getRangeAt(0);
+                    if (range) {
+                        const img = document.createElement('img');
+                        img.src = imageUrl;
+                        img.alt = titleEn || titleFa || 'Article image';
+
+                        // پرسیدن سایز و موقعیت
+                        const size = prompt('سایز عکس (small/medium/large):', 'large');
+                        const position = prompt('موقعیت عکس (left/center/right):', 'center');
+
+                        img.classList.add(`img-${size || 'large'}`, `img-${position || 'center'}`);
+
+                        range.insertNode(img);
+
+                        // به‌روزرسانی state
+                        const newContent = editorElement.innerHTML;
+                        if (activeTab === 'en') {
+                            setContentEn(newContent);
+                        } else {
+                            setContentFa(newContent);
+                        }
+                    }
+                }
+            }
+        };
+    };
+
+    const quillModules = {
+        toolbar: {
+            container: [
+                [{ header: [1, 2, 3, 4, false] }],
+                ["bold", "italic", "underline", "strike"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                [{ indent: "-1" }, { indent: "+1" }],
+                [{ align: [] }],
+                ["link", "image"],
+                [{ color: [] }, { background: [] }],
+                ["blockquote", "code-block"],
+                ["clean"],
+            ],
+            handlers: {
+                image: handleImageClick,
+            },
+        },
+    };
+
+    const quillFormats = [
+        "header",
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "list",
+        "bullet",
+        "indent",
+        "align",
+        "link",
+        "image",
+        "color",
+        "background",
+        "blockquote",
+        "code-block",
+    ];
 
     async function saveArticle(isEdit = false) {
         if (!titleEn || !titleFa || !slug) {
@@ -174,7 +254,6 @@ export default function JournalManager() {
             ? `/api/atelier-dashboard/journal?id=${editingId}`
             : "/api/atelier-dashboard/journal";
 
-        // ✅ اعمال قطعی sanitize قبل از ارسال
         const finalContentEn = cleanContent(contentEn, titleEn);
         const finalContentFa = cleanContent(contentFa, titleFa);
 
@@ -256,47 +335,16 @@ export default function JournalManager() {
         }
     }
 
-    const quillModules = {
-        toolbar: [
-            [{ header: [1, 2, 3, 4, false] }],
-            ["bold", "italic", "underline", "strike"],
-            [{ list: "ordered" }, { list: "bullet" }],
-            [{ indent: "-1" }, { indent: "+1" }],
-            [{ align: [] }],
-            ["link", "image"],
-            [{ color: [] }, { background: [] }],
-            ["blockquote", "code-block"],
-            ["clean"],
-        ],
-    };
-
-    const quillFormats = [
-        "header",
-        "bold",
-        "italic",
-        "underline",
-        "strike",
-        "list",
-        "bullet",
-        "indent",
-        "align",
-        "link",
-        "image",
-        "color",
-        "background",
-        "blockquote",
-        "code-block",
-    ];
-
     const quillStyles = `
     .quill-editor-large {
         position: relative;
         border: 1px solid #d1d5db;
         border-radius: 12px;
-        overflow: hidden;
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: #ffffff;
     }
+    
     .quill-editor-large .ql-toolbar {
         border: none !important;
         border-bottom: 1px solid #e5e7eb !important;
@@ -305,35 +353,74 @@ export default function JournalManager() {
         position: sticky;
         top: 0;
         z-index: 10;
+        border-radius: 12px 12px 0 0;
     }
+    
     .quill-editor-large .ql-container {
         min-height: 500px !important;
         font-size: 17px;
         font-family: inherit;
         background: #ffffff; 
         border: none !important;
+        border-radius: 0 0 12px 12px;
     }
+    
     .quill-editor-large .ql-editor {
         min-height: 500px !important;
         padding: 32px;
         line-height: 1.8;
         color: #111827; 
     }
-    /* ✅ تنظیم جهت متن برای فارسی */
+    
     .quill-editor-large[dir="rtl"] .ql-editor {
         direction: rtl;
         text-align: right;
     }
+    
     .quill-editor-large .ql-editor.ql-blank::before {
         color: #9ca3af;
         font-style: italic;
     }
+    
     .quill-editor-large .ql-editor img {
         max-width: 100%;
         height: auto;
         display: block;
         margin: 1.5rem auto;
         border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .quill-editor-large .ql-editor img:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .quill-editor-large .ql-editor img.img-small {
+        max-width: 33%;
+    }
+    
+    .quill-editor-large .ql-editor img.img-medium {
+        max-width: 66%;
+    }
+    
+    .quill-editor-large .ql-editor img.img-large {
+        max-width: 100%;
+    }
+    
+    .quill-editor-large .ql-editor img.img-left {
+        margin-left: 0;
+        margin-right: auto;
+    }
+    
+    .quill-editor-large .ql-editor img.img-right {
+        margin-right: 0;
+        margin-left: auto;
+    }
+    
+    .quill-editor-large .ql-editor img.img-center {
+        margin-left: auto;
+        margin-right: auto;
     }
 `;
 
@@ -386,7 +473,6 @@ export default function JournalManager() {
                     </div>
 
                     <div className="space-y-6">
-                        {/* Titles */}
                         <div className="grid gap-6 md:grid-cols-2">
                             <div>
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -413,7 +499,6 @@ export default function JournalManager() {
                             </div>
                         </div>
 
-                        {/* Slug */}
                         <div>
                             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                 Slug * (URL-friendly)
@@ -431,7 +516,6 @@ export default function JournalManager() {
                             </p>
                         </div>
 
-                        {/* Excerpts */}
                         <div className="grid gap-6 md:grid-cols-2">
                             <div>
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -458,7 +542,6 @@ export default function JournalManager() {
                             </div>
                         </div>
 
-                        {/* Content Tabs */}
                         <div>
                             <div className="mb-4 flex gap-4 border-b border-white/10">
                                 <button
@@ -481,13 +564,12 @@ export default function JournalManager() {
                                 </button>
                             </div>
 
-                            {/* English Content */}
                             {activeTab === "en" && (
                                 <div dir="ltr">
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (EN) — Visual Editor
                                     </label>
-                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden" dir="ltr">
+                                    <div className="quill-editor-large" dir="ltr">
                                         <ReactQuill
                                             key={`en-${editingId || 'new'}`}
                                             theme="snow"
@@ -504,14 +586,12 @@ export default function JournalManager() {
                                 </div>
                             )}
 
-                            {/* Persian Content - با جهت RTL */}
                             {activeTab === "fa" && (
                                 <div dir="rtl">
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (FA) — Visual Editor
                                     </label>
-                                    {/* ✅ اضافه کردن dir="rtl" به container */}
-                                    <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden" dir="rtl">
+                                    <div className="quill-editor-large" dir="rtl">
                                         <ReactQuill
                                             key={`fa-${editingId || 'new'}`}
                                             theme="snow"
@@ -529,7 +609,6 @@ export default function JournalManager() {
                             )}
                         </div>
 
-                        {/* Cover Image */}
                         <div>
                             <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                 Cover Image
@@ -568,7 +647,6 @@ export default function JournalManager() {
                             </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex flex-wrap gap-4 pt-4">
                             <button
                                 onClick={() => setShowPreview(true)}
@@ -598,7 +676,6 @@ export default function JournalManager() {
                     </div>
                 </div>
 
-                {/* Articles List */}
                 <div>
                     <h2 className="mb-6 text-xl font-light text-white">
                         Articles ({items.length})
@@ -671,7 +748,6 @@ export default function JournalManager() {
                 </div>
             </div>
 
-            {/* Preview Modal */}
             {showPreview && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                     <div
