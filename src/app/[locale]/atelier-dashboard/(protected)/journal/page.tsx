@@ -299,110 +299,111 @@ export default function JournalManager() {
     // استایل‌های CSS اختصاصی TipTap (اصلاح‌شده برای اسکرول)
     // ==========================================
     const editorStyles = `
-        .tiptap-wrapper {
-            display: flex;
-            flex-direction: column;
-            height: 600px;
-            border: 1px solid #d1d5db;
-            border-radius: 12px;
-            background: #ffffff;
-            overflow: hidden;
-        }
-        .tiptap-toolbar {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            background: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
-            padding: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-        .tiptap-toolbar button {
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 14px;
-            color: #374151;
-            background: transparent;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .tiptap-toolbar button:hover {
-            background: #e5e7eb;
-        }
-        .tiptap-toolbar button.is-active {
-            background: #D4AF37;
-            color: #000;
-            font-weight: 600;
-        }
-        .tiptap-toolbar .divider {
-            width: 1px;
-            background: #d1d5db;
-            margin: 4px 8px;
-        }
-        
-        /* ✅ بخش اصلی اصلاح اسکرول */
-        .tiptap-editor {
-            flex: 1;
-            overflow-y: auto;
-            overscroll-behavior-y: contain; /* ✅ جلوگیری از اسکرول شدن صفحه اصلی */
-            padding: 32px;
-            outline: none;
-            font-size: 17px;
-            line-height: 1.8;
-            color: #111827;
-        }
-        
-        /* اطمینان از اینکه محتوای داخلی همیشه فضای اسکرول را پر می‌کند */
-        .tiptap-editor .ProseMirror {
-            min-height: 100%;
-            outline: none;
-        }
+    .tiptap-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        background: #ffffff;
+        overflow: hidden; /* جلوگیری از نشت اسکرول از والد */
+    }
+    .tiptap-toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        padding: 8px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+    .tiptap-toolbar button {
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #374151;
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .tiptap-toolbar button:hover {
+        background: #e5e7eb;
+    }
+    .tiptap-toolbar button.is-active {
+        background: #D4AF37;
+        color: #000;
+        font-weight: 600;
+    }
+    .tiptap-toolbar .divider {
+        width: 1px;
+        background: #d1d5db;
+        margin: 4px 8px;
+    }
+    
+    /* ✅ استایل اسکرول ایزوله شده */
+    .tiptap-editor {
+        flex: 1;
+        overflow-y: auto !important;
+        overscroll-behavior-y: contain !important;
+        padding: 32px;
+        outline: none;
+        font-size: 17px;
+        line-height: 1.8;
+        color: #111827;
+        /* جلوگیری از تداخل‌های احتمالی رندرینگ */
+        transform: translateZ(0); 
+    }
+    
+    .tiptap-editor .ProseMirror {
+        min-height: 100%;
+        outline: none;
+    }
 
-        .tiptap-editor[dir="rtl"] {
-            direction: rtl;
-            text-align: right;
-        }
-        .tiptap-editor p { margin-bottom: 1em; }
-        .tiptap-editor h1, .tiptap-editor h2, .tiptap-editor h3, .tiptap-editor h4 {
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
-            font-weight: 600;
-            color: #000;
-        }
-        .tiptap-editor img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .tiptap-editor img.ProseMirror-selectednode {
-            outline: 3px solid #D4AF37;
-            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
-        }
-        .tiptap-editor a {
-            color: #D4AF37;
-            text-decoration: underline;
-        }
-        .drop-cap::first-letter {
-            float: left;
-            font-size: 3.5em;
-            line-height: 0.8;
-            padding-right: 8px;
-            padding-top: 4px;
-            color: #D4AF37;
-            font-weight: bold;
-        }
-        .tiptap-editor[dir="rtl"] .drop-cap::first-letter {
-            float: right;
-            padding-right: 0;
-            padding-left: 8px;
-        }
-    `;
+    .tiptap-editor[dir="rtl"] {
+        direction: rtl;
+        text-align: right;
+    }
+    .tiptap-editor p { margin-bottom: 1em; }
+    .tiptap-editor h1, .tiptap-editor h2, .tiptap-editor h3, .tiptap-editor h4 {
+        margin-top: 1.5em;
+        margin-bottom: 0.5em;
+        font-weight: 600;
+        color: #000;
+    }
+    .tiptap-editor img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .tiptap-editor img.ProseMirror-selectednode {
+        outline: 3px solid #D4AF37;
+        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    .tiptap-editor a {
+        color: #D4AF37;
+        text-decoration: underline;
+    }
+    .drop-cap::first-letter {
+        float: left;
+        font-size: 3.5em;
+        line-height: 0.8;
+        padding-right: 8px;
+        padding-top: 4px;
+        color: #D4AF37;
+        font-weight: bold;
+    }
+    .tiptap-editor[dir="rtl"] .drop-cap::first-letter {
+        float: right;
+        padding-right: 0;
+        padding-left: 8px;
+    }
+`;
     // کامپوننت کمکی برای دکمه‌های تول‌بار
     const ToolbarButton = ({ onClick, isActive, children, title }: any) => (
         <button
@@ -523,7 +524,12 @@ export default function JournalManager() {
                                     />
 
                                     {/* Editor Content Area */}
-                                    <EditorContent editor={editor} className="tiptap-editor" />
+                                    <div
+                                        className="tiptap-editor"
+                                        onWheel={(e) => e.stopPropagation()} // ✅ این خط جلوی اسکرول صفحه اصلی را می‌گیرد
+                                    >
+                                        <EditorContent editor={editor} />
+                                    </div>
                                 </div>
                                 <p className="mt-2 text-xs text-[#a3a3a3]">
                                     💡 برای آپلود عکس روی دکمه 📷 کلیک کنید. برای تغییر موقعیت عکس، روی آن کلیک کنید تا طلایی شود، سپس دکمه‌های Left/Center/Right را بزنید.
