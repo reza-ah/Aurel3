@@ -3,10 +3,17 @@
 import { useEffect, useState } from "react";
 import { urlFor } from "@/lib/sanity";
 import dynamic from "next/dynamic";
+import Quill from "quill"; // ✅ اضافه شده برای ثبت ماژول
+import { ImageResize } from "quill-image-resize-module-react"; // ✅ اضافه شده
 
 // ✅ استفاده از react-quill-new
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
+
+// ✅ ثبت ماژول تغییر سایز تصویر فقط در سمت کلاینت (جلوگیری از خطای Next.js)
+if (typeof window !== "undefined") {
+    Quill.register("modules/imageResize", ImageResize);
+}
 
 // ✅ تابع sanitizer مشترک (هم برای Preview و هم برای صفحه عمومی)
 function sanitizeContent(html: string, title: string): string {
@@ -151,6 +158,10 @@ export default function JournalManager() {
             ? `/api/atelier-dashboard/journal?id=${editingId}`
             : "/api/atelier-dashboard/journal";
 
+        // ✅ اصلاح حیاتی: اعمال sanitize و processHeadings روی محتوای خام قبل از ارسال به دیتابیس
+        const finalContentEn = applyDropCap(processHeadings(sanitizeContent(contentEn, titleEn)));
+        const finalContentFa = applyDropCap(processHeadings(sanitizeContent(contentFa, titleFa)));
+
         const res = await fetch(url, {
             method: isEdit ? "PUT" : "POST",
             headers: { "Content-Type": "application/json" },
@@ -160,8 +171,8 @@ export default function JournalManager() {
                 slug,
                 excerpt_en: excerptEn,
                 excerpt_fa: excerptFa,
-                content_en: contentEn,
-                content_fa: contentFa,
+                content_en: finalContentEn, // استفاده از محتوای تمیز شده
+                content_fa: finalContentFa, // استفاده از محتوای تمیز شده
                 cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
                 status: "published",
             }),
@@ -235,6 +246,10 @@ export default function JournalManager() {
             ["blockquote", "code-block"],
             ["clean"],
         ],
+        // ✅ اضافه کردن ماژول تغییر سایز و تراز تصویر
+        imageResize: {
+            modules: ["Resize", "DisplaySize", "Toolbar"],
+        },
     };
 
     const quillFormats = [
@@ -255,185 +270,54 @@ export default function JournalManager() {
         "code-block",
     ];
 
-    // ✅ استایل‌های سفارشی برای Quill Editor (ارتفاع بیشتر)
+    // ✅ استایل‌های سفارشی برای Quill Editor (ارتفاع بیشتر + Sticky Toolbar + پس‌زمینه سفید)
     const quillStyles = `
-        .quill-editor-large .ql-container {
-            min-height: 500px !important;
-            font-size: 16px;
-            font-family: inherit;
-            background: white;
-        }
-        .quill-editor-large .ql-editor {
-            min-height: 500px !important;
-            padding: 24px;
-            line-height: 1.8;
-            color: #1a1a1a;
-        }
-        .quill-editor-large .ql-toolbar {
-            border: none !important;
-            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
-            background: rgba(255,255,255,0.03);
-            padding: 12px 8px;
-        }
-        .quill-editor-large .ql-container {
-            border: none !important;
-        }
-        .quill-editor-large .ql-editor.ql-blank::before {
-            color: #a3a3a3;
-            font-style: normal;
-            left: 24px;
-            right: 24px;
-        }
-        .quill-editor-large[dir="rtl"] .ql-editor {
-            direction: rtl;
-            text-align: right;
-            font-family: var(--font-vazir), system-ui, sans-serif;
-        }
-        .quill-editor-large[dir="ltr"] .ql-editor {
-            direction: ltr;
-            text-align: left;
-            font-family: var(--font-montserrat), system-ui, sans-serif;
-        }
-        .quill-editor-large[dir="rtl"] .ql-editor.ql-blank::before {
-            right: 24px;
-            left: auto;
-            text-align: right;
-        }
-        .quill-editor-large[dir="ltr"] .ql-editor.ql-blank::before {
-            left: 24px;
-            right: auto;
-            text-align: left;
-        }
-        .quill-editor-large .ql-snow .ql-stroke {
-            stroke: #D4AF37;
-        }
-        .quill-editor-large .ql-snow .ql-fill {
-            fill: #D4AF37;
-        }
-        .quill-editor-large .ql-snow .ql-picker {
-            color: #D4AF37;
-        }
-        .quill-editor-large .ql-snow .ql-picker-options {
-            background: #1a1a1a;
-            border-color: rgba(212, 175, 55, 0.3);
-        }
-        .quill-editor-large .ql-snow .ql-picker-label {
-            color: #D4AF37;
-        }
-        
-        /* Preview Modal Styles */
-        .preview-prose {
-            direction: ltr;
-        }
-        .preview-prose[dir="rtl"] {
-            direction: rtl;
-        }
-        .preview-prose h1 {
-            font-size: 2.5rem;
-            font-weight: 300;
-            margin-bottom: 1.5rem;
-            color: white;
-        }
-        .preview-prose h2 {
-            font-size: 2rem;
-            font-weight: 300;
-            margin-top: 2.5rem;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(135deg, #ffffff, #D4AF37);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
-        }
-        .preview-prose h3 {
-            font-size: 1.5rem;
-            font-weight: 400;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            color: #D4AF37;
-        }
-        .preview-prose p {
-            font-size: 1.125rem;
-            line-height: 2;
-            color: #e5e5e5;
-            margin-bottom: 1.5rem;
-        }
-        .preview-prose blockquote {
-            border-left: 3px solid #D4AF37;
-            padding: 1.5rem 2rem;
-            margin: 2.5rem 0;
-            background: rgba(212, 175, 55, 0.05);
-            border-radius: 0 12px 12px 0;
-            font-style: italic;
-            font-size: 1.25rem;
-            color: #FFE8A3;
-        }
-        .preview-prose[dir="rtl"] blockquote {
-            border-left: none;
-            border-right: 3px solid #D4AF37;
-            border-radius: 12px 0 0 12px;
-        }
-        .preview-prose ul, .preview-prose ol {
-            margin: 1.5rem 0;
-            padding-left: 2rem;
-        }
-        .preview-prose[dir="rtl"] ul, .preview-prose[dir="rtl"] ol {
-            padding-left: 0;
-            padding-right: 2rem;
-        }
-        .preview-prose li {
-            margin-bottom: 0.75rem;
-            color: #e5e5e5;
-            line-height: 1.8;
-        }
-        .preview-prose a {
-            color: #D4AF37;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-        }
-        .preview-prose strong {
-            color: #FFE8A3;
-            font-weight: 500;
-        }
-        /* ✅ متن‌های با رنگ inline مشکی → روشن شوند */
-        .preview-prose [style*="rgb(0, 0, 0)"],
-        .preview-prose [style*="rgb(0,0,0)"],
-        .preview-prose [style*="#000"],
-        .preview-prose [style*="black"] {
-            color: #e5e5e5 !important;
-        }
-        .preview-prose img {
-            max-width: 100% !important;
-            height: auto !important;
-            border-radius: 16px;
-            margin: 2rem auto;
-            display: block;
-            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .preview-prose img[width],
-        .preview-prose img[style*="width"] {
-            width: 100% !important;
-            max-width: 100% !important;
-            height: auto !important;
-        }
-        .preview-prose figure {
-            margin: 2rem 0;
-            text-align: center;
-        }
-        .preview-prose figcaption {
-            font-size: 0.875rem;
-            color: #a3a3a3;
-            margin-top: 0.75rem;
-            font-style: italic;
-        }
-        @media (max-width: 768px) {
-            .preview-prose img {
-                margin: 1.5rem auto;
-            }
-        }
-    `;
+    .quill-editor-large {
+        position: relative;
+        border: 1px solid #d1d5db;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    /* Sticky Toolbar: هنگام اسکرول محو نمی‌شود */
+    .quill-editor-large .ql-toolbar {
+        border: none !important;
+        border-bottom: 1px solid #e5e7eb !important;
+        background: #f9fafb; 
+        padding: 12px 8px;
+        position: sticky;
+        top: 0; /* چسبیدن به بالای صفحه/کانتینر */
+        z-index: 10;
+    }
+    /* پس‌زمینه سفید برای ادیتور */
+    .quill-editor-large .ql-container {
+        min-height: 500px !important;
+        font-size: 17px;
+        font-family: inherit;
+        background: #ffffff; 
+        border: none !important;
+    }
+    /* متن مشکی/تیره برای خوانایی بالا */
+    .quill-editor-large .ql-editor {
+        min-height: 500px !important;
+        padding: 32px;
+        line-height: 1.8;
+        color: #111827; 
+    }
+    .quill-editor-large .ql-editor.ql-blank::before {
+        color: #9ca3af;
+        font-style: italic;
+    }
+    /* استایل تصاویر برای کنترل بهتر */
+    .quill-editor-large .ql-editor img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 1.5rem auto;
+        border-radius: 8px;
+    }
+`;
 
     return (
         <main className="min-h-screen bg-black text-white pt-32 pb-20">
