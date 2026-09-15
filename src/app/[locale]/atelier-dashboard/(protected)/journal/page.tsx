@@ -170,30 +170,17 @@ export default function JournalManager() {
     };
 
     const quillModules = {
-        toolbar: {
-            container: [
-                [{ header: [1, 2, 3, 4, false] }],
-                ["bold", "italic", "underline", "strike"],
-                [{ list: "ordered" }, { list: "bullet" }],
-                [{ indent: "-1" }, { indent: "+1" }],
-                [{ align: [] }],
-                ["link", "image"],
-                [{ color: [] }, { background: [] }],
-                ["blockquote", "code-block"],
-                ["clean"],
-                // ✅ دکمه‌های سفارشی برای سایز و موقعیت عکس
-                [{ 'image-size': ['small', 'medium', 'large'] }],
-                [{ 'image-position': ['left', 'center', 'right'] }],
-            ],
-            handlers: {
-                'image-size': function (value: string) {
-                    if (value) handleImageSize(value);
-                },
-                'image-position': function (value: string) {
-                    if (value) handleImagePosition(value);
-                },
-            },
-        },
+        toolbar: [
+            [{ header: [1, 2, 3, 4, false] }],
+            ["bold", "italic", "underline", "strike"],
+            [{ list: "ordered" }, { list: "bullet" }],
+            [{ indent: "-1" }, { indent: "+1" }],
+            [{ align: [] }],
+            ["link", "image"],
+            [{ color: [] }, { background: [] }],
+            ["blockquote", "code-block"],
+            ["clean"],
+        ],
     };
 
     const quillFormats = [
@@ -212,9 +199,34 @@ export default function JournalManager() {
         "background",
         "blockquote",
         "code-block",
-        "image-size",
-        "image-position",
     ];
+
+    // ✅ اضافه کردن event listener برای کلیک روی عکس‌ها
+    useEffect(() => {
+        const handleImageClick = (e: Event) => {
+            const target = e.target as HTMLElement;
+            if (target.tagName === 'IMG' && target.closest('.ql-editor')) {
+                // حذف selected از همه عکس‌ها
+                const images = document.querySelectorAll('.ql-editor img') as NodeListOf<HTMLImageElement>;
+                images.forEach(img => {
+                    img.style.border = '2px solid transparent';
+                });
+                // اضافه کردن border به عکس انتخاب شده
+                target.style.border = '2px solid #D4AF37';
+            }
+        };
+
+        const editors = document.querySelectorAll('.ql-editor');
+        editors.forEach(editor => {
+            editor.addEventListener('click', handleImageClick);
+        });
+
+        return () => {
+            editors.forEach(editor => {
+                editor.removeEventListener('click', handleImageClick);
+            });
+        };
+    }, [activeTab, editingId]);
 
     async function saveArticle(isEdit = false) {
         if (!titleEn || !titleFa || !slug) {
@@ -323,7 +335,7 @@ export default function JournalManager() {
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         background: #ffffff;
-        max-height: 600px; /* ✅ ارتفاع ثابت برای wrapper */
+        height: 600px; /* ✅ ارتفاع ثابت */
         display: flex;
         flex-direction: column;
     }
@@ -337,7 +349,7 @@ export default function JournalManager() {
         top: 0;
         z-index: 10;
         border-radius: 12px 12px 0 0;
-        flex-shrink: 0; /* ✅ toolbar ثابت می‌ماند */
+        flex-shrink: 0;
     }
     
     .quill-editor-wrapper .ql-container {
@@ -346,12 +358,13 @@ export default function JournalManager() {
         background: #ffffff; 
         border: none !important;
         border-radius: 0 0 12px 12px;
-        overflow-y: auto !important; /* ✅ اسکرول داخلی */
-        max-height: calc(600px - 60px); /* ✅ ارتفاع container = ارتفاع wrapper - ارتفاع toolbar */
+        flex: 1; /* ✅ پر کردن فضای باقی‌مانده */
+        overflow: auto !important; /* ✅ اسکرول داخلی */
+        height: auto !important; /* ✅ ارتفاع خودکار */
     }
     
     .quill-editor-wrapper .ql-editor {
-        min-height: 500px;
+        min-height: 100%;
         padding: 32px;
         line-height: 1.8;
         color: #111827; 
@@ -383,11 +396,6 @@ export default function JournalManager() {
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    .quill-editor-wrapper .ql-editor img[data-selected="true"] {
-        border: 2px solid #D4AF37;
-        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
-    }
-    
     .quill-editor-wrapper .ql-editor img.img-small {
         max-width: 33%;
     }
@@ -413,17 +421,6 @@ export default function JournalManager() {
     .quill-editor-wrapper .ql-editor img.img-center {
         margin-left: auto;
         margin-right: auto;
-    }
-    
-    /* ✅ دکمه‌های سفارشی در toolbar */
-    .ql-snow .ql-picker.ql-image-size,
-    .ql-snow .ql-picker.ql-image-position {
-        width: 100px;
-    }
-    
-    .ql-snow .ql-picker-label[data-label]::before,
-    .ql-snow .ql-picker-item[data-label]::before {
-        content: attr(data-label);
     }
 `;
 
