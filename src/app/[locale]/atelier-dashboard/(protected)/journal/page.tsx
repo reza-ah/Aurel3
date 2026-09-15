@@ -144,60 +144,29 @@ export default function JournalManager() {
         return cleaned;
     }
 
-    // ✅ Handler سفارشی برای عکس - بدون نیاز به ref
-    const handleImageClick = () => {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
+    // ✅ Custom handlers برای کنترل عکس
+    const handleImageSize = (size: string) => {
+        const editorElement = document.querySelector('.quill-editor-large .ql-editor');
+        if (!editorElement) return;
 
-        input.onchange = async () => {
-            const file = input.files?.[0];
-            if (!file) return;
+        const selectedImg = editorElement.querySelector('img[data-selected="true"]');
+        if (selectedImg) {
+            selectedImg.classList.remove('img-small', 'img-medium', 'img-large');
+            selectedImg.classList.add(`img-${size}`);
+            selectedImg.removeAttribute('data-selected');
+        }
+    };
 
-            const formData = new FormData();
-            formData.append('file', file);
+    const handleImagePosition = (position: string) => {
+        const editorElement = document.querySelector('.quill-editor-large .ql-editor');
+        if (!editorElement) return;
 
-            const res = await fetch('/api/atelier-dashboard/files/upload', {
-                method: 'POST',
-                body: formData,
-            });
-
-            const json = await res.json();
-            const imageId = json?.data?._id;
-
-            if (imageId) {
-                const imageUrl = urlFor({ _type: 'image', asset: { _ref: imageId } }).url();
-
-                // پیدا کردن ادیتور فعال
-                const editorElement = document.querySelector('.quill-editor-large .ql-editor');
-                if (editorElement) {
-                    // درج عکس در موقعیت cursor
-                    const range = window.getSelection()?.getRangeAt(0);
-                    if (range) {
-                        const img = document.createElement('img');
-                        img.src = imageUrl;
-                        img.alt = titleEn || titleFa || 'Article image';
-
-                        // پرسیدن سایز و موقعیت
-                        const size = prompt('سایز عکس (small/medium/large):', 'large');
-                        const position = prompt('موقعیت عکس (left/center/right):', 'center');
-
-                        img.classList.add(`img-${size || 'large'}`, `img-${position || 'center'}`);
-
-                        range.insertNode(img);
-
-                        // به‌روزرسانی state
-                        const newContent = editorElement.innerHTML;
-                        if (activeTab === 'en') {
-                            setContentEn(newContent);
-                        } else {
-                            setContentFa(newContent);
-                        }
-                    }
-                }
-            }
-        };
+        const selectedImg = editorElement.querySelector('img[data-selected="true"]');
+        if (selectedImg) {
+            selectedImg.classList.remove('img-left', 'img-center', 'img-right');
+            selectedImg.classList.add(`img-${position}`);
+            selectedImg.removeAttribute('data-selected');
+        }
     };
 
     const quillModules = {
@@ -212,9 +181,17 @@ export default function JournalManager() {
                 [{ color: [] }, { background: [] }],
                 ["blockquote", "code-block"],
                 ["clean"],
+                // ✅ دکمه‌های سفارشی برای سایز و موقعیت عکس
+                [{ 'image-size': ['small', 'medium', 'large'] }],
+                [{ 'image-position': ['left', 'center', 'right'] }],
             ],
             handlers: {
-                image: handleImageClick,
+                'image-size': function (value: string) {
+                    if (value) handleImageSize(value);
+                },
+                'image-position': function (value: string) {
+                    if (value) handleImagePosition(value);
+                },
             },
         },
     };
@@ -235,6 +212,8 @@ export default function JournalManager() {
         "background",
         "blockquote",
         "code-block",
+        "image-size",
+        "image-position",
     ];
 
     async function saveArticle(isEdit = false) {
@@ -335,17 +314,21 @@ export default function JournalManager() {
         }
     }
 
+    // ✅ استایل‌های جدید برای sticky toolbar و اسکرول داخلی
     const quillStyles = `
-    .quill-editor-large {
+    .quill-editor-wrapper {
         position: relative;
         border: 1px solid #d1d5db;
         border-radius: 12px;
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         background: #ffffff;
+        max-height: 600px; /* ✅ ارتفاع ثابت برای wrapper */
+        display: flex;
+        flex-direction: column;
     }
     
-    .quill-editor-large .ql-toolbar {
+    .quill-editor-wrapper .ql-toolbar {
         border: none !important;
         border-bottom: 1px solid #e5e7eb !important;
         background: #f9fafb; 
@@ -354,35 +337,38 @@ export default function JournalManager() {
         top: 0;
         z-index: 10;
         border-radius: 12px 12px 0 0;
+        flex-shrink: 0; /* ✅ toolbar ثابت می‌ماند */
     }
     
-    .quill-editor-large .ql-container {
-        min-height: 500px !important;
+    .quill-editor-wrapper .ql-container {
         font-size: 17px;
         font-family: inherit;
         background: #ffffff; 
         border: none !important;
         border-radius: 0 0 12px 12px;
+        overflow-y: auto !important; /* ✅ اسکرول داخلی */
+        max-height: calc(600px - 60px); /* ✅ ارتفاع container = ارتفاع wrapper - ارتفاع toolbar */
     }
     
-    .quill-editor-large .ql-editor {
-        min-height: 500px !important;
+    .quill-editor-wrapper .ql-editor {
+        min-height: 500px;
         padding: 32px;
         line-height: 1.8;
         color: #111827; 
     }
     
-    .quill-editor-large[dir="rtl"] .ql-editor {
+    .quill-editor-wrapper[dir="rtl"] .ql-editor {
         direction: rtl;
         text-align: right;
     }
     
-    .quill-editor-large .ql-editor.ql-blank::before {
+    .quill-editor-wrapper .ql-editor.ql-blank::before {
         color: #9ca3af;
         font-style: italic;
     }
     
-    .quill-editor-large .ql-editor img {
+    /* ✅ استایل عکس‌ها */
+    .quill-editor-wrapper .ql-editor img {
         max-width: 100%;
         height: auto;
         display: block;
@@ -390,37 +376,54 @@ export default function JournalManager() {
         border-radius: 8px;
         cursor: pointer;
         transition: all 0.2s;
+        border: 2px solid transparent;
     }
     
-    .quill-editor-large .ql-editor img:hover {
+    .quill-editor-wrapper .ql-editor img:hover {
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     
-    .quill-editor-large .ql-editor img.img-small {
+    .quill-editor-wrapper .ql-editor img[data-selected="true"] {
+        border: 2px solid #D4AF37;
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.3);
+    }
+    
+    .quill-editor-wrapper .ql-editor img.img-small {
         max-width: 33%;
     }
     
-    .quill-editor-large .ql-editor img.img-medium {
+    .quill-editor-wrapper .ql-editor img.img-medium {
         max-width: 66%;
     }
     
-    .quill-editor-large .ql-editor img.img-large {
+    .quill-editor-wrapper .ql-editor img.img-large {
         max-width: 100%;
     }
     
-    .quill-editor-large .ql-editor img.img-left {
+    .quill-editor-wrapper .ql-editor img.img-left {
         margin-left: 0;
         margin-right: auto;
     }
     
-    .quill-editor-large .ql-editor img.img-right {
+    .quill-editor-wrapper .ql-editor img.img-right {
         margin-right: 0;
         margin-left: auto;
     }
     
-    .quill-editor-large .ql-editor img.img-center {
+    .quill-editor-wrapper .ql-editor img.img-center {
         margin-left: auto;
         margin-right: auto;
+    }
+    
+    /* ✅ دکمه‌های سفارشی در toolbar */
+    .ql-snow .ql-picker.ql-image-size,
+    .ql-snow .ql-picker.ql-image-position {
+        width: 100px;
+    }
+    
+    .ql-snow .ql-picker-label[data-label]::before,
+    .ql-snow .ql-picker-item[data-label]::before {
+        content: attr(data-label);
     }
 `;
 
@@ -569,7 +572,7 @@ export default function JournalManager() {
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (EN) — Visual Editor
                                     </label>
-                                    <div className="quill-editor-large" dir="ltr">
+                                    <div className="quill-editor-wrapper" dir="ltr">
                                         <ReactQuill
                                             key={`en-${editingId || 'new'}`}
                                             theme="snow"
@@ -581,7 +584,7 @@ export default function JournalManager() {
                                         />
                                     </div>
                                     <p className="mt-2 text-xs text-[#a3a3a3]">
-                                        Use the toolbar above to format your text, add images, links, lists, etc.
+                                        روی عکس کلیک کنید تا انتخاب شود، سپس از منوی سایز و موقعیت در toolbar استفاده کنید.
                                     </p>
                                 </div>
                             )}
@@ -591,7 +594,7 @@ export default function JournalManager() {
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (FA) — Visual Editor
                                     </label>
-                                    <div className="quill-editor-large" dir="rtl">
+                                    <div className="quill-editor-wrapper" dir="rtl">
                                         <ReactQuill
                                             key={`fa-${editingId || 'new'}`}
                                             theme="snow"
@@ -603,7 +606,7 @@ export default function JournalManager() {
                                         />
                                     </div>
                                     <p className="mt-2 text-xs text-[#a3a3a3]">
-                                        از نوار ابزار بالا برای فرمت‌دهی متن، اضافه کردن تصویر، لینک، لیست و... استفاده کنید.
+                                        💡 روی عکس کلیک کنید تا انتخاب شود، سپس از منوی سایز و موقعیت در نوار ابزار استفاده کنید.
                                     </p>
                                 </div>
                             )}
