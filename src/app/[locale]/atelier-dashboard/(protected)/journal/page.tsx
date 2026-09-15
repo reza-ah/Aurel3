@@ -4,30 +4,42 @@ import { useEffect, useState } from "react";
 import { urlFor } from "@/lib/sanity";
 import dynamic from "next/dynamic";
 
-// ✅ استفاده از react-quill-new بدون ماژول‌های قدیمی و ناسازگار
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
-// ✅ تابع sanitizer مشترک (هم برای Preview و هم برای صفحه عمومی)
+// ✅ sanitizeContent - حذف کامل &nbsp; و تگ‌های ناخواسته
 function sanitizeContent(html: string, title: string): string {
     if (!html) return "";
-    return html
+
+    let sanitized = html
+        // حذف تگ‌های خطرناک و غیرضروری
         .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
         .replace(/<meta[^>]*>/gi, "")
         .replace(/<\/?(html|head|body)[^>]*>/gi, "")
+        // تبدیل h1 به h2
         .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/gi, "<h2$1>$2</h2>")
-        // ✅ حذف رنگ‌های تیره (مشکی) که روی پس‌زمینه تیره نامرئی‌اند
+        // ✅ حذف کامل &nbsp; و جایگزینی با فاصله معمولی
+        .replace(/&nbsp;/gi, " ")
+        .replace(/\u00a0/g, " ") // Unicode &nbsp;
+        // حذف رنگ‌های تیره
         .replace(/color\s*:\s*(?:#000(?:000)?|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|black)\s*;?/gi, "")
+        // اضافه کردن alt به تصاویر
         .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => {
             return `<img alt="${title}"${attrs}>`;
         })
-        .replace(/alt=""/g, `alt="${title}"`);
+        .replace(/alt=""/g, `alt="${title}"`)
+        // حذف تگ‌های توخالی اضافی
+        .replace(/<[^>]+>\s*<\/[^>]+>/g, "")
+        // نرمال‌سازی فاصله‌های چندگانه
+        .replace(/\s{2,}/g, " ")
+        .trim();
+
+    return sanitized;
 }
 
-// ✅ پردازش heading ها (اضافه کردن id)
 function processHeadings(html: string): string {
     if (!html) return "";
-    const headings = [...html.matchAll(/<(h2|h3)[^>]*>(.*?)<\/\1>/gi)];
+    const headings = [...html.matchAll(/<(h[2-6])[^>]*>(.*?)<\/\1>/gi)];
     let processed = html;
 
     headings.forEach((match, index) => {
@@ -47,10 +59,10 @@ function processHeadings(html: string): string {
     return processed;
 }
 
-// ✅ Drop cap برای اولین پاراگراف
 function applyDropCap(html: string): string {
     if (!html) return "";
     return html.replace(/<p>(.*?)<\/p>/i, (match: string, text: string) => {
+        if (text.includes('<span class="drop-cap">')) return match; // Already has drop-cap
         const firstChar = text.charAt(0);
         const rest = text.slice(1);
         return `<p><span class="drop-cap">${firstChar}</span>${rest}</p>`;
@@ -76,8 +88,6 @@ export default function JournalManager() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [activeTab, setActiveTab] = useState<"en" | "fa">("en");
-
-    // ✅ اضافه شد: state برای Preview
     const [showPreview, setShowPreview] = useState(false);
 
     useEffect(() => {
@@ -134,6 +144,19 @@ export default function JournalManager() {
         setShowPreview(false);
     }
 
+    // ✅ تابع کمکی برای تمیز کردن محتوا - اعمال چندباره sanitize
+    function cleanContent(rawContent: string, title: string): string {
+        // اعمال چندباره برای اطمینان از حذف همه چیز
+        let cleaned = sanitizeContent(rawContent, title);
+        cleaned = processHeadings(cleaned);
+        cleaned = applyDropCap(cleaned);
+
+        // ✅ یک بار دیگر sanitize برای اطمینان کامل
+        cleaned = sanitizeContent(cleaned, title);
+
+        return cleaned;
+    }
+
     async function saveArticle(isEdit = false) {
         if (!titleEn || !titleFa || !slug) {
             setError("Title EN, Title FA and Slug are required");
@@ -151,9 +174,15 @@ export default function JournalManager() {
             ? `/api/atelier-dashboard/journal?id=${editingId}`
             : "/api/atelier-dashboard/journal";
 
-        // ✅ اصلاح حیاتی: اعمال sanitize و processHeadings روی محتوای خام قبل از ارسال به دیتابیس
-        const finalContentEn = applyDropCap(processHeadings(sanitizeContent(contentEn, titleEn)));
-        const finalContentFa = applyDropCap(processHeadings(sanitizeContent(contentFa, titleFa)));
+        // ✅ اعمال قطعی sanitize قبل از ارسال
+        const finalContentEn = cleanContent(contentEn, titleEn);
+        const finalContentFa = cleanContent(contentFa, titleFa);
+
+        console.log("🔍 Debug - Content before send:", {
+            enLength: finalContentEn.length,
+            faLength: finalContentFa.length,
+            hasNbsp: finalContentFa.includes("&nbsp;") || finalContentFa.includes("\u00a0")
+        });
 
         const res = await fetch(url, {
             method: isEdit ? "PUT" : "POST",
@@ -164,8 +193,8 @@ export default function JournalManager() {
                 slug,
                 excerpt_en: excerptEn,
                 excerpt_fa: excerptFa,
-                content_en: finalContentEn, // استفاده از محتوای تمیز شده
-                content_fa: finalContentFa, // استفاده از محتوای تمیز شده
+                content_en: finalContentEn,
+                content_fa: finalContentFa,
                 cover_image: coverId ? { _type: "image", asset: { _ref: coverId } } : null,
                 status: "published",
             }),
@@ -227,7 +256,6 @@ export default function JournalManager() {
         }
     }
 
-    // ✅ تنظیمات ماژول‌ها (بدون ماژول معیوب image-resize)
     const quillModules = {
         toolbar: [
             [{ header: [1, 2, 3, 4, false] }],
@@ -260,7 +288,6 @@ export default function JournalManager() {
         "code-block",
     ];
 
-    // ✅ استایل‌های سفارشی برای Quill Editor (ارتفاع بیشتر + Sticky Toolbar + پس‌زمینه سفید)
     const quillStyles = `
     .quill-editor-large {
         position: relative;
@@ -270,17 +297,15 @@ export default function JournalManager() {
         margin-bottom: 2rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-    /* Sticky Toolbar: هنگام اسکرول محو نمی‌شود */
     .quill-editor-large .ql-toolbar {
         border: none !important;
         border-bottom: 1px solid #e5e7eb !important;
         background: #f9fafb; 
         padding: 12px 8px;
         position: sticky;
-        top: 0; /* چسبیدن به بالای صفحه/کانتینر */
+        top: 0;
         z-index: 10;
     }
-    /* پس‌زمینه سفید برای ادیتور */
     .quill-editor-large .ql-container {
         min-height: 500px !important;
         font-size: 17px;
@@ -288,18 +313,21 @@ export default function JournalManager() {
         background: #ffffff; 
         border: none !important;
     }
-    /* متن مشکی/تیره برای خوانایی بالا */
     .quill-editor-large .ql-editor {
         min-height: 500px !important;
         padding: 32px;
         line-height: 1.8;
         color: #111827; 
     }
+    /* ✅ تنظیم جهت متن برای فارسی */
+    .quill-editor-large[dir="rtl"] .ql-editor {
+        direction: rtl;
+        text-align: right;
+    }
     .quill-editor-large .ql-editor.ql-blank::before {
         color: #9ca3af;
         font-style: italic;
     }
-    /* استایل تصاویر برای کنترل بهتر */
     .quill-editor-large .ql-editor img {
         max-width: 100%;
         height: auto;
@@ -311,7 +339,6 @@ export default function JournalManager() {
 
     return (
         <main className="min-h-screen bg-black text-white pt-32 pb-20">
-            {/* ✅ استایل‌های سفارشی */}
             <style>{quillStyles}</style>
 
             <div className="pointer-events-none fixed inset-0">
@@ -477,12 +504,13 @@ export default function JournalManager() {
                                 </div>
                             )}
 
-                            {/* Persian Content */}
+                            {/* Persian Content - با جهت RTL */}
                             {activeTab === "fa" && (
                                 <div dir="rtl">
                                     <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
                                         Content (FA) — Visual Editor
                                     </label>
+                                    {/* ✅ اضافه کردن dir="rtl" به container */}
                                     <div className="quill-editor-large rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden" dir="rtl">
                                         <ReactQuill
                                             key={`fa-${editingId || 'new'}`}
@@ -643,18 +671,15 @@ export default function JournalManager() {
                 </div>
             </div>
 
-            {/* ✅ Preview Modal */}
+            {/* Preview Modal */}
             {showPreview && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    {/* Backdrop */}
                     <div
                         className="absolute inset-0 bg-black/90 backdrop-blur-sm"
                         onClick={() => setShowPreview(false)}
                     />
 
-                    {/* Modal Content */}
                     <div className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-[#070707] shadow-2xl">
-                        {/* Modal Header */}
                         <div className="sticky top-0 z-20 flex items-center justify-between border-b border-white/10 bg-[#070707]/95 px-8 py-4 backdrop-blur-sm">
                             <div className="flex items-center gap-3">
                                 <span className="h-2 w-2 rounded-full bg-[#D4AF37] animate-pulse" />
@@ -672,9 +697,7 @@ export default function JournalManager() {
                             </button>
                         </div>
 
-                        {/* Preview Content */}
                         <div className="p-8 md:p-12">
-                            {/* Category Badge */}
                             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#D4AF37]/30 bg-[#D4AF37]/5 px-4 py-1.5">
                                 <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
                                 <span className="text-xs uppercase tracking-[0.2em] text-[#D4AF37]">
@@ -682,14 +705,12 @@ export default function JournalManager() {
                                 </span>
                             </div>
 
-                            {/* Title */}
                             <h1 className="text-3xl font-light leading-tight tracking-tight sm:text-4xl md:text-5xl">
                                 <span className="bg-gradient-to-r from-white via-white to-[#D4AF37] bg-clip-text text-transparent">
                                     {titleEn || titleFa || "Article Title"}
                                 </span>
                             </h1>
 
-                            {/* Meta Info */}
                             <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-white/10 pt-6">
                                 <div className="flex items-center gap-3">
                                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#D4AF37] to-[#8B7332]">
@@ -722,7 +743,6 @@ export default function JournalManager() {
                                 </div>
                             </div>
 
-                            {/* Cover Image */}
                             {coverPreview && (
                                 <div className="relative mt-8 aspect-video overflow-hidden rounded-2xl border border-white/10">
                                     <img
@@ -734,14 +754,12 @@ export default function JournalManager() {
                                 </div>
                             )}
 
-                            {/* Excerpt */}
                             {(activeTab === "en" ? excerptEn : excerptFa) && (
                                 <p className="mt-8 text-lg leading-relaxed text-[#e5e5e5] border-l-2 border-[#D4AF37]/40 pl-6">
                                     {activeTab === "en" ? excerptEn : excerptFa}
                                 </p>
                             )}
 
-                            {/* Content */}
                             <div
                                 className={`preview-prose mt-12 ${activeTab === "fa" ? "text-right" : "text-left"}`}
                                 dir={activeTab === "fa" ? "rtl" : "ltr"}
@@ -759,7 +777,6 @@ export default function JournalManager() {
                                 }}
                             />
 
-                            {/* Footer Info */}
                             <div className="mt-16 rounded-2xl border border-[#D4AF37]/20 bg-gradient-to-br from-[#D4AF37]/5 to-transparent p-8 text-center">
                                 <p className="text-xs uppercase tracking-[0.3em] text-[#D4AF37]">
                                     Preview Mode
