@@ -3,17 +3,10 @@
 import { useEffect, useState } from "react";
 import { urlFor } from "@/lib/sanity";
 import dynamic from "next/dynamic";
-import Quill from "quill"; // ✅ اضافه شده برای ثبت ماژول
-import { ImageResize } from "quill-image-resize-module-react"; // ✅ اضافه شده
 
-// ✅ استفاده از react-quill-new
+// ✅ استفاده از react-quill-new بدون ماژول‌های قدیمی و ناسازگار
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
-
-// ✅ ثبت ماژول تغییر سایز تصویر فقط در سمت کلاینت (جلوگیری از خطای Next.js)
-if (typeof window !== "undefined") {
-    Quill.register("modules/imageResize", ImageResize);
-}
 
 // ✅ تابع sanitizer مشترک (هم برای Preview و هم برای صفحه عمومی)
 function sanitizeContent(html: string, title: string): string {
@@ -234,6 +227,7 @@ export default function JournalManager() {
         }
     }
 
+    // ✅ تنظیمات ماژول‌ها (بدون ماژول معیوب image-resize)
     const quillModules = {
         toolbar: [
             [{ header: [1, 2, 3, 4, false] }],
@@ -246,10 +240,6 @@ export default function JournalManager() {
             ["blockquote", "code-block"],
             ["clean"],
         ],
-        // ✅ اضافه کردن ماژول تغییر سایز و تراز تصویر
-        imageResize: {
-            modules: ["Resize", "DisplaySize", "Toolbar"],
-        },
     };
 
     const quillFormats = [
