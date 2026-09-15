@@ -295,6 +295,9 @@ export default function JournalManager() {
     // ==========================================
     // استایل‌های CSS اختصاصی TipTap
     // ==========================================
+    // ==========================================
+    // استایل‌های CSS اختصاصی TipTap (اصلاح‌شده برای اسکرول)
+    // ==========================================
     const editorStyles = `
         .tiptap-wrapper {
             display: flex;
@@ -340,15 +343,25 @@ export default function JournalManager() {
             background: #d1d5db;
             margin: 4px 8px;
         }
+        
+        /* ✅ بخش اصلی اصلاح اسکرول */
         .tiptap-editor {
             flex: 1;
             overflow-y: auto;
+            overscroll-behavior-y: contain; /* ✅ جلوگیری از اسکرول شدن صفحه اصلی */
             padding: 32px;
             outline: none;
             font-size: 17px;
             line-height: 1.8;
             color: #111827;
         }
+        
+        /* اطمینان از اینکه محتوای داخلی همیشه فضای اسکرول را پر می‌کند */
+        .tiptap-editor .ProseMirror {
+            min-height: 100%;
+            outline: none;
+        }
+
         .tiptap-editor[dir="rtl"] {
             direction: rtl;
             text-align: right;
@@ -390,7 +403,6 @@ export default function JournalManager() {
             padding-left: 8px;
         }
     `;
-
     // کامپوننت کمکی برای دکمه‌های تول‌بار
     const ToolbarButton = ({ onClick, isActive, children, title }: any) => (
         <button
