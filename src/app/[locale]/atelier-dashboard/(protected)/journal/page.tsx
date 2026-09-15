@@ -25,20 +25,29 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { CharacterCount } from "@tiptap/extension-character-count";
 
 // ==========================================
-// توابع پردازش و پاک‌سازی محتوا
+// توابع پردازش محتوا - ساده‌شده
 // ==========================================
 function sanitizeContent(html: string, title: string): string {
     if (!html) return "";
     let sanitized = html
+        // حذف تگ‌های خطرناک
         .replace(/<title[^>]*>[\s\S]*?<\/title>/gi, "")
         .replace(/<meta[^>]*>/gi, "")
         .replace(/<\/?(html|head|body)[^>]*>/gi, "")
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+        .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, "")
+        // حذف &nbsp; و کاراکترهای خاص
         .replace(/&nbsp;/gi, " ")
         .replace(/\u00a0/g, " ")
+        // حذف رنگ‌های تیره (مشکی)
         .replace(/color\s*:\s*(?:#000(?:000)?|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\)|black)\s*;?/gi, "")
+        // اضافه کردن alt به تصاویر
         .replace(/<img(?![^>]*\balt=)([^>]*?)>/gi, (match, attrs) => `<img alt="${title}"${attrs}>`)
         .replace(/alt=""/g, `alt="${title}"`)
+        // حذف تگ‌های خالی
         .replace(/<[^>]+>\s*<\/[^>]+>/g, "")
+        // حذف فاصله‌های اضافی
         .replace(/\s{2,}/g, " ")
         .trim();
     return sanitized;
@@ -60,20 +69,13 @@ function processHeadings(html: string): string {
     return processed;
 }
 
-function applyDropCap(html: string): string {
-    if (!html) return "";
-    return html.replace(/<p>(.*?)<\/p>/i, (match: string, text: string) => {
-        if (text.includes('<span class="drop-cap">')) return match;
-        const firstChar = text.charAt(0);
-        return `<p><span class="drop-cap">${firstChar}</span>${text.slice(1)}</p>`;
-    });
-}
+// ✅ applyDropCap حذف شد - به جای آن از CSS در صفحه نمایش استفاده می‌کنیم
 
 function cleanContent(rawContent: string, title: string): string {
     let cleaned = sanitizeContent(rawContent, title);
     cleaned = processHeadings(cleaned);
-    cleaned = applyDropCap(cleaned);
-    return sanitizeContent(cleaned, title);
+    // ✅ applyDropCap حذف شد
+    return cleaned;
 }
 
 // ==========================================
@@ -148,14 +150,11 @@ export default function JournalManager() {
         setCurrentHeading("Normal");
     }
 
-    // ==========================================
-    // تنظیمات TipTap Editor - کامل
-    // ==========================================
     const editor = useEditor({
         extensions: [
             StarterKit.configure({
                 heading: { levels: [1, 2, 3, 4] },
-                horizontalRule: false, // استفاده از extension جداگانه
+                horizontalRule: false,
             }),
             ResizeImage.configure({
                 inline: false,
@@ -549,20 +548,6 @@ export default function JournalManager() {
         .tiptap-editor .task-list-item label {
             margin-right: 8px;
         }
-        .drop-cap::first-letter {
-            float: left;
-            font-size: 3.5em;
-            line-height: 0.8;
-            padding-right: 8px;
-            padding-top: 4px;
-            color: #D4AF37;
-            font-weight: bold;
-        }
-        .tiptap-editor[dir="rtl"] .drop-cap::first-letter {
-            float: right;
-            padding-right: 0;
-            padding-left: 8px;
-        }
     `;
 
     const ToolbarButton = ({ onClick, isActive, children, title }: any) => (
@@ -635,14 +620,11 @@ export default function JournalManager() {
                                 <label className="mb-2 block text-xs uppercase tracking-[0.2em] text-[#D4AF37]">Content ({activeTab === "en" ? "EN" : "FA"}) — Visual Editor</label>
 
                                 <div className="tiptap-wrapper">
-                                    {/* نوار ابزار کامل */}
                                     <div className="tiptap-toolbar">
-                                        {/* Undo/Redo */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().undo().run()} title="Undo">↶</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().redo().run()} title="Redo">↷</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Headings */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().setParagraph().run()} isActive={editor?.isActive('paragraph')} title="Normal">P</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()} isActive={editor?.isActive('heading', { level: 1 })} title="H1">H1</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()} isActive={editor?.isActive('heading', { level: 2 })} title="H2">H2</ToolbarButton>
@@ -650,7 +632,6 @@ export default function JournalManager() {
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleHeading({ level: 4 }).run()} isActive={editor?.isActive('heading', { level: 4 })} title="H4">H4</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Text Formatting */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleBold().run()} isActive={editor?.isActive('bold')} title="Bold"><b>B</b></ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleItalic().run()} isActive={editor?.isActive('italic')} title="Italic"><i>I</i></ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleUnderline().run()} isActive={editor?.isActive('underline')} title="Underline"><u>U</u></ToolbarButton>
@@ -660,7 +641,6 @@ export default function JournalManager() {
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleSuperscript().run()} isActive={editor?.isActive('superscript')} title="Superscript">X²</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Color & Font */}
                                         <input
                                             type="color"
                                             onInput={(e: any) => editor?.chain().focus().setColor(e.target.value).run()}
@@ -682,25 +662,21 @@ export default function JournalManager() {
                                         </select>
                                         <div className="divider" />
 
-                                        {/* Lists */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleBulletList().run()} isActive={editor?.isActive('bulletList')} title="Bullet List">• List</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleOrderedList().run()} isActive={editor?.isActive('orderedList')} title="Ordered List">1. List</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleTaskList().run()} isActive={editor?.isActive('taskList')} title="Task List">☑ Task</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Alignment */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('left').run()} isActive={editor?.isActive({ textAlign: 'left' })} title="Align Left">Left</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('center').run()} isActive={editor?.isActive({ textAlign: 'center' })} title="Align Center">Center</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().setTextAlign('right').run()} isActive={editor?.isActive({ textAlign: 'right' })} title="Align Right">Right</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Blocks */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleBlockquote().run()} isActive={editor?.isActive('blockquote')} title="Quote">❝ Quote</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().toggleCodeBlock().run()} isActive={editor?.isActive('codeBlock')} title="Code Block">{ } Code</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().setHorizontalRule().run()} title="Horizontal Rule">— HR</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Table */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Insert Table"> Table</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().addColumnBefore().run()} title="Add Column Before">+Col←</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().addColumnAfter().run()} title="Add Column After">+Col→</ToolbarButton>
@@ -709,20 +685,17 @@ export default function JournalManager() {
                                         <ToolbarButton onClick={() => editor?.chain().focus().deleteTable().run()} title="Delete Table">✖ Table</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Media & Links */}
                                         <ToolbarButton onClick={() => fileInputRef.current?.click()} title="Upload Image"> Image</ToolbarButton>
                                         <ToolbarButton onClick={() => {
                                             const url = window.prompt('Enter URL:');
                                             if (url) editor?.chain().focus().setLink({ href: url }).run();
-                                        }} isActive={editor?.isActive('link')} title="Add Link">🔗 Link</ToolbarButton>
+                                        }} isActive={editor?.isActive('link')} title="Add Link"> Link</ToolbarButton>
                                         <ToolbarButton onClick={() => editor?.chain().focus().unsetLink().run()} title="Remove Link">✖ Link</ToolbarButton>
                                         <div className="divider" />
 
-                                        {/* Clear */}
                                         <ToolbarButton onClick={() => editor?.chain().focus().unsetAllMarks().clearNodes().run()} title="Clear Formatting">✖ Clear</ToolbarButton>
                                     </div>
 
-                                    {/* نوار وضعیت */}
                                     <div className="tiptap-status-bar">
                                         <span>Current: <span className="status-badge">{currentHeading}</span></span>
                                         <span className="text-xs text-gray-400">Characters: {charCount} / 50,000</span>
@@ -735,7 +708,7 @@ export default function JournalManager() {
                                     </div>
                                 </div>
                                 <p className="mt-2 text-xs text-[#a3a3a3]">
-                                    💡 ادیتور کامل با تمام امکانات: Headings, Bold, Italic, Underline, Highlight, Sub/Superscript, Colors, Fonts, Lists, Tasks, Tables, Quotes, Code, Images, Links, Alignment و...
+                                    💡 ادیتور کامل با تمام امکانات استاندارد
                                 </p>
                             </div>
                         </div>
@@ -817,7 +790,7 @@ export default function JournalManager() {
                                 __html: (() => {
                                     const rawContent = activeTab === "en" ? contentEn : contentFa;
                                     if (!rawContent) return "<p style='color:#a3a3a3; text-align:center; padding:3rem 0;'>No content yet.</p>";
-                                    return applyDropCap(processHeadings(sanitizeContent(rawContent, activeTab === "en" ? titleEn : titleFa)));
+                                    return processHeadings(sanitizeContent(rawContent, activeTab === "en" ? titleEn : titleFa));
                                 })()
                             }} />
                         </div>
