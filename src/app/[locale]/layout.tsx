@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Montserrat, Vazirmatn } from "next/font/google";
 import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 import SiteHeader from "@/components/site-header";
@@ -184,6 +185,13 @@ export default async function LocaleLayout({
                         <SiteFooter locale={locale} />
                     </SmoothScrollProvider>
                 </div>
+
+                <Script id="metricool-tracker" strategy="afterInteractive">
+                    {`
+                        function loadScript(a){var b=document.getElementsByTagName("head")[0],c=document.createElement("script");c.type="text/javascript",c.src="https://tracker.metricool.com/resources/be.js",c.onreadystatechange=a,c.onload=a,b.appendChild(c)}
+                        loadScript(function(){beTracker.t({hash:"ec28015dd7eee5ffcebfb6fae889cef0"})});
+                    `}
+                </Script>
             </body>
         </html>
     );
