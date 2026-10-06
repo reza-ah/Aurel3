@@ -212,7 +212,7 @@ export default function AboutBrand({ locale }: Props) {
                                 </Link> */
 
                                 {/* کارت ۲ — هم‌صنف */}
-                                {/* <Link
+                                * <Link
                                     href={`/${locale}/contact`}
                                     className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-white/12 bg-white/[0.02] p-3.5 transition-all duration-500 hover:-translate-y-0.5 hover:border-[#D4AF37]/40 hover:shadow-[0_14px_40px_-16px_rgba(212,175,55,0.25)] sm:gap-4 sm:p-4 ${isFa ? "sm:pr-5" : "sm:pl-5"}`}
                                 >
@@ -243,7 +243,7 @@ export default function AboutBrand({ locale }: Props) {
                                             <FaArrowRight className="text-[10px] transition-transform duration-300 group-hover:translate-x-0.5 sm:text-xs" />
                                         )}
                                     </span>
-                                </Link> */}
+                                </Link> */
                             </div>
                         </div>
                     </Reveal>
