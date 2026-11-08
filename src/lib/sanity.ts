@@ -198,13 +198,13 @@ export async function getPortfolioBySlug(slug: string) {
 export async function getJournalPosts(limit?: number) {
     const limitQuery = limit ? `[0...${limit}]` : '';
     return freshClient.fetch(
-        `*[_type == "journal" && status == "published"] | order(date_created desc) ${limitQuery} { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`
+        `*[_type == "journal" && status == "published"] | order(date_created desc) ${limitQuery} { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created, _updatedAt }`
     );
 }
 
 export async function getJournalPost(slug: string) {
     const data = await freshClient.fetch(
-        `*[_type == "journal" && slug.current == $slug][0] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created }`,
+        `*[_type == "journal" && slug.current == $slug][0] { _id, slug, title_en, title_fa, excerpt_en, excerpt_fa, content_en, content_fa, cover_image, date_created, _updatedAt }`,
         { slug }
     );
     return data ?? null;

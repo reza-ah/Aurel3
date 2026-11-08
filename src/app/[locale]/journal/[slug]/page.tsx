@@ -19,6 +19,13 @@ const BASE_URL = "https://www.aureldesign.ir";
 const toFaNumber = (n: number) =>
     n.toString().replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
 
+const hasText = (value?: string | null) =>
+    typeof value === "string" && value.replace(/<[^>]+>/g, "").trim().length > 0;
+
+// جلوگیری از شکستن تگ <script> در JSON-LD وقتی محتوا از CMS می‌آید
+const jsonLd = (data: unknown) =>
+    JSON.stringify(data).replace(/</g, "\\u003c");
+
 const escapeRegex = (str: string) =>
     str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -38,18 +45,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         : (post.excerpt_en || post.excerpt_fa || "");
 
     const image = getOptimizedImage(post.cover_image, { width: 1200, quality: 80, format: "webp" });
-    const currentUrl = `${BASE_URL}/${locale}/journal/${slug}`;
+
+    // هر نسخه‌ی زبانی فقط وقتی index می‌شود که محتوای واقعی همان زبان را داشته باشد.
+    // در غیر این صورت صفحه با fallback زبان دیگر ساخته می‌شود (duplicate content).
+    const hasFa = hasText(post.content_fa) && hasText(post.title_fa);
+    const hasEn = hasText(post.content_en) && hasText(post.title_en);
+    const hasOwnContent = isFa ? hasFa : hasEn;
+
+    const urlFor = (l: "fa" | "en") => `${BASE_URL}/${l}/journal/${slug}`;
+    const currentUrl = urlFor(locale);
+    const otherLocale = isFa ? "en" : "fa";
+    const otherHasContent = isFa ? hasEn : hasFa;
+
+    const languages: Record<string, string> = {};
+    if (hasFa) languages.fa = urlFor("fa");
+    if (hasEn) languages.en = urlFor("en");
+    if (hasFa || hasEn) languages["x-default"] = hasEn ? urlFor("en") : urlFor("fa");
+
+    // canonical همیشه به خود نسخه اشاره می‌کند؛ فقط اگر محتوای اختصاصی ندارد
+    // به نسخه‌ی کامل زبان دیگر اشاره می‌کند و noindex می‌شود.
+    const canonical = hasOwnContent || !otherHasContent ? currentUrl : urlFor(otherLocale);
 
     return {
         title,
         description,
+        ...(hasOwnContent ? {} : { robots: { index: false, follow: true } }),
         alternates: {
-            canonical: currentUrl,
-            languages: {
-                fa: `${BASE_URL}/fa/journal/${slug}`,
-                en: `${BASE_URL}/en/journal/${slug}`,
-                "x-default": `${BASE_URL}/en/journal/${slug}`,
-            },
+            canonical,
+            languages,
         },
         openGraph: {
             title,
@@ -207,7 +230,7 @@ export default async function JournalArticlePage({ params }: Props) {
             },
         },
         "datePublished": post.date_created,
-        "dateModified": post.date_created,
+        "dateModified": post._updatedAt || post.date_created,
         "inLanguage": isFa ? "fa" : "en",
         "wordCount": words,
         "timeRequired": `PT${readingTime}M`,
@@ -251,12 +274,12 @@ export default async function JournalArticlePage({ params }: Props) {
         <main className="min-h-screen bg-black text-white overflow-x-hidden">
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+                dangerouslySetInnerHTML={{ __html: jsonLd(structuredData) }}
             />
 
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+                dangerouslySetInnerHTML={{ __html: jsonLd(breadcrumbSchema) }}
             />
 
             {/* ✅ استایل‌های سفارشی */}
@@ -357,6 +380,33 @@ export default async function JournalArticlePage({ params }: Props) {
                 nav ul li a {
                     overflow-wrap: anywhere;
                     max-width: 100%;
+                }
+
+                .journal-prose table {
+                    display: block;
+                    width: 100%;
+                    overflow-x: auto;
+                    border-collapse: collapse;
+                    margin: 2rem 0;
+                    font-size: 0.95rem;
+                    text-align: center;
+                }
+
+                .journal-prose th,
+                .journal-prose td {
+                    border: 1px solid rgba(212, 175, 55, 0.2);
+                    padding: 0.6rem 0.9rem;
+                    color: #e5e5e5;
+                }
+
+                .journal-prose th {
+                    background: rgba(212, 175, 55, 0.08);
+                    color: #FFE8A3;
+                    font-weight: 500;
+                }
+
+                .journal-prose tbody tr:nth-child(even) {
+                    background: rgba(255, 255, 255, 0.02);
                 }
 
                 .journal-prose img {

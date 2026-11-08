@@ -59,23 +59,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     try {
         const journalPosts = await client.fetch(
-            `*[_type == "journal" && status == "published"] { _id, slug, date_created }`
+            `*[_type == "journal" && status == "published"] {
+                _id, slug, date_created, _updatedAt,
+                "hasFa": defined(content_fa) && length(content_fa) > 0 && defined(title_fa) && length(title_fa) > 0,
+                "hasEn": defined(content_en) && length(content_en) > 0 && defined(title_en) && length(title_en) > 0
+            }`
         );
 
-        journalPages = journalPosts.flatMap((item: any) => [
-            {
-                url: `${baseUrl}/en/journal/${item.slug?.current || item._id}`,
-                lastModified: safeDate(item.date_created),
-                changeFrequency: "yearly" as const,
-                priority: 0.5,
-            },
-            {
-                url: `${baseUrl}/fa/journal/${item.slug?.current || item._id}`,
-                lastModified: safeDate(item.date_created),
-                changeFrequency: "yearly" as const,
-                priority: 0.5,
-            },
-        ]);
+        journalPages = journalPosts.flatMap((item: any) => {
+            const slug = item.slug?.current || item._id;
+            const faUrl = `${baseUrl}/fa/journal/${slug}`;
+            const enUrl = `${baseUrl}/en/journal/${slug}`;
+            const lastModified = safeDate(item._updatedAt || item.date_created);
+
+            const languages: Record<string, string> = {};
+            if (item.hasFa) languages.fa = faUrl;
+            if (item.hasEn) languages.en = enUrl;
+            if (item.hasFa || item.hasEn) languages["x-default"] = item.hasEn ? enUrl : faUrl;
+
+            // فقط نسخه‌هایی که محتوای واقعی دارند وارد sitemap می‌شوند
+            const entries: MetadataRoute.Sitemap = [];
+            if (item.hasEn) {
+                entries.push({ url: enUrl, lastModified, changeFrequency: "yearly" as const, priority: 0.5, alternates: { languages } });
+            }
+            if (item.hasFa) {
+                entries.push({ url: faUrl, lastModified, changeFrequency: "yearly" as const, priority: 0.5, alternates: { languages } });
+            }
+            return entries;
+        });
     } catch (error) {
         console.warn('⚠️ Could not fetch journal posts for sitemap:', error);
     }
