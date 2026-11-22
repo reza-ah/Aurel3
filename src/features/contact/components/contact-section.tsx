@@ -33,8 +33,8 @@ export function ContactSection({ locale }: Props) {
                     <p className="mb-2 text-sm text-[#C6A86A]">
                         {isFa ? "ایمیل" : "Email"}
                     </p>
-                    <a href="mailto:info@aurelstudio.com" className="ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37]">
-                        info@aurelstudio.com
+                    <a href="mailto:info@aureldesign.ir" className="ttext-[#f5f5f5] transition-colors duration-300 hover:text-[#D4AF37]">
+                        info@aureldesign.ir
                     </a>
                 </div>
 
