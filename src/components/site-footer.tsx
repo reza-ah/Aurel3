@@ -341,7 +341,7 @@ export default function SiteFooter({ locale }: Props) {
                                 </p>
 
                                 <a
-                                    href="mailto:info@aurelstudio.com"
+                                    href="mailto:info@aureldesign.ir"
                                     className="text-[#e5e5e5] transition-colors duration-300 hover:text-[#D4AF37]"
                                 >
                                     info@aureldesign.ir

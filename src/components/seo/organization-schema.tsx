@@ -24,7 +24,7 @@ export default function LocalBusinessSchema() {
             "@type": "ContactPoint",
             "telephone": "+98-912-298-7123",
             "contactType": "customer service",
-            "email": "info@aurelstudio.com",
+            "email": "info@aureldesign.ir",
             "availableLanguage": ["English", "Persian"]
         },
         "sameAs": [
